@@ -1,0 +1,14 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "line-bot": {
+      "weblog": {
+        ".read": true
+      }
+    },
+    "date" : {
+      ".write": true
+    }
+  }
+}

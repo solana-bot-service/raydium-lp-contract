@@ -1,0 +1,50 @@
+{
+  "isRegexp": false,
+  "isEnum": false,
+  "allowFuzzyExtraction": true,
+  "name": "genders",
+  "automatedExpansion": false,
+  "entries": [
+    {
+      "value": "ชาย",
+      "synonyms": [
+        "ชาย",
+        "male",
+        "ช",
+        "ครับ",
+        "คับ",
+        "ค้าบ",
+        "ค๊าบ",
+        "ครับพ้ม"
+      ]
+    },
+    {
+      "value": "หญิง",
+      "synonyms": [
+        "หญิง",
+        "female",
+        "ญ",
+        "ค่ะ",
+        "คะ",
+        "ค๊าาาาา",
+        "จ้าาาาา",
+        "ค๊า",
+        "จ้า"
+      ]
+    },
+    {
+      "value": "ไม่ระบุ",
+      "synonyms": [
+        "ไม่ระบุ",
+        "rather not to say",
+        "not specified",
+        "ฮะ",
+        "เกย์",
+        "ชายกึ่งหญิง",
+        "ไม่บอก"
+      ]
+    }
+  ],
+  "id": "afa096e8-0427-47d0-9560-d22eac4b1892",
+  "isOverridable": false
+}

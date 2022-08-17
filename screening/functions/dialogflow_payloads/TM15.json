@@ -1,0 +1,632 @@
+[
+    {
+        "line": {
+          "type": "text",
+          "text": "ข้อแรก พี่รู้สึกพึงพอใจในชีวิตเพียงใดคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "ตอนนี้พี่รู้สึกสบายใจเพียงใดคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "พี่รู้สึกเบื่อหน่ายท้อแท้กับการดำเนินชีวิตประจำวันบ้างไหมคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "พี่รู้สึกผิดหวังในตัวเองบ้างไหม",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "พี่รู้สึกว่าชีวิตของพี่มีแต่ความทุกข์หรือเปล่าคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "พี่รู้สึกว่าชีวิตของพี่มีแต่ความทุกข์หรือเปล่าคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "พี่สามารถทำใจยอมรับได้สำหรับปัญหาที่ยากจะแก้ไขเมื่อมีปัญหาไม่ไหมคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "พี่มั่นใจว่าจะสามารถควบคุมอารมณ์ได้เมื่อมีเหตุการณ์คับขันหรือร้ายแรงเกิดขึ้นไหมคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "อย่างไรก็ตาม พี่ก็มั่นใจที่จะเผชิญกับเหตุการณ์ร้ายแรงที่เกิดขึ้นในชีวิตใช่ไหมคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "เมื่อเห็นผู้อื่นมีทุกข์ พี่รู้สึกเห็นอกเห็นใจเขาไหมคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "เมื่อพี่ได้ช่วยเหลือผู้อื่นที่มีปัญหา พี่รู้สึกเป็นสุขไหมคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "พี่ให้ความช่วยเหลือแก่ผู้อื่นเมื่อมีโอกาสเสมอไหทคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "พี่รู้สึกภูมิใจในตนเองไหมคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "พี่รู้สึกมั่นคง ปลอดภัย เมื่ออยู่ในครอบครัวมากเพียงใดคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "line": {
+          "type": "text",
+          "text": "พี่รู้สึกมั่นคง ปลอดภัย เมื่ออยู่ในครอบครัวมากเพียงใดคะ",
+          "quickReply": {
+            "items": [
+              {
+                "action": {
+                  "type": "message",
+                  "text": "1",
+                  "label": "ไม่เลย"
+                },
+                "type": "action"
+              },
+              {
+                "type": "action",
+                "action": {
+                  "text": "2",
+                  "label": "เล็กน้อย",
+                  "type": "message"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มาก",
+                  "type": "message",
+                  "text": "3"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "label": "มากที่สุด",
+                  "text": "4",
+                  "type": "message"
+                }
+              }
+            ]
+          }
+        }
+      }
+]

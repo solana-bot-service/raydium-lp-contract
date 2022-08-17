@@ -1,0 +1,368 @@
+{
+  "id": "51e39527-6d04-43b1-b631-1e9bd9bd531b",
+  "name": "k_register - custom",
+  "auto": true,
+  "condition": "",
+  "conditionalFollowupEvents": [],
+  "conditionalResponses": [],
+  "context": [
+    "a_register-followup"
+  ],
+  "contexts": [
+    "a_register-followup"
+  ],
+  "endInteraction": false,
+  "events": [],
+  "fallbackIntent": false,
+  "liveAgentHandoff": false,
+  "parentId": "4d0880c9-de19-4c4e-867b-d50bdaf57fd7",
+  "followUpIntents": [],
+  "priority": 500000,
+  "responses": [
+    {
+      "action": "a_register.a_register-custom",
+      "affectedContexts": [],
+      "parameters": [
+        {
+          "noInputPromptMessages": [],
+          "noMatchPromptMessages": [],
+          "promptMessages": [],
+          "defaultValue": "",
+          "name": "rank",
+          "dataType": "@ranks",
+          "isList": false,
+          "required": true,
+          "prompts": [
+            "ช่วยบอกยศหน่อยค่ะ",
+            "ยศอะไรคะ"
+          ],
+          "value": "$rank",
+          "outputDialogContexts": []
+        },
+        {
+          "noInputPromptMessages": [],
+          "noMatchPromptMessages": [],
+          "promptMessages": [],
+          "defaultValue": "",
+          "name": "person",
+          "dataType": "@sys.person",
+          "isList": false,
+          "required": true,
+          "prompts": [
+            "ช่วยบอกชื่อและนามสกุลด้วยค่ะ",
+            "ป้อนชื่อและนามสกุลให้หน่อยค่ะ"
+          ],
+          "value": "$person",
+          "outputDialogContexts": []
+        },
+        {
+          "noInputPromptMessages": [],
+          "noMatchPromptMessages": [],
+          "promptMessages": [],
+          "defaultValue": "",
+          "name": "age",
+          "dataType": "@sys.age",
+          "isList": false,
+          "required": true,
+          "prompts": [
+            "ขออนุญาตสอบถามอายุท่านเท่าไหร่ค่ะ"
+          ],
+          "value": "$age",
+          "outputDialogContexts": []
+        },
+        {
+          "noInputPromptMessages": [],
+          "noMatchPromptMessages": [],
+          "promptMessages": [],
+          "defaultValue": "",
+          "name": "gender",
+          "dataType": "@genders",
+          "isList": false,
+          "required": true,
+          "prompts": [
+            "ชายหรือหญิงคะ"
+          ],
+          "value": "$gender",
+          "outputDialogContexts": []
+        },
+        {
+          "noInputPromptMessages": [],
+          "noMatchPromptMessages": [],
+          "promptMessages": [],
+          "defaultValue": "",
+          "name": "rtafunit",
+          "dataType": "@rtaf-units",
+          "isList": false,
+          "required": true,
+          "prompts": [
+            "ท่านสังกัดหน่วยงานใดคะ",
+            "ท่านเรียนอยู่ที่ใดคะ"
+          ],
+          "value": "$rtafunit",
+          "outputDialogContexts": []
+        }
+      ],
+      "defaultResponsePlatforms": {},
+      "messages": [
+        {
+          "type": "message",
+          "condition": "",
+          "speech": [
+            "ท่านคือ $rank$person อายุ $age.original เพศ$gender สังกัด $rtafunit บันทึกข้อมูลเรียบร้อยค่ะ"
+          ]
+        }
+      ],
+      "resetContexts": false
+    }
+  ],
+  "rootParentId": "4d0880c9-de19-4c4e-867b-d50bdaf57fd7",
+  "templates": [],
+  "userSays": [
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "นพอ",
+          "userDefined": false,
+          "alias": "rank",
+          "meta": "@ranks"
+        }
+      ],
+      "count": 0,
+      "id": "85676658-ff02-4e06-b282-138803d6dc83",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "นจอ.",
+          "userDefined": false,
+          "alias": "rank",
+          "meta": "@ranks"
+        }
+      ],
+      "count": 0,
+      "id": "c0c9ca0b-e8b0-488f-b854-74ac59d3742d",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "นนอ.",
+          "userDefined": false,
+          "alias": "rank",
+          "meta": "@ranks"
+        }
+      ],
+      "count": 0,
+      "id": "96c6bca1-9d49-475e-bb8c-9e309eb27ba1",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "น.อ.",
+          "userDefined": false,
+          "alias": "rank",
+          "meta": "@ranks"
+        },
+        {
+          "text": "เฉลิมพล ปรีดารัตน์",
+          "userDefined": false,
+          "alias": "person",
+          "meta": "@sys.person"
+        }
+      ],
+      "count": 0,
+      "id": "d3bd588d-7343-49dc-bf3e-71ff3481b4b4",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "ร.อ.",
+          "userDefined": false,
+          "alias": "rank",
+          "meta": "@ranks"
+        },
+        {
+          "text": " ",
+          "userDefined": false
+        },
+        {
+          "text": "ครับ",
+          "userDefined": false,
+          "alias": "gender",
+          "meta": "@genders"
+        }
+      ],
+      "count": 0,
+      "id": "e741544a-aee2-4662-a150-73e3b1553bd4",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "ญ ค่ะ",
+          "userDefined": false,
+          "alias": "gender",
+          "meta": "@genders"
+        }
+      ],
+      "count": 0,
+      "id": "d96a220d-8060-43be-8679-77aae1663270",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "เพศ",
+          "userDefined": false
+        },
+        {
+          "text": "หญิงค่ะ",
+          "userDefined": false,
+          "alias": "gender",
+          "meta": "@genders"
+        }
+      ],
+      "count": 0,
+      "id": "426ce267-4a2d-4f19-9e3c-867efe4df104",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "สังกัด ",
+          "userDefined": false
+        },
+        {
+          "text": "รร.นนก.",
+          "userDefined": false,
+          "alias": "rtafunit",
+          "meta": "@rtaf-units"
+        },
+        {
+          "text": " ",
+          "userDefined": false
+        },
+        {
+          "text": "ค่ะ",
+          "userDefined": false,
+          "alias": "gender",
+          "meta": "@genders"
+        }
+      ],
+      "count": 0,
+      "id": "3191110e-5a84-4c9d-ab1a-902d88e9accc",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "อายุ ",
+          "userDefined": false
+        },
+        {
+          "text": "43 ปี",
+          "userDefined": false,
+          "alias": "age",
+          "meta": "@sys.age"
+        },
+        {
+          "text": " ",
+          "userDefined": false
+        },
+        {
+          "text": "ครับ",
+          "userDefined": false,
+          "alias": "gender",
+          "meta": "@genders"
+        }
+      ],
+      "count": 0,
+      "id": "2a23d4ef-0758-44a4-be40-55a299e2155c",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "น.ต.",
+          "userDefined": false,
+          "alias": "rank",
+          "meta": "@ranks"
+        },
+        {
+          "text": "ดุลยวิท",
+          "userDefined": false,
+          "alias": "person",
+          "meta": "@sys.person"
+        },
+        {
+          "text": " ",
+          "userDefined": false
+        },
+        {
+          "text": "ครับ",
+          "userDefined": false,
+          "alias": "gender",
+          "meta": "@genders"
+        }
+      ],
+      "count": 0,
+      "id": "f2d5cea4-39f0-4a5e-9824-ae645279ffdc",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "น.อ.",
+          "userDefined": false,
+          "alias": "rank",
+          "meta": "@ranks"
+        },
+        {
+          "text": "ปัญญารักษ์  โกศัลวัฒน์",
+          "userDefined": false,
+          "alias": "person",
+          "meta": "@sys.person"
+        },
+        {
+          "text": " อายุ  ",
+          "userDefined": false
+        },
+        {
+          "text": "49 ปี",
+          "userDefined": false,
+          "alias": "age",
+          "meta": "@sys.age"
+        },
+        {
+          "text": " ",
+          "userDefined": false
+        },
+        {
+          "text": "ครับ",
+          "userDefined": false,
+          "alias": "gender",
+          "meta": "@genders"
+        }
+      ],
+      "count": 0,
+      "id": "40f7dc74-9406-4a59-a61a-5cfaaf62fc6c",
+      "updated": null
+    }
+  ],
+  "webhookForSlotFilling": true,
+  "webhookUsed": true
+}
