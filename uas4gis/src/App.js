@@ -2,6 +2,9 @@ import logo from './logo.svg';
 import './App.css';
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
+import * as turf from '@turf/turf'
 import { PulsingDot } from './mapComponents/pulseingDot';
 import { InfoBar } from './mapLayouts/InfoBar/InfoBar';
 import { LayersTOC } from './mapLayouts/LayersTOC/LayersTOC';
@@ -14,6 +17,7 @@ function App() {
 
   const mapContainer = useRef(null);
   const map = useRef(null);
+  const draw = useRef(null);
 
   const start = [101.1803, 14.6515];
   const [_zoom, _bearing, _pitch] = [15, -108, 76]
@@ -22,6 +26,11 @@ function App() {
   const [zoom, setZoom] = useState(_zoom); //15
   const [bearing, setBearing] = useState(_bearing); //-108
   const [pitch, setPitch] = useState(_pitch); //76
+
+  const mapIds = {
+    'nkrafa-ortho-layer' : 'ภาพถ่ายออร์โธ รร.นนก.มวกเหล็ก',
+    'nkrafa-dem-layer' : 'ชั้นความสูง DEM'
+  }
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
@@ -34,8 +43,26 @@ function App() {
       bearing: bearing,
       zoom: zoom,
     });
+
     map.current.addControl(new mapboxgl.FullscreenControl());
     map.current.addControl(new mapboxgl.NavigationControl());
+
+    if (!draw.current) draw.current = new MapboxDraw({
+      displayControlsDefault: false,
+      // Select which mapbox-gl-draw control buttons to add to the map.
+      controls: {
+        // line_string: true,
+        // combine_features: true,
+        // uncombine_features: true,        
+      polygon: true,
+      trash: true
+      },
+      // Set mapbox-gl-draw to draw by default.
+      // The user does not have to click the polygon control button first.
+      // defaultMode: 'draw_polygon'
+      });
+    map.current.addControl(draw.current);
+    
 
   });
 
@@ -57,6 +84,7 @@ function App() {
           map.current.setStyle('mapbox://styles/mapbox/' + layerId);
         };
       }
+      
       // map.current.addSource('dot-point', {
       //   'type': 'geojson',
       //   'data': {
@@ -131,49 +159,11 @@ function App() {
        event.checked ? map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 }) : map.current.setTerrain();
     }
 
-    const visibleLayers = ['provinces']
+    const visibleLayers = ['nkrafa-ortho-layer']//['provinces']
 
     var loadSource = () => {
       if (map.current.isStyleLoaded()) {
 
-        // const pulsingDot = PulsingDot(map.current, size);
-
-        // map.current.addImage('pulsing-dot', pulsingDot, {
-        //   pixelRatio: 2
-        // });
-
-        map.current.addSource('mapbox-dem', {
-          'type': 'raster-dem',
-          'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-          'tileSize': 512,
-          'maxzoom': 14
-        });
-        // add the DEM source as a terrain layer with exaggerated height
-        map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
-
-        //Province
-        map.current.addSource('provinces_source', {
-          type: 'geojson',
-          // Use a URL for the value for the `data` property.
-          data: 'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson'
-        });
-
-        // Add a province layer to visualize the polygon.
-        map.current.addLayer({
-            'id': 'provinces',
-            'type': 'fill',
-            'source': 'provinces_source', // reference the data source
-            'layout': {},
-            'paint': {
-              'fill-color': '#0080ff', // blue color fill
-              'fill-opacity': 0.1
-            }
-          });
-        if (!visibleLayers.includes('provinces')) map.current.setLayoutProperty(
-          'provinces',
-          'visibility',
-          'none'
-        );
 
         // When a click event occurs on a feature in the states layer,
         // open a popup at the location of the click, with description
@@ -196,71 +186,160 @@ function App() {
           map.current.on('mouseleave', 'provinces', () => {
           map.current.getCanvas().style.cursor = '';
           });
+        
 
-
-        //Amphoe
-        map.current.addSource('amphoes', {
-          type: 'geojson',
-          // Use a URL for the value for the `data` property.
-          data: 'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AAmphoe&outputFormat=application%2Fjson'
+        if (!map.current.getSource('mapbox-dem')) map.current.addSource('mapbox-dem', {
+          'type': 'raster-dem',
+          'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+          'tileSize': 512,
+          'maxzoom': 14
         });
+        // add the DEM source as a terrain layer with exaggerated height
+        map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
 
-        // Add amphoes layer to visualize the polygon.
-        map.current.addLayer({
-            'id': 'amphoes',
-            'type': 'line',
-            'source': 'amphoes', // reference the data source
-            'layout': {},
-            'paint': {
-              'line-color': '#800',
-              'line-width': 2
-            }
-        });
-        if (!visibleLayers.includes('amphoes')) map.current.setLayoutProperty(
-          'amphoes',
-          'visibility',
-          'none'
-        );
+        //Province
+        // if (!map.current.getSource('provinces_source')) map.current.addSource('provinces_source', {
+        //   type: 'geojson',
+        //   // Use a URL for the value for the `data` property.
+        //   data: 'http://localhost:8080/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson'//'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson'
+        // });
 
-        //Tambol
-        map.current.addSource('tambols', {
-          type: 'geojson',
-          // Use a URL for the value for the `data` property.
-          data: 'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3ATambon&outputFormat=application%2Fjson'
-        });
 
-        // Add tambols layer to visualize the polygon.
-        map.current.addLayer({
-            'id': 'tambols',
-            'type': 'line',
-            'source': 'tambols', // reference the data source
-            'layout': {},
-            'paint': {
-              'line-color': '#080',
-              'line-width': 1
-            }
-          });
-          if (!visibleLayers.includes('tambols')) map.current.setLayoutProperty(
-            'tambols',
-            'visibility',
-            'none'
+        // MARK:- DEM
+
+        if (!map.current.getSource('nkrafa-dem')) map.current.addSource('nkrafa-dem', {
+          "type": "raster-dem",
+          "url": "mapbox://chaloemphol.aqjbpzug",
+          "tileSize": 256
+      });
+
+        if (!map.current.getLayer('nkrafa-dem-layer')) map.current.addLayer(
+          {
+          'id': 'nkrafa-dem-layer',
+          'type': 'hillshade',
+          'source': 'nkrafa-dem',
+          'paint': {}
+          }
+          );
+        // MARK:- RASTER
+
+        if (!map.current.getSource('nkrafa-ortho-src')) map.current.addSource('nkrafa-ortho-src', {
+          "type": "raster",
+          "url": "mapbox://chaloemphol.8ts25qif",
+          "tileSize": 256
+      });
+
+        if (!map.current.getLayer('nkrafa-ortho-layer')) map.current.addLayer(
+          {
+          'id': 'nkrafa-ortho-layer',
+          'type': 'raster',
+          'source': 'nkrafa-ortho-src',
+          'paint': {}
+          }
           );
 
-        // Add a black outline around the polygon.
-        map.current.addLayer({
-          'id': 'provinces_outline',
-          'type': 'line',
-          'source': 'provinces_source',
-          'layout': {},
-          'paint': {
-            'line-color': '#000',
-            'line-width': 1
-          }
-        });
+        // if (!map.current.getSource('nkrafa-ortho-src')) map.current.addSource('nkrafa-ortho-src', {
+        //   'type': 'raster',
+        //   // use the tiles option to specify a WMS tile source URL
+        //   // https://docs.mapbox.com/mapbox-gl-js/style-spec/sources/
+        //   'tiles': [
+        //     'http://localhost:8080/geoserver/uas4gis/wms?bbox={bbox-epsg-4326}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:4326&transparent=true&width=512&height=512&layers=uas4gis%3AMapPlan_Orthomosaic_export_ThuAug25215405728558_mask'
+        //   ],//http://localhost:8080/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis%3AMapPlan_Orthomosaic_export_ThuAug25215405728558_mask&bbox=101.18050176466429%2C14.645264282309714%2C101.19264152666247%2C14.660350813379504&width=617&height=768&srs=EPSG%3A4326&styles=&format=application/openlayers#toggle
+        //   'tileSize': 512
+        //   });
+
+        // if (!map.current.getLayer('nkrafa-ortho-layer')) map.current.addLayer(
+        //   {
+        //   'id': 'nkrafa-ortho-layer',
+        //   'type': 'raster',
+        //   'source': 'nkrafa-ortho-src',
+        //   'paint': {}
+        //   }
+        //   );
+
+          
+
+        // Add a province layer to visualize the polygon.
+        // if (!map.current.getLayer('provinces')) map.current.addLayer({
+        //     'id': 'provinces',
+        //     'type': 'fill',
+        //     'source': 'provinces_source', // reference the data source
+        //     'layout': {},
+        //     'paint': {
+        //       'fill-color': '#0080ff', // blue color fill
+        //       'fill-opacity': 0.1
+        //     }
+        //   });
+        // if (!visibleLayers.includes('provinces')) map.current.setLayoutProperty(
+        //   'provinces',
+        //   'visibility',
+        //   'none'
+        // );
+
+
+        // //Amphoe
+        // if (!map.current.getSource('amphoes')) map.current.addSource('amphoes', {
+        //   type: 'geojson',
+        //   // Use a URL for the value for the `data` property.
+        //   data: 'http://localhost:8080/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AAmphoe&outputFormat=application%2Fjson'// 'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AAmphoe&outputFormat=application%2Fjson'
+        // });
+
+        // // Add amphoes layer to visualize the polygon.
+        // if (!map.current.getLayer('amphoes')) map.current.addLayer({
+        //     'id': 'amphoes',
+        //     'type': 'line',
+        //     'source': 'amphoes', // reference the data source
+        //     'layout': {},
+        //     'paint': {
+        //       'line-color': '#800',
+        //       'line-width': 2
+        //     }
+        // });
+        // if (!visibleLayers.includes('amphoes')) map.current.setLayoutProperty(
+        //   'amphoes',
+        //   'visibility',
+        //   'none'
+        // );
+
+        // //Tambol
+        // if (!map.current.getSource('tambols')) map.current.addSource('tambols', {
+        //   type: 'geojson',
+        //   // Use a URL for the value for the `data` property.
+        //   data: 'http://localhost:8080/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3ATambon&outputFormat=application%2Fjson'
+        // });
+
+        // // Add tambols layer to visualize the polygon.
+        // if (!map.current.getLayer('tambols')) map.current.addLayer({
+        //     'id': 'tambols',
+        //     'type': 'line',
+        //     'source': 'tambols', // reference the data source
+        //     'layout': {},
+        //     'paint': {
+        //       'line-color': '#080',
+        //       'line-width': 1
+        //     }
+        //   });
+        //   if (!visibleLayers.includes('tambols')) map.current.setLayoutProperty(
+        //     'tambols',
+        //     'visibility',
+        //     'none'
+        //   );
+
+        // // Add a black outline around the polygon.
+        // if (!map.current.getLayer('provinces_outline')) map.current.addLayer({
+        //   'id': 'provinces_outline',
+        //   'type': 'line',
+        //   'source': 'provinces_source',
+        //   'layout': {},
+        //   'paint': {
+        //     'line-color': '#000',
+        //     'line-width': 1
+        //   }
+        // });
 
         // add a sky layer that will show when the map is highly pitched
 
-        map.current.addLayer({
+        if (!map.current.getLayer('sky')) map.current.addLayer({
           'id': 'sky',
           'type': 'sky',
           'paint': {
@@ -296,12 +375,14 @@ function App() {
         }
 
         // If these two layers were not added to the map, abort
-        if (!map.current.getLayer('provinces') || !map.current.getLayer('amphoes') || !map.current.getLayer('tambols') || !map.current.getLayer('sky')) {
+        if (!map.current.getLayer('nkrafa-ortho-layer') || !map.current.getLayer('nkrafa-dem-layer')) {
+        // if (!map.current.getLayer('provinces') || !map.current.getLayer('amphoes') || !map.current.getLayer('tambols') || !map.current.getLayer('sky') || !map.current.getLayer('nkrafa-ortho-layer')) {
           return;
         }
 
         // Enumerate ids of the layers.
-        const toggleableLayerIds = ['provinces', 'amphoes', 'tambols', 'sky']; //'contours', 'museums',
+        const toggleableLayerIds = ['nkrafa-ortho-layer', 'nkrafa-dem-layer']; //'contours', 'museums',
+        //['provinces', 'amphoes', 'tambols', 'sky', 'nkrafa-ortho-layer']; //'contours', 'museums',
 
         // Set up the corresponding toggle button for each layer.
         for (const id of toggleableLayerIds) {
@@ -315,12 +396,12 @@ function App() {
 
           link.id = id;
           link.href = '#';
-          link.textContent = id;
+          link.textContent = mapIds[id] || id;
           link.className = visibleLayers.includes(id) ? 'active' : '';
 
           // Show or hide layer when the toggle is clicked.
           link.onclick = function (e) {
-            const clickedLayer = this.textContent;
+            const clickedLayer = this.id;
             e.preventDefault();
             e.stopPropagation();
 
@@ -359,6 +440,27 @@ function App() {
       setBearing(map.current.getBearing().toFixed(2));
       setPitch(map.current.getPitch().toFixed(2));
     });
+
+    //draw tools
+    map.current.on('draw.create', updateArea);
+    map.current.on('draw.delete', updateArea);
+    map.current.on('draw.update', updateArea);
+ 
+function updateArea(e) {
+    const data = draw.current.getAll();
+    const answer = document.getElementById('calculated-area');
+    if (data.features.length > 0) {
+    const area = turf.area(data);
+    // Restrict the area to 2 decimal points.
+    const rounded_area = Math.round(area * 100) / 100;
+    answer.innerHTML = `<p><strong>${rounded_area}</strong></p><p>square meters</p>`;
+    } else {
+    answer.innerHTML = '';
+    if (e.type !== 'draw.delete')
+    alert('Click the map to draw a polygon.');
+    }
+}
+
 
 
     // let isAtStart = true;
@@ -430,9 +532,13 @@ function App() {
       <BaseMaps />
       <LayersTOC />
       <InfoBar {...props} />
+      <div className="calculation-box">
+        <p>วัดขนาดพื้นที่โดยคลิกบนแผนที่</p>
+        <div id="calculated-area" />
+      </div>
 
       <button id="titleblock">ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี</button>
-
+      
     </div>
   );
 }
