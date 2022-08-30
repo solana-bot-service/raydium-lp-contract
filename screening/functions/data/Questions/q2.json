@@ -57,7 +57,11 @@
         "items": [
             "ไม่ใช่", "ใช่"
         ],
-        "commonpharse": "ใช่หรือไม่คะ"
+        "commonpharse": "ใช่หรือไม่",
+        "thaisuffix" : [
+            "ครับ",
+            "คะ"
+        ]
     },
     "prerequisite" : "q1",
     "nextq" : "q3"

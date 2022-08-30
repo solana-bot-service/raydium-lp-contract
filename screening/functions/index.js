@@ -1,7 +1,8 @@
 const functions = require("firebase-functions");
 const {WebhookClient} = require('dialogflow-fulfillment');
 const dialogflow = require('@google-cloud/dialogflow');
-
+const { v4: uuidv4 } = require('uuid');
+const random_name = require('node-random-name')
 // Instantiates a intent client
 const { IntentsClient } = require('@google-cloud/dialogflow');
 
@@ -126,6 +127,53 @@ app.post('/upsertProfile', (req, res) => {
     })
 })
 
+app.get('/generatedemodata/:count', (req, res) => {
+
+    let count = req.params.count
+
+    let tests = ["q2", "q3"]
+    let qlengths = [12, 10]
+    let a = [[0, 1], [5, 4, 3, 2, 1]]
+    let userIds = Array(parseInt(count) || 100).fill(uuidv4())
+    let units = Object.values(single_rank_units)
+    let users = userIds.map(id => {
+        let unit = units[parseInt(Math.random() * (units.length - 1))]
+        let gender = unit.gender || Math.random() > 0.5 ? "ชาย" : "หญิง"
+        return {
+            id,
+            name: random_name({gender: gender ? 'male' : 'female'}),
+            gender,
+            age: 14 + parseInt((28 - 14) * Math.random()),
+            unit : unit.name
+        }
+    })
+    let testResults = userIds.map(id => {
+        return {
+            [id] : tests.reduce((p, q, index) => {
+                return {
+                    ...p,
+                    [q] : {
+                          [Date.now()] : Array(qlengths[index]).fill().reduce((p, _, i) => {
+                            let val = parseInt(Math.round(Math.random() * (a[index].length - 1))) 
+                            return {
+                                ...p,
+                                [i] : val,
+                                total : p.total + val
+                              }
+                          }, { total: 0 })                                              
+                    }
+                }
+            }, {})
+        }
+    })
+    res.send({
+        data: {
+            users,
+            testResults
+        }
+    })
+    
+})
 
 async function handleEvent(event) {
     // if (event.type !== 'message' || event.message.type !== 'text') {

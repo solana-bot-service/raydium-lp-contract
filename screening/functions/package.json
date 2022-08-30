@@ -22,7 +22,9 @@
     "firebase-functions": "^3.22.0",
     "line-notify-nodejs": "^1.0.1",
     "luxon": "^3.0.1",
-    "os": "^0.1.2"
+    "node-random-name": "^1.0.1",
+    "os": "^0.1.2",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "firebase-functions-test": "^0.2.0"

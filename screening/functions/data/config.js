@@ -85,6 +85,10 @@ const single_rank_units = {
   rtafnc: {
     name: 'วิทยาลัยพยาบาลทหารอากาศ',
     rank: 'นพอ.'
+  },
+  rtafband: {
+    name :  'โรงเรียนดุริยางค์ทหารอากาศ',
+    rank : 'นดอ.'
   }
 }
 
