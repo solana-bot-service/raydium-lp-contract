@@ -1,5 +1,3 @@
-const { resolve } = require('path');
-
 class Questionary {
     constructor(name) {
         this.name = name
