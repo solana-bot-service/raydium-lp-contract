@@ -127,52 +127,100 @@ app.post('/upsertProfile', (req, res) => {
     })
 })
 
-app.get('/generatedemodata/:count', (req, res) => {
+
+app.post('/getStat', async (req, res) => {
+
+    console.log('received stat req from ui');
+
+    ROOT_REF.child('testResults').once('value', snapshot => {
+        if (snapshot.exists()) {     
+            let testresults = snapshot.val()               
+            res.send({
+                data: {
+                    total: 300,
+                    units: Object.entries(single_rank_units).map(([abbr, unit]) => {
+                        return {
+                            abbr,
+                            ...unit,
+                            count: Object.entries(testresults).length
+                        }
+                    })
+                }
+            })
+        }
+    })
+    // res.send({
+    //     data: Object.entries(single_rank_units).map(([abbr, unit]) => {
+    //         return {
+    //             abbr,
+    //             ...unit,
+    //             count: 100
+    //         }
+    //     })
+    // })
+})
+
+
+app.get('/generatedemodata/:count', async  (req, res) => {
 
     let count = req.params.count
 
     let tests = ["q2", "q3"]
     let qlengths = [12, 10]
     let a = [[0, 1], [5, 4, 3, 2, 1]]
-    let userIds = Array(parseInt(count) || 100).fill(uuidv4())
+    let userIds = Array(parseInt(count) || 100).fill()
     let units = Object.values(single_rank_units)
-    let users = userIds.map(id => {
+    let users = userIds.map(_ => {
         let unit = units[parseInt(Math.random() * (units.length - 1))]
         let gender = unit.gender || Math.random() > 0.5 ? "ชาย" : "หญิง"
         return {
-            id,
+            userId: uuidv4(),
             name: random_name({gender: gender ? 'male' : 'female'}),
             gender,
             age: 14 + parseInt((28 - 14) * Math.random()),
-            unit : unit.name
+            unit : unit.name,
+            avggrade: (1.01 + parseFloat((4.00 - 1.01) * Math.random())).toFixed(2)
         }
     })
-    let testResults = userIds.map(id => {
+    let testResults = users.map(user => {
         return {
-            [id] : tests.reduce((p, q, index) => {
+            [user.userId] : tests.reduce((p, q, index) => {
                 return {
                     ...p,
                     [q] : {
                           [Date.now()] : Array(qlengths[index]).fill().reduce((p, _, i) => {
-                            let val = parseInt(Math.round(Math.random() * (a[index].length - 1))) 
+                            let val = parseInt(Math.round(Math.random() * (a[index].length - 1)))
                             return {
                                 ...p,
                                 [i] : val,
                                 total : p.total + val
                               }
-                          }, { total: 0 })                                              
+                          }, { total: 0 })
                     }
                 }
             }, {})
         }
     })
-    res.send({
+    // ROOT_REF.child('users').set({ ...users})
+    // ROOT_REF.child('testResults').set({ ...testResults})
+    
+    let promise = await Promise.all([
+        users.forEach(user => {
+            ROOT_REF.child('users').child(user.userId).set(user)
+        }),
+        testResults.forEach((test) => {
+            console.log(test);
+            let [key, value] = Object.entries(test)[0]
+            ROOT_REF.child('testResults').child(key).set(value)
+        })
+    ])
+    if (promise) res.send({
         data: {
             users,
             testResults
         }
     })
-    
+
 })
 
 async function handleEvent(event) {
@@ -282,14 +330,14 @@ async function handleEvent(event) {
             info.currentId = nextQ.id
             return client.replyMessage(replyToken, [scrPayload.question(nextQ), scrPayload.choices(info, data)]);
         }
-        saveAnswer(questions, data)            
+        saveAnswer(questions, data)
 
     }
 
     /**
-     * 
-     * @param {Questions} questions 
-     * @param {URLSearchParams} data 
+     *
+     * @param {Questions} questions
+     * @param {URLSearchParams} data
      */
     function saveAnswer(questions, data) {
         let { id, name, answer } = questions
@@ -299,7 +347,7 @@ async function handleEvent(event) {
             total: p.total + Number(data.get(c.id))
         }), { total: 0,  id, name, answer })
         let date = Date.now()
-        
+
         let { userId, ...others} = profile
         ROOT_REF.child(FB_PATH.weblog).child(FB_PATH.testResult).child(date).set({
             ...others,
@@ -334,7 +382,7 @@ async function handleEvent(event) {
         ROOT_REF.child(FB_PATH.users).child(profile.userId).update({
             ...profile,
             lastLoggedin: Date.now()
-        }),        
+        }),
         ...['follow', 'unfollow', 'login', 'weblogin'].map(node => {
             if (profile[node]){
                 ROOT_REF.child(FB_PATH.activities).child(profile.userId).child(node).update({

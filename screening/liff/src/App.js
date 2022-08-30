@@ -28,6 +28,8 @@ import Home from './Home/Home';
 import { DateTime, Settings } from "luxon";
 import { Menu, MenuItem, Paper } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import { STD } from './Components/UserLog/Graph/std';
+import { DashBoard } from './Dashboard';
 const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -261,7 +263,9 @@ export default function App() {
       <Main open={open}>
         <DrawerHeader />
         <Routes>      
-          <Route exact path="/" element={<Home setPass={setPass} />}/>  
+        <Route exact path="/" element={<Home setPass={setPass} />}/>  
+        <Route exact path="/stat" element={<STD />}/>  
+        <Route exact path="/dashboard" element={<DashBoard />}/>  
         </Routes>
 
       </Main>

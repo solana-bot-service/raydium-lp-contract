@@ -29,6 +29,7 @@ if (window.location.hostname.includes('localhost')) {
 }
 const questions = httpsCallable(functions, 'api/questions', );
 const upsertProfile = httpsCallable(functions, 'api/upsertProfile', );
+const getStat = httpsCallable(functions, 'api/getStat', );
 // const monitorUserActivites = httpsCallable(functions, 'api/monitorUserActivites', );
 
   class DataService {
@@ -48,6 +49,21 @@ const upsertProfile = httpsCallable(functions, 'api/upsertProfile', );
     upsertProfile(profile) {
         upsertProfile({profile: profile}).then(_ => {
         })
+    }
+
+    getStat() {
+
+        console.log('ds getting stat');
+        
+        return new Promise((resolve, reject) => {
+            getStat()
+            .then(stat => {
+                console.log(stat);
+                resolve(stat.data)
+            })
+
+        })
+
     }
 
     

@@ -15,6 +15,8 @@
   "dependencies": {
     "@google-cloud/dialogflow": "^5.1.0",
     "@line/bot-sdk": "^7.5.0",
+    "apexcharts": "^3.35.5",
+    "calculate-correlation": "^1.2.3",
     "cors": "^2.8.5",
     "dialogflow-fulfillment": "^0.6.1",
     "express": "^4.18.1",
@@ -24,6 +26,7 @@
     "luxon": "^3.0.1",
     "node-random-name": "^1.0.1",
     "os": "^0.1.2",
+    "react-apexcharts": "^1.4.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
