@@ -70,6 +70,16 @@ class Payload {
           }
         }
   }
+    static openUri = (uri, label) => {
+      return {
+          type: 'action',
+          action: {
+            type: 'uri',
+            uri: uri,
+            label: label || uri.slice(0, 20)
+          }
+        }
+  }
 
     static postbackFilledIn = (params) => {
         return postbackFilledIn(params)
@@ -77,6 +87,111 @@ class Payload {
 
     static postbackOpenRichmenu = (params) => {
         return postbackOpenRichmenu(params)
+    }
+
+
+static  postbackToggleRichmenu = ({text, label, data, displayingText, closeRichmenu}) => {
+  return {
+      type: 'action',
+      action: {
+          type: 'postback',
+          label: label || text,
+          data: data || 'postingBack=true',
+          ...displayingText ? { displayText: text } : { text: text },
+          inputOption: closeRichmenu ? 'closeRichMenu' : 'openRichMenu'
+        }
+  }
+}
+
+
+    youtubeFlex(media) {
+
+      return {
+        type: 'flex',
+        altText: 'media',
+        contents: {
+          type: 'bubble',
+          body: {
+            type: 'box',
+            layout: 'vertical',
+            spacing: 'sm',
+            contents: [
+              {
+                type: 'box',
+                layout: 'vertical',
+                contents: [
+                  {
+                    type: 'box',
+                    layout: 'vertical',
+                    action: {
+                      type: 'uri',
+                      label: 'ชมคลิป',
+                      uri: 'https://liff.line.me/1657366443-8gLpP5oa/?youtubeId=' + getUrlParameter(media.url.substring(media.url.indexOf('?')), 'v')
+                    },
+                    contents: [
+                      {
+                        type: 'image',
+                        url: this.youtubeThumbnails(media.url)[0],
+                        size: 'full',
+                        aspectRatio: '4:3',
+                        aspectMode: 'cover'
+                      },
+                      {
+                        type: 'box',
+                        layout: 'vertical',
+                        position: 'absolute',
+                        width: '100%',
+                        height: '100%',
+                        contents: [
+                          {
+                            type: 'filler'
+                          },
+                          {
+                            type: 'image',
+                            url: 'https://www.fiveminutefolklore.com/wp-content/uploads/2017/10/youtube-play-button-transparent-png-15-300x300.png'
+                          },
+                          {
+                            type: 'filler'
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                type: 'text',
+                text: media.displayTitle || media.title,
+                weight: 'bold',
+                size: 'md',
+                wrap: true,
+                contents: []
+              }
+            ]
+          },
+          footer: {
+            type: 'box',
+            layout: 'vertical',
+            spacing: 'sm',
+            contents: [
+              {
+                type: 'button',
+                action: {
+                  type: 'uri',
+                  label: 'ชมคลิป',
+                  uri: media.url
+                },
+                color: '#297C30FF',
+                style: 'primary'
+              }
+            ]
+          }
+        }
+      }
+      
+      
+      
+
     }
 
     t() {
@@ -124,7 +239,7 @@ class Payload {
                 },
                 hero: {
                   type: 'image',
-                  url: 'https://sprofile.line-scdn.net/0hUaMa7IzrCk5gGCBiq-10MRBICSRDaVNcGXhNfFUYB34IeB9NHipDL1wfACsIe0lLSHwSeFxPAytsC30ofk72emcoVHlZLk0aSH1CrQ',
+                  url: user.pictureUrl || 'https://sprofile.line-scdn.net/0hUaMa7IzrCk5gGCBiq-10MRBICSRDaVNcGXhNfFUYB34IeB9NHipDL1wfACsIe0lLSHwSeFxPAytsC30ofk72emcoVHlZLk0aSH1CrQ',
                   size: 'full',
                   aspectRatio: '1:1',
                   aspectMode: 'cover'
@@ -329,6 +444,79 @@ class Payload {
 
 
         }
+    }
+    menu(){
+      return {
+        type: 'flex',
+        altText: 'เมนู',
+        contents: {
+          type: 'bubble',
+          direction: 'ltr',
+          header: {
+            type: 'box',
+            layout: 'vertical',
+            contents: [
+              {
+                type: 'text',
+                text: 'เมนูผู้ใช้',
+                align: 'center',
+                contents: []
+              }
+            ]
+          },
+          body: {
+            type: 'box',
+            layout: 'vertical',
+            spacing: 'md',
+            contents: [
+              // {
+              //   type: 'button',
+              //   action: {
+              //     type: 'postback',
+              //     label: 'ปัจจัยบุคคล',
+              //     text: 'ปัจจัยบุคคล',
+              //     data: 'mode=profile'
+              //   },
+              //   style: 'primary'
+              // },
+              {
+                type: 'button',
+                action: {
+                  type: 'message',
+                  label: 'ปัจจัยการรับรู้',
+                  text: 'ปัจจัยรับรู้'
+                },
+                style: 'primary'
+              },
+              {
+                type: 'button',
+                action: {
+                  type: 'message',
+                  label: 'ประเมินพฤติกรรม',
+                  text: 'ประเมินพฤติกรรม'
+                },
+                style: 'primary'
+              }
+            ]
+          },
+          footer: {
+            type: 'box',
+            layout: 'horizontal',
+            contents: [
+              {
+                type: 'button',
+                action: postbackOpenRichmenu({text:'เมนู', label: '⏏', displayingText: true}).action,
+                flex: 1,
+                color: '#FFFFFF3A',
+                height: 'sm',
+                style: 'primary'
+              }
+            ]
+          }
+        }
+        
+
+      }
     }
 }
 

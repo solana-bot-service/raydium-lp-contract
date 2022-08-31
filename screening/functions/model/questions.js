@@ -1,11 +1,12 @@
 class Questions {
     
-    constructor({name, id, instructions, questions, answer}) {
+    constructor({name, id, instructions, questions, answer, result_groups}) {
         this.name = name
         this.id = id
         this.instructions = instructions,
         this.questions = questions
         this.answer = answer        
+        if (result_groups) this.result_groups = result_groups
     }
     
     info() {        

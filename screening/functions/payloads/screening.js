@@ -91,7 +91,7 @@ class Screening {
      * @returns 
      */
     choices(q, data){
-      return Payload.quickReply(q.answer.commonpharse, Object.entries(q.answer.items).map(([k, a]) => {        
+      return Payload.quickReply(q.answer.commonpharse + ((q.answer.thaisuffix && q.answer.thaisuffix[1]) || ''), Object.entries(q.answer.items).map(([k, a]) => {        
         
         let params = data || new URLSearchParams(`mode=` + KEY.TEST + `&testId=` + q.id)
         params.set(q.currentId, k)

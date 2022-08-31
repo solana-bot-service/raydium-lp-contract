@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const random_name = require('node-random-name')
 // Instantiates a intent client
 const { IntentsClient } = require('@google-cloud/dialogflow');
+const calculateCorrelation = require("calculate-correlation");
 
 // Instantiates a session client
 const sessionClient = new dialogflow.SessionsClient();
@@ -55,7 +56,7 @@ const DateTime = luxon.DateTime
 
 //firebase project setting
 const PROJECT_ID = saCredentials.project_id
-const { chip, postbackFilledIn } = require("./payloads/payloads");
+const { chip, postbackFilledIn, openUri, quickReply } = require("./payloads/payloads");
 const Payload = require("./payloads/payloads");
 const DataService = require("./services/dataservice");
 const Screening = require("./payloads/screening");
@@ -111,7 +112,7 @@ app.post('/webhook', async (req, res) => {
 })
 
 app.post('/questions', async (req, res) => {
-    let filsList = await DataService.getAvailableQuestions()
+    let filsList = await getAvailableQuestions()
     res.send({
         data: filsList
     })
@@ -127,9 +128,30 @@ app.post('/upsertProfile', (req, res) => {
     })
 })
 
-app.post('/getStatCorr', async (req, res) => {
-//  b /
-    
+app.post('/getStatCorr/:test/:field', async (req, res) => {
+
+    let params = req.params
+    let testResults = await (await ROOT_REF.child('testResults').once('value')).val()
+    let users = await (await ROOT_REF.child('users').once('value')).val()
+    console.log(params.field);
+    console.log(params.test);
+
+    let data = Object.entries(testResults).map(([key, test]) => {
+        let x = parseFloat(users[key][params.field])
+        //TODO:- check male female and set labels
+        x = x || users[key][params.field]
+        return [x , Object.values(test[params.test])[0].total]
+    })
+    const correlation = params.field === 'gender' ? 0 : calculateCorrelation(data.map(d => d[0]), data.map(d => d[1]));
+
+    let ageCorr = {
+        name: "การรับรู้",
+        data,
+        correlation
+      }
+      res.send({
+        data: [ageCorr]
+      })
 
 })
 
@@ -137,23 +159,56 @@ app.post('/getStat', async (req, res) => {
 
     console.log('received stat req from ui');
 
-    ROOT_REF.child('testResults').once('value', snapshot => {
-        if (snapshot.exists()) {     
-            let testresults = snapshot.val()               
-            res.send({
-                data: {
-                    total: 300,
-                    units: Object.entries(single_rank_units).map(([abbr, unit]) => {
-                        return {
-                            abbr,
-                            ...unit,
-                            count: Object.entries(testresults).length
-                        }
-                    })
+    let testResults = await (await ROOT_REF.child('testResults').once('value')).val()
+    let users = await (await ROOT_REF.child('users').once('value')).val()
+
+    let average = await (await ROOT_REF.child('average').once('value')).val()
+    let unitAverage = await (await ROOT_REF.child('unitAverage').once('value')).val()
+
+    res.send({
+        data: {
+            total: Object.entries(users).length,
+            units: Object.entries(users).reduce((p, [_, user]) => {
+                return {
+                    ...p,
+                    [user.unit] : {
+                        count: ((p[user.unit] && p[user.unit].count) || 0) + 1
+                    }
                 }
-            })
+            }, {}),
+            average: Object.entries(average).reduce((p, [key, q]) => {
+                let total = Object.values(q).reduce((p, v) => (p + v), 0)
+                return {
+                    ...p,
+                    [key] :  (total / Object.values(q).length).toFixed(2)
+                }
+            }, {}),
+            unitAverage: Object.entries(unitAverage).reduce((p, [name, Q]) => {
+                return {
+                    ...p,
+                    [name] :  Object.entries(Q).reduce((p, [key, q]) => {
+                        let total = Object.values(q).reduce((p, v) => {
+                            return (p + v)
+                        }, 0)
+                        return {
+                            ...p,
+                            total,
+                            length: Object.values(q).length,
+                            [key] :  (total / Object.values(q).length).toFixed(2)
+                        }
+                    }, {}),
+                }
+            }, {})
+
         }
     })
+
+    // ROOT_REF.child('testResults').once('value', snapshot => {
+    //     if (snapshot.exists()) {
+    //         let testresults = snapshot.val()
+
+    //     }
+    // })
     // res.send({
     //     data: Object.entries(single_rank_units).map(([abbr, unit]) => {
     //         return {
@@ -176,7 +231,7 @@ app.get('/generatedemodata/:count', async  (req, res) => {
     let userIds = Array(parseInt(count) || 100).fill()
     let units = Object.values(single_rank_units)
     let users = userIds.map(_ => {
-        let unit = units[parseInt(Math.random() * (units.length - 1))]
+        let unit = units[parseInt(Math.round(Math.random() * (units.length - 1)))]
         let gender = unit.gender || Math.random() > 0.5 ? "ชาย" : "หญิง"
         return {
             userId: uuidv4(),
@@ -187,6 +242,8 @@ app.get('/generatedemodata/:count', async  (req, res) => {
             avggrade: (1.01 + parseFloat((4.00 - 1.01) * Math.random())).toFixed(2)
         }
     })
+    let average = {}
+    let unitAverage = {}
     let testResults = users.map(user => {
         return {
             [user.userId] : tests.reduce((p, q, index) => {
@@ -194,7 +251,19 @@ app.get('/generatedemodata/:count', async  (req, res) => {
                     ...p,
                     [q] : {
                           [Date.now()] : Array(qlengths[index]).fill().reduce((p, _, i) => {
+
                             let val = parseInt(Math.round(Math.random() * (a[index].length - 1)))
+                            average[q] = {
+                                ...average[q],
+                                [user.userId] : val
+                            }
+                            unitAverage[user.unit] = {
+                                ...unitAverage[user.unit],
+                                [q]: {
+                                    ...unitAverage[user.unit] && unitAverage[user.unit][q],
+                                    [user.userId]: val
+                                }
+                            }
                             return {
                                 ...p,
                                 [i] : val,
@@ -208,16 +277,20 @@ app.get('/generatedemodata/:count', async  (req, res) => {
     })
     // ROOT_REF.child('users').set({ ...users})
     // ROOT_REF.child('testResults').set({ ...testResults})
-    
+
     let promise = await Promise.all([
         users.forEach(user => {
             ROOT_REF.child('users').child(user.userId).set(user)
         }),
         testResults.forEach((test) => {
-            console.log(test);
+            // console.log(test);
             let [key, value] = Object.entries(test)[0]
             ROOT_REF.child('testResults').child(key).set(value)
-        })
+
+        }),
+        ROOT_REF.child('average').set(average),
+        ROOT_REF.child('unitAverage').set(unitAverage)
+
     ])
     if (promise) res.send({
         data: {
@@ -268,8 +341,28 @@ async function handleEvent(event) {
             break
         case KEY.MESSAGE:
 
-            let q = require('./data/Questions/q3.json')
-            initQuestions(q)
+            let payload = new Payload()
+            let q
+        switch (event.message.text)  {
+            case 'ปัจจัยบุคคล':
+                return client.replyMessage(replyToken, payload.profile())
+            case 'ปัจจัยรับรู้':
+                q = require('./data/Questions/q2.json')
+                initQuestions(q)
+
+                break;
+            case 'ปัจจัยพฤติกรรม':
+                q = require('./data/Questions/q3.json')
+                initQuestions(q)
+                break;
+            case 'สื่อเพิ่มความรู้':
+                return client.replyMessage(replyToken, quickReply('สื่อเพิ่มพูนให้ความรู้เกี่ยวกับ COVID-19', [openUri('https://liff.line.me/1657306992-WB3zXVOO', 'เปิดสื่อการสอน')] ))
+            case 'menu':
+            case 'เมนู':
+                return client.replyMessage(replyToken, payload.menu())
+            default:
+                break;
+        }
 
             break;
         case KEY.POSTBACK:
@@ -363,8 +456,22 @@ async function handleEvent(event) {
             total: answeredQ.total,
             pass: answeredQ.total >= 40
         })
+        let qrpItems = []
+        let text = 'คะแนนที่ได้ ' + answeredQ.total + ' คะแนน'
+
+        let info = questions.info()
+        if (info.result_groups) {
+
+            let match = matchLowerBound(info.result_groups, answeredQ.total)
+            text = [text, info.result_groups[match].description].join("\n")
+            if (info.result_groups[match].next) qrpItems.push(openUri('https://liff.line.me/1657306992-WB3zXVOO', 'เปิดสื่อการสอน'))
+        }
+        if (!qrpItems.length) {
+            text = [text, 'หากท่านสนใจ สามารถชมสื่อเพื่อหาความรู้เพิ่มเติมได้'].join("\n")
+            qrpItems.push(openUri('https://liff.line.me/1657306992-WB3zXVOO', 'เปิดสื่อการสอน'))
+        }
         ROOT_REF.child(KEY.TEST_RESULT).child(userId).child(data.get('testId')).child(date).set(answeredQ)
-        .then(client.replyMessage(replyToken, [Payload.quickReply('คะแนนที่ได้ ' + answeredQ.total + ' คะแนน', [chip('ประเมินคะแนน')])]))
+        .then(client.replyMessage(replyToken, [quickReply(text, qrpItems)]))
 
     }
   }
@@ -407,4 +514,4 @@ async function handleEvent(event) {
 
   }
 
-  exports.api = functions.https.onRequest(app);
+exports.api = functions.https.onRequest(app);

@@ -30,6 +30,12 @@ if (window.location.hostname.includes('localhost')) {
 const questions = httpsCallable(functions, 'api/questions', );
 const upsertProfile = httpsCallable(functions, 'api/upsertProfile', );
 const getStat = httpsCallable(functions, 'api/getStat', );
+const getStatCorrAge = httpsCallable(functions, 'api/getStatCorr/q2/age', );
+const getStatCorrGrade = httpsCallable(functions, 'api/getStatCorr/q2/avggrade', );
+const getStatCorrGender = httpsCallable(functions, 'api/getStatCorr/q2/gender', );
+const getStatCorrAgeQ3 = httpsCallable(functions, 'api/getStatCorr/q3/age', );
+const getStatCorrGradeQ3 = httpsCallable(functions, 'api/getStatCorr/q3/avggrade', );
+const getStatCorrGenderQ3 = httpsCallable(functions, 'api/getStatCorr/q3/gender', );
 // const monitorUserActivites = httpsCallable(functions, 'api/monitorUserActivites', );
 
   class DataService {
@@ -66,6 +72,35 @@ const getStat = httpsCallable(functions, 'api/getStat', );
 
     }
 
+    getCoor(field) {
+
+        console.log('ds getting corr data');
+        
+        return new Promise((resolve, reject) => {
+            let func = field === 'age' ? getStatCorrAge : (field === 'gender' ? getStatCorrGender :  getStatCorrGrade)
+            func()
+            .then(corrData => {
+                console.log(corrData);
+                resolve(corrData.data)
+            })
+
+        })
+    }
+    
+    getCoorQ3(field) {
+
+        console.log('ds getting corr data');
+        
+        return new Promise((resolve, reject) => {
+            let func = field === 'age' ? getStatCorrAgeQ3 : (field === 'gender' ? getStatCorrGenderQ3 :  getStatCorrGradeQ3)
+            func()
+            .then(corrData => {
+                console.log(corrData);
+                resolve(corrData.data)
+            })
+
+        })
+    }
     
 
     monitorUserActivites(callback) {

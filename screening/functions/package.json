@@ -27,6 +27,7 @@
     "node-random-name": "^1.0.1",
     "os": "^0.1.2",
     "react-apexcharts": "^1.4.0",
+    "regression": "^2.0.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

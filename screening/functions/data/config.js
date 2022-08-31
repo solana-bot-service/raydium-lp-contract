@@ -1,6 +1,15 @@
 const userIds = {
     superadmin: 'Udd7346edda5c29e7351071a982d3e1dd'
 }
+
+const youtubemedia = [
+  {
+    "title": "[PODCAST] Re-Mind | EP.2 - การจัดการความเครียดด้วยตนเอง | Mahidol Channel",
+    "displayTitle" : "การจัดการความเครียดด้วยตนเอง",
+    "platform": "youtube",
+    "url": "https://www.youtube.com/watch?v=U7d1-_SWJv4"
+}
+]
 const end = {
   status: 200
 }
@@ -268,6 +277,7 @@ module.exports = {
     entityTypes,
     entityArrays,
     assets,
+    youtubemedia,
     end,
     lineBotPath
 }
