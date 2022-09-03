@@ -68,11 +68,11 @@ export const DashBoard = function () {
                             <Typography sx={{
                                         fontSize: '12px',
                                         fontWeight: 500,                                        
-                                    }}>ค่าเฉลี่ยการรับรู้ {stat.unitAverage[name].q2}</Typography>
+                                    }}>ค่าเฉลี่ยการรับรู้ {stat && stat.unitAverage && stat.unitAverage[name] && stat.unitAverage[name].q2}</Typography>
                             <Typography sx={{
                                         fontSize: '12px',
                                         fontWeight: 500,                                        
-                                    }}>ค่าเฉลี่ยพฤติกรรม {stat.unitAverage[name].q3}</Typography>
+                                    }}>ค่าเฉลี่ยพฤติกรรม {stat && stat.unitAverage && stat.unitAverage[name] && stat.unitAverage[name].q3}</Typography>
 
                         </Paper>
                     </Grid>

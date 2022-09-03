@@ -86,7 +86,7 @@ export const Correlation = function (props) {
           <Chart options={options} series={series} type="scatter" width={500} height={320} />
           <Stack direction={'row'}>
 
-          <Chip avatar={<Avatar>y=</Avatar>} label={y} />
+          <Chip avatar={<Avatar>y=</Avatar>} label={y.toFixed(2)} />
           <TextField id="regression" label="Regression" variant="outlined" defaultValue={x} onChange={(e) => {
         handleXChange(e.target.value);
       }} />
@@ -95,7 +95,7 @@ export const Correlation = function (props) {
               <Chip avatar={<Avatar>a</Avatar>} label={gradient} />
               <Chip avatar={<Avatar>b</Avatar>} label={yIntercept} />
             </Stack>
-
+            <Chip avatar={<Avatar>MSE</Avatar>} color="warning"  label={series && series[0] && series[0].mse.toFixed(2) + '%'} />
           </Stack>
 
 

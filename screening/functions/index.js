@@ -144,10 +144,46 @@ app.post('/getStatCorr/:test/:field', async (req, res) => {
     })
     const correlation = params.field === 'gender' ? 0 : calculateCorrelation(data.map(d => d[0]), data.map(d => d[1]));
 
+
+
+    var jsregression = require('js-regression');
+ 
+// === Create the linear regression === //
+var regression = new jsregression.LinearRegression();
+// can also use default configuration: var regression = new jsregression.LinearRegression(); 
+ 
+// === Train the linear regression === //
+var model = regression.fit(data);
+ 
+// === Print the trained model === //
+console.log(model);
+ 
+ 
+// === Testing the trained linear regression === //
+var actualData = [];
+var predictedData = [];
+//y = -0.08x + 6.09
+for(var x = 0; x < data.length; x++) {
+  let actual_y = data[x][1]
+  actualData.push(actual_y)
+  var predicted_y = regression.transform([data[x][0]]);
+  predictedData.push(predicted_y)
+//   console.log("actual: " + actual_y + " predicted: " + predicted_y); 
+
+}
+
+    const {meanSquareError} = require('data-science-js')  
+
+    // const predicted = []
+ 
+    const mse = meanSquareError(predictedData, actualData)
+    console.log('mse', mse);
+
     let ageCorr = {
         name: "การรับรู้",
         data,
-        correlation
+        correlation,
+        mse
       }
       res.send({
         data: [ageCorr]
