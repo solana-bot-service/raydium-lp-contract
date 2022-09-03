@@ -198,11 +198,11 @@ function App() {
         map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
 
         //Province
-        // if (!map.current.getSource('provinces_source')) map.current.addSource('provinces_source', {
-        //   type: 'geojson',
-        //   // Use a URL for the value for the `data` property.
-        //   data: 'http://localhost:8080/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson'//'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson'
-        // });
+        if (!map.current.getSource('provinces_source')) map.current.addSource('provinces_source', {
+          type: 'geojson',
+          // Use a URL for the value for the `data` property.
+          data: 'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson'//'http://localhost:8080/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson'//'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson' 
+        });
 
 
         // MARK:- DEM
@@ -260,21 +260,21 @@ function App() {
           
 
         // Add a province layer to visualize the polygon.
-        // if (!map.current.getLayer('provinces')) map.current.addLayer({
-        //     'id': 'provinces',
-        //     'type': 'fill',
-        //     'source': 'provinces_source', // reference the data source
-        //     'layout': {},
-        //     'paint': {
-        //       'fill-color': '#0080ff', // blue color fill
-        //       'fill-opacity': 0.1
-        //     }
-        //   });
-        // if (!visibleLayers.includes('provinces')) map.current.setLayoutProperty(
-        //   'provinces',
-        //   'visibility',
-        //   'none'
-        // );
+        if (!map.current.getLayer('provinces')) map.current.addLayer({
+            'id': 'provinces',
+            'type': 'fill',
+            'source': 'provinces_source', // reference the data source
+            'layout': {},
+            'paint': {
+              'fill-color': '#0080ff', // blue color fill
+              'fill-opacity': 0.1
+            }
+          });
+        if (!visibleLayers.includes('provinces')) map.current.setLayoutProperty(
+          'provinces',
+          'visibility',
+          'none'
+        );
 
 
         // //Amphoe
@@ -375,13 +375,13 @@ function App() {
         }
 
         // If these two layers were not added to the map, abort
-        if (!map.current.getLayer('nkrafa-ortho-layer') || !map.current.getLayer('nkrafa-dem-layer')) {
+        if (!map.current.getLayer('nkrafa-ortho-layer') || !map.current.getLayer('nkrafa-dem-layer') || !map.current.getLayer('provinces')) {
         // if (!map.current.getLayer('provinces') || !map.current.getLayer('amphoes') || !map.current.getLayer('tambols') || !map.current.getLayer('sky') || !map.current.getLayer('nkrafa-ortho-layer')) {
           return;
         }
 
         // Enumerate ids of the layers.
-        const toggleableLayerIds = ['nkrafa-ortho-layer', 'nkrafa-dem-layer']; //'contours', 'museums',
+        const toggleableLayerIds = ['nkrafa-ortho-layer', 'nkrafa-dem-layer', 'provinces']; //'contours', 'museums',
         //['provinces', 'amphoes', 'tambols', 'sky', 'nkrafa-ortho-layer']; //'contours', 'museums',
 
         // Set up the corresponding toggle button for each layer.
