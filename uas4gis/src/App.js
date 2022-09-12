@@ -29,7 +29,10 @@ function App() {
 
   const mapIds = {
     'nkrafa-ortho-layer' : 'ภาพถ่ายออร์โธ รร.นนก.มวกเหล็ก',
-    'nkrafa-dem-layer' : 'ชั้นความสูง DEM'
+    'nkrafa-dem-layer' : 'ชั้นความสูง DEM',
+    provinces: 'ขอบเขตจังหวัด',
+    roads : 'ถนน',
+    buildings: 'อาคาร'
   }
 
   useEffect(() => {
@@ -225,7 +228,7 @@ function App() {
 
         if (!map.current.getSource('nkrafa-ortho-src')) map.current.addSource('nkrafa-ortho-src', {
           "type": "raster",
-          "url": "mapbox://chaloemphol.8ts25qif",
+          "url": "mapbox://chaloemphol.6hmfuluu", //"mapbox://chaloemphol.8ts25qif",
           "tileSize": 256
       });
 
@@ -339,6 +342,57 @@ function App() {
 
         // add a sky layer that will show when the map is highly pitched
 
+        // //Roads
+        if (!map.current.getSource('roads-source')) map.current.addSource('roads-source', {
+          type: 'geojson',
+          // Use a URL for the value for the `data` property.
+          data: 'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Aroad_line&outputFormat=application%2Fjson'
+        });
+
+        // Add tambols layer to visualize the polygon.
+        if (!map.current.getLayer('roads')) map.current.addLayer({
+            'id': 'roads',
+            'type': 'line',
+            'source': 'roads-source', // reference the data source
+            'layout': {},
+            'paint': {
+              'line-color': '#1E90FF',
+              'line-width': 10
+            }
+          });
+          if (!visibleLayers.includes('roads')) map.current.setLayoutProperty(
+            'roads',
+            'visibility',
+            'none'
+          );
+
+
+        // //Buildings
+        if (!map.current.getSource('buildings-source')) map.current.addSource('buildings-source', {
+          type: 'geojson',
+          // Use a URL for the value for the `data` property.
+          data: 'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Abuilding&outputFormat=application%2Fjson'
+        });
+
+        // Add tambols layer to visualize the polygon.
+        if (!map.current.getLayer('buildings')) map.current.addLayer({
+            'id': 'buildings',
+            'type': 'fill',
+            'source': 'buildings-source', // reference the data source,
+            'layout': {},
+            'paint': {
+              'fill-color': '#FFFF00', // blue color fill
+              'fill-opacity': 0.5
+            }
+          });
+          if (!visibleLayers.includes('buildings')) map.current.setLayoutProperty(
+            'buildings',
+            'visibility',
+            'none'
+          );
+
+
+          //SKY
         if (!map.current.getLayer('sky')) map.current.addLayer({
           'id': 'sky',
           'type': 'sky',
@@ -375,13 +429,12 @@ function App() {
         }
 
         // If these two layers were not added to the map, abort
-        if (!map.current.getLayer('nkrafa-ortho-layer') || !map.current.getLayer('nkrafa-dem-layer') || !map.current.getLayer('provinces')) {
-        // if (!map.current.getLayer('provinces') || !map.current.getLayer('amphoes') || !map.current.getLayer('tambols') || !map.current.getLayer('sky') || !map.current.getLayer('nkrafa-ortho-layer')) {
+        if (['nkrafa-ortho-layer', 'nkrafa-dem-layer', 'provinces', 'roads', 'buildings' ].some(l => !map.current.getLayer(l))) {
           return;
         }
 
         // Enumerate ids of the layers.
-        const toggleableLayerIds = ['nkrafa-ortho-layer', 'nkrafa-dem-layer', 'provinces']; //'contours', 'museums',
+        const toggleableLayerIds = ['nkrafa-ortho-layer', 'nkrafa-dem-layer', 'provinces', 'roads', 'buildings']; //'contours', 'museums',
         //['provinces', 'amphoes', 'tambols', 'sky', 'nkrafa-ortho-layer']; //'contours', 'museums',
 
         // Set up the corresponding toggle button for each layer.
