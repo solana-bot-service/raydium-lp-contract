@@ -228,7 +228,7 @@ function App() {
 
         if (!map.current.getSource('nkrafa-ortho-src')) map.current.addSource('nkrafa-ortho-src', {
           "type": "raster",
-          "url": "mapbox://chaloemphol.6hmfuluu", //"mapbox://chaloemphol.8ts25qif",
+          "url": "mapbox://chaloemphol.8ts25qif", //"mapbox://chaloemphol.6hmfuluu", //
           "tileSize": 256
       });
 
