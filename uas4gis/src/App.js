@@ -18,9 +18,9 @@ function App() {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const draw = useRef(null);
-
-  const start = [101.1803, 14.6515];
-  const [_zoom, _bearing, _pitch] = [15, -108, 76]
+//Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
+  const start = [101.1866, 14.6534];
+  const [_zoom, _bearing, _pitch] = [15, 0, 0]
   const [lng, setLng] = useState(start[0]);
   const [lat, setLat] = useState(start[1]);
   const [zoom, setZoom] = useState(_zoom); //15
@@ -208,6 +208,50 @@ function App() {
         });
 
 
+        // MARK:- RASTER
+
+      //   if (!map.current.getSource('nkrafa-ortho-src')) map.current.addSource('nkrafa-ortho-src', {
+      //     "type": "raster",
+      //     "url": "mapbox://chaloemphol.8ts25qif", //"mapbox://chaloemphol.6hmfuluu", //
+      //     "tileSize": 256
+      // });
+
+      //   if (!map.current.getLayer('nkrafa-ortho-layer')) map.current.addLayer(
+      //     {
+      //     'id': 'nkrafa-ortho-layer',
+      //     'type': 'raster',
+      //     'source': 'nkrafa-ortho-src',
+      //     'paint': {}
+      //     }
+      //     );
+
+      /**
+       * BBOX ให้ใช้ {bbox-epsg-3857}
+       */
+        if (!map.current.getSource('nkrafa-ortho-src')) map.current.addSource('nkrafa-ortho-src', {
+          'type': 'raster',
+          // use the tiles option to specify a WMS tile source URL
+          // https://docs.mapbox.com/mapbox-gl-js/style-spec/sources/
+          'tiles': [
+            'http://sppsim.rtaf.mi.th/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis:MapPlan_Orthomosaic_export_ThuAug25215405728558&bbox={bbox-epsg-3857}&srs=EPSG:3857&transparent=true&width=512&height=512&styles=&format=image/png'//'http://sppsim.rtaf.mi.th/geoserver/uas4gis/wms?bbox={bbox-epsg-4326}&format=image/png?service=WMS&version=1.1.0&request=GetMap&srs=EPSG:4326&transparent=true&width=512&height=512&layers=uas4gis%3AMapPlan_Orthomosaic_export_ThuAug25215405728558'
+            //'http://localhost:8080/geoserver/uas4gis/wms?bbox={bbox-epsg-4326}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:4326&transparent=true&width=512&height=512&layers=uas4gis%3AMapPlan_Orthomosaic_export_ThuAug25215405728558_mask'
+
+            //http://sppsim.rtaf.mi.th/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis%3AMapPlan_Orthomosaic_export_ThuAug25215405728558&bbox={bbox-epsg-4326}&width=512&height=512&srs=EPSG%3A4326&styles=&format=image%2Fpng
+          ],
+          
+          //http://localhost:8080/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis%3AMapPlan_Orthomosaic_export_ThuAug25215405728558_mask&bbox=101.18050176466429%2C14.645264282309714%2C101.19264152666247%2C14.660350813379504&width=617&height=768&srs=EPSG%3A4326&styles=&format=application/openlayers#toggle
+          'tileSize': 512
+          });
+
+        if (!map.current.getLayer('nkrafa-ortho-layer')) map.current.addLayer(
+          {
+          'id': 'nkrafa-ortho-layer',
+          'type': 'raster',
+          'source': 'nkrafa-ortho-src',
+          'paint': {}
+          }
+          );
+
         // MARK:- DEM
 
         if (!map.current.getSource('nkrafa-dem')) map.current.addSource('nkrafa-dem', {
@@ -222,45 +266,10 @@ function App() {
           'type': 'hillshade',
           'source': 'nkrafa-dem',
           'paint': {}
-          }
-          );
-        // MARK:- RASTER
-
-        if (!map.current.getSource('nkrafa-ortho-src')) map.current.addSource('nkrafa-ortho-src', {
-          "type": "raster",
-          "url": "mapbox://chaloemphol.8ts25qif", //"mapbox://chaloemphol.6hmfuluu", //
-          "tileSize": 256
-      });
-
-        if (!map.current.getLayer('nkrafa-ortho-layer')) map.current.addLayer(
-          {
-          'id': 'nkrafa-ortho-layer',
-          'type': 'raster',
-          'source': 'nkrafa-ortho-src',
-          'paint': {}
-          }
+          },
+          'nkrafa-ortho-layer'
           );
 
-        // if (!map.current.getSource('nkrafa-ortho-src')) map.current.addSource('nkrafa-ortho-src', {
-        //   'type': 'raster',
-        //   // use the tiles option to specify a WMS tile source URL
-        //   // https://docs.mapbox.com/mapbox-gl-js/style-spec/sources/
-        //   'tiles': [
-        //     'http://localhost:8080/geoserver/uas4gis/wms?bbox={bbox-epsg-4326}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:4326&transparent=true&width=512&height=512&layers=uas4gis%3AMapPlan_Orthomosaic_export_ThuAug25215405728558_mask'
-        //   ],//http://localhost:8080/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis%3AMapPlan_Orthomosaic_export_ThuAug25215405728558_mask&bbox=101.18050176466429%2C14.645264282309714%2C101.19264152666247%2C14.660350813379504&width=617&height=768&srs=EPSG%3A4326&styles=&format=application/openlayers#toggle
-        //   'tileSize': 512
-        //   });
-
-        // if (!map.current.getLayer('nkrafa-ortho-layer')) map.current.addLayer(
-        //   {
-        //   'id': 'nkrafa-ortho-layer',
-        //   'type': 'raster',
-        //   'source': 'nkrafa-ortho-src',
-        //   'paint': {}
-        //   }
-        //   );
-
-          
 
         // Add a province layer to visualize the polygon.
         if (!map.current.getLayer('provinces')) map.current.addLayer({
