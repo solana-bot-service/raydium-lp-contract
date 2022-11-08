@@ -1,0 +1,126 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+  
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+
+.rounded-rect {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 50px -25px black;
+  }
+   
+  .flex-center {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  }
+   
+  .flex-center.left {
+  left: 0px;
+  }
+   
+  .flex-center.right {
+  right: 0px;
+  }
+   
+  .sidebar-content {
+  position: absolute;
+  width: 95%;
+  height: 95%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 32px;
+  color: gray;
+  }
+   
+  .sidebar-toggle {
+  position: absolute;
+  width: 1.3em;
+  height: 1.3em;
+  overflow: visible;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  }
+   
+  .sidebar-toggle.left {
+  right: -1.5em;
+  }
+   
+  .sidebar-toggle.right {
+  left: -1.5em;
+  }
+   
+  .sidebar-toggle:hover {
+  color: #0aa1cf;
+  cursor: pointer;
+  }
+   
+  .sidebar {
+  transition: transform 1s;
+  z-index: 1;
+  width: 300px;
+  height: 100%;
+  }
+   
+  /*
+  The sidebar styling has them "expanded" by default, we use CSS transforms to push them offscreen
+  The toggleSidebar() function removes this class from the element in order to expand it.
+  */
+  .left.collapsed {
+  transform: translateX(-295px);
+  }
+   
+  .right.collapsed {
+  transform: translateX(295px);
+  }
+
+  
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
