@@ -178,7 +178,7 @@ function App() {
        event.checked ? map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 }) : map.current.setTerrain();
     }
 
-    const visibleLayers = ['nkrafa-ortho-layer']//['provinces']
+    const visibleLayers = ['nkrafa-ortho-layer', 'roads', 'buildings']//['provinces']
 
 
   function toggleVisibility(id) {
@@ -400,7 +400,7 @@ function App() {
           'layout': {},
           'paint': {
             'line-color': '#1E90FF',
-            'line-width': 10
+            'line-width': 4
           }
         });
         toggleVisibility('roads')
@@ -450,11 +450,11 @@ function App() {
 
     map.current.on('sourcedata', (e) => {
       // console.log(e);
-      if (e.isSourceLoaded) {
-        setSpinners(o => ({...o, [e.sourceId] : <>spinning</>}))
-      } else {
-        setSpinners(o => ({...o, [e.sourceId] : <></>}))
-      }
+      // if (e.isSourceLoaded) {
+      //   setSpinners(o => ({...o, [e.sourceId] : <>spinning</>}))
+      // } else {
+      //   setSpinners(o => ({...o, [e.sourceId] : <></>}))
+      // }
     })
 
       // After the last frame rendered before the map enters an "idle" state.
