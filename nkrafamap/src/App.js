@@ -64,14 +64,6 @@ function App() {
             </div>
           </div>
           </div>
-            <div id="right" className="sidebar flex-center right collapsed">
-            <div className="sidebar-content rounded-rect flex-center">
-            Right Sidebar
-            <div className="sidebar-toggle rounded-rect right" onClick={event => { toggleSidebar('right'); }}>
-            ←
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
