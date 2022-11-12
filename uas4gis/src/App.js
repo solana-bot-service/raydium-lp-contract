@@ -35,6 +35,13 @@ function App() {
     buildings: 'อาคาร'
   }
 
+  // Enumerate ids of the layers.
+  const toggleableLayerIds = ['nkrafa-ortho-layer', 'nkrafa-dem-layer', 'provinces', 'roads', 'buildings']; //'contours', 'museums',
+  //['provinces', 'amphoes', 'tambols', 'sky', 'nkrafa-ortho-layer']; //'contours', 'museums',
+  // If these two layers were not added to the map, abort
+
+  const [spinners, setSpinners] = useState(toggleableLayerIds.reduce((p, id) => ({...p, [id]: <></>}), {}));
+  
   useEffect(() => {
     if (map.current) return; // initialize map only once
     map.current = new mapboxgl.Map({
@@ -42,9 +49,9 @@ function App() {
       // style: 'mapbox://styles/mapbox/streets-v11',
       style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
       center: [lng, lat],
-      pitch: pitch,
-      bearing: bearing,
-      zoom: zoom,
+      pitch,
+      bearing,
+      zoom,
     });
 
     map.current.addControl(new mapboxgl.FullscreenControl());
@@ -87,6 +94,15 @@ function App() {
           map.current.setStyle('mapbox://styles/mapbox/' + layerId);
         };
       }
+
+
+      // toggleableLayerIds.forEach(id => {
+      //   console.log('====================================');
+      //   console.log('checking visibility', id);
+      //   console.log('====================================');
+      //   toggleVisibility(id)
+        
+      // });
       
       // map.current.addSource('dot-point', {
       //   'type': 'geojson',
@@ -164,6 +180,16 @@ function App() {
 
     const visibleLayers = ['nkrafa-ortho-layer']//['provinces']
 
+
+  function toggleVisibility(id) {
+    if (!visibleLayers.includes(id)) map.current.setLayoutProperty(
+      id,
+      'visibility',
+      'none'
+    );
+  }
+
+
     var loadSource = () => {
       if (map.current.isStyleLoaded()) {
 
@@ -198,7 +224,7 @@ function App() {
           'maxzoom': 14
         });
         // add the DEM source as a terrain layer with exaggerated height
-        map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+        // map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
 
         //Province
         if (!map.current.getSource('provinces_source')) map.current.addSource('provinces_source', {
@@ -243,14 +269,16 @@ function App() {
           'tileSize': 512
           });
 
-        if (!map.current.getLayer('nkrafa-ortho-layer')) map.current.addLayer(
-          {
-          'id': 'nkrafa-ortho-layer',
-          'type': 'raster',
-          'source': 'nkrafa-ortho-src',
-          'paint': {}
-          }
-          );
+        if (!map.current.getLayer('nkrafa-ortho-layer')) {
+          map.current.addLayer({
+            'id': 'nkrafa-ortho-layer',
+            'type': 'raster',
+            'source': 'nkrafa-ortho-src',
+            'paint': {}
+          });
+
+          toggleVisibility('nkrafa-ortho-layer')
+        }
 
         // MARK:- DEM
 
@@ -260,19 +288,26 @@ function App() {
           "tileSize": 256
       });
 
-        if (!map.current.getLayer('nkrafa-dem-layer')) map.current.addLayer(
-          {
-          'id': 'nkrafa-dem-layer',
-          'type': 'hillshade',
-          'source': 'nkrafa-dem',
-          'paint': {}
+      if (!map.current.getLayer('nkrafa-dem-layer')) {
+        map.current.addLayer({
+            'id': 'nkrafa-dem-layer',
+            'type': 'hillshade',
+            'source': 'nkrafa-dem',
+            'paint': {}
           },
           'nkrafa-ortho-layer'
-          );
+        );
+
+        toggleVisibility('nkrafa-dem-layer')
+      }
+
+
+          
 
 
         // Add a province layer to visualize the polygon.
-        if (!map.current.getLayer('provinces')) map.current.addLayer({
+        if (!map.current.getLayer('provinces')) {
+          map.current.addLayer({
             'id': 'provinces',
             'type': 'fill',
             'source': 'provinces_source', // reference the data source
@@ -282,11 +317,9 @@ function App() {
               'fill-opacity': 0.1
             }
           });
-        if (!visibleLayers.includes('provinces')) map.current.setLayoutProperty(
-          'provinces',
-          'visibility',
-          'none'
-        );
+          toggleVisibility('provinces')
+        }
+          
 
 
         // //Amphoe
@@ -359,21 +392,20 @@ function App() {
         });
 
         // Add tambols layer to visualize the polygon.
-        if (!map.current.getLayer('roads')) map.current.addLayer({
-            'id': 'roads',
-            'type': 'line',
-            'source': 'roads-source', // reference the data source
-            'layout': {},
-            'paint': {
-              'line-color': '#1E90FF',
-              'line-width': 10
-            }
-          });
-          if (!visibleLayers.includes('roads')) map.current.setLayoutProperty(
-            'roads',
-            'visibility',
-            'none'
-          );
+      if (!map.current.getLayer('roads')) {
+        map.current.addLayer({
+          'id': 'roads',
+          'type': 'line',
+          'source': 'roads-source', // reference the data source
+          'layout': {},
+          'paint': {
+            'line-color': '#1E90FF',
+            'line-width': 10
+          }
+        });
+        toggleVisibility('roads')
+      }
+          
 
 
         // //Buildings
@@ -384,7 +416,8 @@ function App() {
         });
 
         // Add tambols layer to visualize the polygon.
-        if (!map.current.getLayer('buildings')) map.current.addLayer({
+        if (!map.current.getLayer('buildings')) {
+          map.current.addLayer({
             'id': 'buildings',
             'type': 'fill',
             'source': 'buildings-source', // reference the data source,
@@ -394,12 +427,9 @@ function App() {
               'fill-opacity': 0.5
             }
           });
-          if (!visibleLayers.includes('buildings')) map.current.setLayoutProperty(
-            'buildings',
-            'visibility',
-            'none'
-          );
 
+          toggleVisibility('buildings')
+        }
 
           //SKY
         if (!map.current.getLayer('sky')) map.current.addLayer({
@@ -418,6 +448,15 @@ function App() {
 
     map.current.on('data', loadSource);
 
+    map.current.on('sourcedata', (e) => {
+      // console.log(e);
+      if (e.isSourceLoaded) {
+        setSpinners(o => ({...o, [e.sourceId] : <>spinning</>}))
+      } else {
+        setSpinners(o => ({...o, [e.sourceId] : <></>}))
+      }
+    })
+
       // After the last frame rendered before the map enters an "idle" state.
     map.current.on('idle', () => {
 
@@ -428,23 +467,20 @@ function App() {
           const toggleTerrainCB = document.createElement('input');
           toggleTerrainCB.type = 'checkbox';
           toggleTerrainCB.id = 'toggleTerrain'; // need unique Ids!
-          toggleTerrainCB.checked = map.current.getTerrain() ? 'checked' : '';
+          toggleTerrainCB.checked = (bearing === 0 && pitch === 0) ? '' : map.current.getTerrain() ? 'checked' : '';
           toggleTerrainCB.onclick = (e) => toggleTerrain(e.target);
           layers.appendChild(toggleTerrainCB);
+
           const toggleTerrainLabel = document.createElement("label");
           toggleTerrainLabel.innerText = "Toggle Terrain"
           toggleTerrainLabel.htmlFor =  "toggleTerrain" ;
           layers.appendChild(toggleTerrainLabel);
         }
 
-        // If these two layers were not added to the map, abort
-        if (['nkrafa-ortho-layer', 'nkrafa-dem-layer', 'provinces', 'roads', 'buildings' ].some(l => !map.current.getLayer(l))) {
+        if (toggleableLayerIds.some(l => !map.current.getLayer(l))) {
           return;
         }
 
-        // Enumerate ids of the layers.
-        const toggleableLayerIds = ['nkrafa-ortho-layer', 'nkrafa-dem-layer', 'provinces', 'roads', 'buildings']; //'contours', 'museums',
-        //['provinces', 'amphoes', 'tambols', 'sky', 'nkrafa-ortho-layer']; //'contours', 'museums',
 
         // Set up the corresponding toggle button for each layer.
         for (const id of toggleableLayerIds) {
@@ -464,6 +500,7 @@ function App() {
           // Show or hide layer when the toggle is clicked.
           link.onclick = function (e) {
             const clickedLayer = this.id;
+
             e.preventDefault();
             e.stopPropagation();
 
@@ -471,9 +508,8 @@ function App() {
               clickedLayer,
               'visibility'
             );
-
             // Toggle layer visibility by changing the layout object's visibility property.
-            if (visibility === 'visible') {
+            if (!visibility || visibility === 'visible' ) {
               map.current.setLayoutProperty(clickedLayer, 'visibility', 'none');
               this.className = '';
             } else {
@@ -560,6 +596,11 @@ function updateArea(e) {
 
 
   });
+
+  // useEffect(() => {
+    
+  //   console.log(spinners);
+  // }, [spinners]);
 
   let props = {
     lat, lng, zoom, bearing, pitch
