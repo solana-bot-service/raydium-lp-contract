@@ -7,7 +7,7 @@ export const InfoBar = ({
         bearing,
         pitch
     }) => {
-    return (<div className="sidebar">
+    return (<div className="infobar">
     Longitude: {lng} | Latitude: {lat} | Zoom: {zoom} | Bearing: {bearing} | Pitch: {pitch} 
   </div>)
 }

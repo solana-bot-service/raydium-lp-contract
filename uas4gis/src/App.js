@@ -11,6 +11,8 @@ import { LayersTOC } from './mapLayouts/LayersTOC/LayersTOC';
 import { BaseMaps } from './mapLayouts/BaseMaps/BaseMaps';
 import { SidebarMenu } from './mapLayouts/SidebarMenu/SidebarMenu';
 
+import Stack from '@mui/material/Stack';
+
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
 function App() {
@@ -543,19 +545,26 @@ function App() {
     map.current.on('draw.create', updateArea);
     map.current.on('draw.delete', updateArea);
     map.current.on('draw.update', updateArea);
+    map.current.on('draw.modechange', updateArea);
  
 function updateArea(e) {
+
+    console.log(draw.current.getMode());
     const data = draw.current.getAll();
     const answer = document.getElementById('calculated-area');
+
+    const calculationBox = document.getElementById('calculation-box');
+    calculationBox.style.display = data.features.length > 0 ? 'block' : 'none'
+
     if (data.features.length > 0) {
       const area = turf.area(data);
       // Restrict the area to 2 decimal points.
       const rounded_area = Math.round(area * 100) / 100;
-      answer.innerHTML = `<p><strong>${rounded_area}</strong> ตรม.</p>`;
+      answer.innerHTML = `<p><strong>${rounded_area.toLocaleString()}</strong> ตร.ม.</p>`;
     } else {
       answer.innerHTML = '';
-      if (e.type !== 'draw.delete')
-        alert('Click the map to draw a polygon.');
+      // if (e.type !== 'draw.delete')
+      //   alert('Click the map to draw a polygon.');
     }
 }
 
@@ -597,6 +606,21 @@ function updateArea(e) {
 
   });
 
+  function toggleSidebar(id) {
+    const elem = document.getElementById(id);
+    // Add or remove the 'collapsed' CSS class from the sidebar element.
+    // Returns boolean "true" or "false" whether 'collapsed' is in the class list.
+    const collapsed = elem.classList.toggle('collapsed');
+    const padding = {};
+    // 'id' is 'right' or 'left'. When run at start, this object looks like: '{left: 300}';
+    padding[id] = collapsed ? 0 : 200; // 0 if collapsed, 300 px if not. This matches the width of the sidebars in the .sidebar CSS class.
+    // Use `map.easeTo()` with a padding option to adjust the map's center accounting for the position of sidebars.
+    map.current.easeTo({
+      padding: padding,
+      duration: 1000 // In ms. This matches the CSS transition duration property.
+    });
+  }
+
   // useEffect(() => {
     
   //   console.log(spinners);
@@ -632,11 +656,22 @@ function updateArea(e) {
       {/* <SidebarMenu {...sidebarmenuProps} /> */}
       {/* <button id='openbtn' className="openbtn" onClick={openNav}>☰</button> */}
 
-      <BaseMaps />
-      <LayersTOC />
+      <div id="left" className="sidebar flex-center left collapsed">
+          <div className="sidebar-content rounded-rect flex-center">
+
+      <Stack spacing={2} direction="column" >
+        
+            <LayersTOC />
+            <BaseMaps />
+            </Stack>
+            <div className="sidebar-toggle rounded-rect left" onClick={event => { toggleSidebar('left'); }}>
+            →
+            </div>
+          </div>
+        </div>
       <InfoBar {...props} />
-      <div className="calculation-box">
-        <p>วัดขนาดพื้นที่โดยคลิกบนแผนที่</p>
+      <div id='calculation-box' className="calculation-box">
+        <p>ขนาดพื้นที่รวม</p>
         <div id="calculated-area" />
       </div>
 

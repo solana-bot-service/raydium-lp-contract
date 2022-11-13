@@ -78,7 +78,7 @@ body * {
   .sidebar {
   transition: transform 1s;
   z-index: 1;
-  width: 300px;
+  width: 120px;
   height: 100%;
   }
    
