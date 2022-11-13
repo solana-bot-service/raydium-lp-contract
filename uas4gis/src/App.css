@@ -48,6 +48,25 @@ p {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
+
+
+}
+
+
+@media screen and (max-width: 480px) {
+
+  .calculation-box {
+    color: #FFF;
+    background-color: rgba(17, 37, 56, 0.9);
+    height: 5%;
+    right: 0;
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+    text-align: center;
+    }
+
+
 }
 
 .App-header {
@@ -63,13 +82,4 @@ p {
 
 .App-link {
   color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }

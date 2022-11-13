@@ -551,7 +551,7 @@ function updateArea(e) {
       const area = turf.area(data);
       // Restrict the area to 2 decimal points.
       const rounded_area = Math.round(area * 100) / 100;
-      answer.innerHTML = `<p><strong>${rounded_area}</strong></p><p>square meters</p>`;
+      answer.innerHTML = `<p><strong>${rounded_area}</strong> ตรม.</p>`;
     } else {
       answer.innerHTML = '';
       if (e.type !== 'draw.delete')
