@@ -11,7 +11,14 @@ import { LayersTOC } from './mapLayouts/LayersTOC/LayersTOC';
 import { BaseMaps } from './mapLayouts/BaseMaps/BaseMaps';
 import { SidebarMenu } from './mapLayouts/SidebarMenu/SidebarMenu';
 
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import { CardActionArea } from '@mui/material';
+
 import Stack from '@mui/material/Stack';
+import { Typography } from '@mui/material';
+import { Box } from '@mui/system';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
@@ -630,6 +637,22 @@ function updateArea(e) {
     lat, lng, zoom, bearing, pitch
   }
 
+  const TitleBlock = () => {
+    return ( 
+    <Card sx={{ display: 'flex', bgcolor:"transparent"}}>
+      <CardMedia
+          component="img"
+          image="nkrafalogo.png"
+          alt="nkrafa logo"
+          sx={{ height: 80, width:80, m: 1}}
+        />
+        
+      <CardContent>
+      <Box sx={{ textAlign: 'center', typography:'h5', color:'white' }}>ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี</Box>
+        </CardContent>
+  </Card>)
+  }
+
 
 
   // function openNav() {
@@ -659,23 +682,25 @@ function updateArea(e) {
       <div id="left" className="sidebar flex-center left collapsed">
           <div className="sidebar-content rounded-rect flex-center">
 
-      <Stack spacing={2} direction="column" >
+            <Stack spacing={2} direction="column" >
         
-            <LayersTOC />
-            <BaseMaps />
+              <LayersTOC />
+              {/* <BaseMaps /> */}
             </Stack>
             <div className="sidebar-toggle rounded-rect left" onClick={event => { toggleSidebar('left'); }}>
             →
             </div>
           </div>
-        </div>
+      </div>
+
+      
       <InfoBar {...props} />
       <div id='calculation-box' className="calculation-box">
         <p>ขนาดพื้นที่รวม</p>
         <div id="calculated-area" />
       </div>
 
-      <button id="titleblock">ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี</button>
+      <div id='titleblock'><TitleBlock /></div>
       
     </div>
   );
