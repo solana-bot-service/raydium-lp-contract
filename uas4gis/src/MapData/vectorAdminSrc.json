@@ -1,0 +1,58 @@
+{
+    "provinces": {
+        "src": {
+            "type": "geojson",
+            "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson"
+        },
+        "layer": {
+            "id": "provinces",
+            "type": "fill",
+            "source": "provinces_source",
+            "layout": {},
+            "paint": {
+                "fill-color": "#0080ff",
+                "fill-opacity": 0.1
+            }
+        },
+        "info" : {
+            "desc" : "ขอบเขตจังหวัด"
+        }
+    },
+    "amphoes": {
+        "src": {
+            "type": "geojson",
+            "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AAmphoe&outputFormat=application%2Fjson"
+        },
+        "layer": {
+            "id": "amphoes",
+            "type": "line",
+            "source": "amphoes_source",
+            "paint": {
+                "line-color": "#800",
+                "line-width": 2
+            }
+        },
+        "info" : {
+            "desc" : "ขอบเขตอำเภอ"
+        }
+    },
+    "tambols": {
+        "src": {
+            "type": "geojson",
+            "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3ATambon&outputFormat=application%2Fjson"
+        },
+        "layer": {
+            "id": "tambols",
+            "type": "line",
+            "source": "tambols_source",
+            "layout": {},
+            "paint": {
+                "line-color": "#080",
+                "line-width": 1
+            }
+        },
+        "info" : {
+            "desc" : "ขอบเขตตำบล"
+        }
+    }
+}

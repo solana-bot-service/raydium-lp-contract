@@ -1,0 +1,40 @@
+{
+    "roads": {
+        "src": {
+            "type": "geojson",
+            "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Aroad_line&outputFormat=application%2Fjson"
+        },
+        "layer": {
+            "id": "roads",
+            "type": "line",
+            "source": "roads-source",
+            "layout": {},
+            "paint": {
+                "line-color": "#1E90FF",
+                "line-width": 4
+            }
+        },
+        "info" : {
+            "desc" : "ถนน"
+        }
+    },
+    "buildings": {
+        "src": {
+            "type": "geojson",
+            "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Abuilding651108&outputFormat=application%2Fjson"
+        },
+        "layer": {
+            "id": "buildings",
+            "type": "fill",
+            "source": "buildings-source",
+            "layout": {},
+            "paint": {
+                "fill-color": "#FFFF00",
+                "fill-opacity": 0.5
+            }
+        },
+        "info" : {
+            "desc" : "อาคาร"
+        }
+    }
+}

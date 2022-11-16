@@ -1,0 +1,39 @@
+{
+    "nkrafa-ortho-6508-layer": {
+        "src": {
+            "type": "raster",
+            "tileSize": 512,
+            "tiles": ["http://sppsim.rtaf.mi.th/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis:MapPlan_Orthomosaic_export_ThuAug25215405728558&bbox={bbox-epsg-3857}&srs=EPSG:3857&transparent=true&width=512&height=512&styles=&format=image/png"]
+        },
+        "layer" : {
+            "id": "nkrafa-ortho-6508-layer",
+            "type": "raster",
+            "source": "nkrafa-ortho-6508",
+            "paint": {}
+          },
+        "info" : {
+            "desc" : "ภาพถ่ายออร์โธ รร.นนก.มวกเหล็ก ส.ค.65",
+            "date": "01/08/22"
+        }
+
+    },
+    "nkrafa-ortho-6509-layer": {
+        "src" : {
+            "type": "raster",
+            "tileSize": 512,
+            "tiles": ["http://sppsim.rtaf.mi.th/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis%3AMapPlan_Orthomosaic_export_WedSep21124207632830&bbox={bbox-epsg-3857}&srs=EPSG:3857&transparent=true&width=512&height=512&styles=&format=image/png"]
+
+            
+        },
+        "layer" : {
+            "id": "nkrafa-ortho-6509-layer",
+            "type": "raster",
+            "source": "nkrafa-ortho-6509",
+            "paint": {}
+          },
+        "info" : {
+            "desc" : "ภาพถ่ายออร์โธ รร.นนก.มวกเหล็ก ก.ย.65",
+            "date": "01/09/22"
+        }
+    }
+}

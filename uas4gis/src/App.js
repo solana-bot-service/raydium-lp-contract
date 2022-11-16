@@ -2,6 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import MapboxCompare from 'mapbox-gl-compare';
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 import * as turf from '@turf/turf'
@@ -11,10 +12,12 @@ import { LayersTOC } from './mapLayouts/LayersTOC/LayersTOC';
 import { BaseMaps } from './mapLayouts/BaseMaps/BaseMaps';
 import { SidebarMenu } from './mapLayouts/SidebarMenu/SidebarMenu';
 
+
+import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import { CardActionArea } from '@mui/material';
+
 
 import Stack from '@mui/material/Stack';
 import { Typography } from '@mui/material';
@@ -26,6 +29,10 @@ function App() {
 
   const mapContainer = useRef(null);
   const map = useRef(null);
+  const comparemap = useRef()
+  const beforeMap = useRef()
+  const afterMap = useRef()
+  
   const draw = useRef(null);
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
   const start = [101.1866, 14.6534];
@@ -35,23 +42,97 @@ function App() {
   const [zoom, setZoom] = useState(_zoom); //15
   const [bearing, setBearing] = useState(_bearing); //-108
   const [pitch, setPitch] = useState(_pitch); //76
+  const [compareMode, setCompareMode] = useState(false);
 
-  const mapIds = {
-    'nkrafa-ortho-layer' : 'ภาพถ่ายออร์โธ รร.นนก.มวกเหล็ก',
-    'nkrafa-dem-layer' : 'ชั้นความสูง DEM',
-    provinces: 'ขอบเขตจังหวัด',
-    roads : 'ถนน',
-    buildings: 'อาคาร'
-  }
+  //map data sources
+  const ortho = require('./MapData/nkrafaortho.json')
+  const admins = require('./MapData/vectorAdminSrc.json')
+  const constructions = require('./MapData/vectorConstructionSrc.json')
 
+
+  const mapIds = Object.entries({...ortho, ...admins, ...constructions}).reduce((p, [name, con]) => {
+    return {...p, [name] : con.info.desc}
+  }, {'nkrafa-dem-layer': 'ชั้นความสูง DEM'});
   // Enumerate ids of the layers.
-  const toggleableLayerIds = ['nkrafa-ortho-layer', 'nkrafa-dem-layer', 'provinces', 'roads', 'buildings']; //'contours', 'museums',
-  //['provinces', 'amphoes', 'tambols', 'sky', 'nkrafa-ortho-layer']; //'contours', 'museums',
+  const toggleableLayerIds = ['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'nkrafa-dem-layer', 'provinces', 'roads', 'buildings']; //'contours', 'museums',
+  //['provinces', 'amphoes', 'tambols', 'sky', 'nkrafa-ortho-6508-layer']; //'contours', 'museums',
   // If these two layers were not added to the map, abort
+
+  const visibleLayers = ['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'roads', 'buildings']//['provinces']
 
   const [spinners, setSpinners] = useState(toggleableLayerIds.reduce((p, id) => ({...p, [id]: <></>}), {}));
   
   useEffect(() => {
+
+    if (compareMode) {
+
+      if (comparemap.current) return;
+      if (!beforeMap.current) beforeMap.current = new mapboxgl.Map({
+        container: 'before',
+        // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+          style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+          center: [lng, lat],
+          pitch,
+          bearing,
+          zoom,
+        });
+         
+        if (!afterMap.current) afterMap.current = new mapboxgl.Map({
+        container: 'after',          
+        style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+        center: [lng, lat],
+        pitch,
+        bearing,
+        zoom,
+        });
+
+
+      afterMap.current.addControl(new mapboxgl.NavigationControl());
+         
+              
+        beforeMap.current.on('data', () => {
+
+          Object.entries(ortho).slice(0, 1).forEach(([name, con]) => {
+            if (!beforeMap.current.getSource(con.layer.source)) {
+              console.log(name);
+              beforeMap.current.addSource(con.layer.source, con.src);
+            }
+            if (!beforeMap.current.getLayer(name)) {
+              beforeMap.current.addLayer(con.layer);
+            }
+          });
+
+          beforeMap.current.off('data', () => {});
+        });
+
+
+        afterMap.current.on('data', () => {
+
+          Object.entries(ortho).slice(1, 2).forEach(([name, con]) => {
+            if (!afterMap.current.getSource(con.layer.source)) {
+              console.log(name);
+              afterMap.current.addSource(con.layer.source, con.src);
+            }
+            if (!afterMap.current.getLayer(name)) {
+              afterMap.current.addLayer(con.layer);
+            }
+          });
+
+          afterMap.current.off('data', () => {});
+        });
+
+
+
+        // A selector or reference to HTML element
+        const container = '#comparison-container';
+         
+        comparemap.current = new MapboxCompare(beforeMap.current, afterMap.current, container, {
+        // Set this to enable comparing two maps by mouse movement:
+        // mousemove: true
+        });
+
+    } else  {
+      comparemap.current = null
     if (map.current) return; // initialize map only once
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -81,12 +162,50 @@ function App() {
       // defaultMode: 'draw_polygon'
       });
     map.current.addControl(draw.current);
-    
+    }
 
-  });
+  }, [compareMode]);
 
   useEffect(() => {
-    if (!map.current) return; // wait for map to initialize
+
+        
+    document.getElementById('titleblock').addEventListener('click', () => {
+      // depending on whether we're currently at point a or b, aim for
+      // point a or b
+      // const target = isAtStart ? end : start;
+      
+      // and now we're at the opposite point
+      // isAtStart = !isAtStart;
+      let flyParams = {
+        // These options control the ending camera position: centered at
+        // the target, at zoom level 9, and north up.
+        center: start,
+        zoom: _zoom,
+        bearing: _bearing,
+        pitch: _pitch,
+        
+        // These options control the flight curve, making it move
+        // slowly and zoom out almost completely before starting
+        // to pan.
+        speed: 1.5, // make the flying slow
+        curve: 1, // change the speed at which it zooms out
+        
+        // This can be any easing function: it takes a number between
+        // 0 and 1 and returns another number between 0 and 1.
+        easing: (t) => t,
+        
+        // this animation is considered essential with respect to prefers-reduced-motion
+        essential: true
+      }
+      
+      if (compareMode) {
+        beforeMap.current.flyTo(flyParams);
+      } else {
+        map.current.flyTo(flyParams);
+      }
+    });
+    
+    if (!map.current || compareMode) return; // wait for map to initialize
     const size = 200;
 
     // This implements `StyleImageInterface`
@@ -103,6 +222,8 @@ function App() {
           map.current.setStyle('mapbox://styles/mapbox/' + layerId);
         };
       }
+
+      toggleSidebar('left');
 
 
       // toggleableLayerIds.forEach(id => {
@@ -183,12 +304,6 @@ function App() {
       // });
     });
 
-    function toggleTerrain(event) {
-       event.checked ? map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 }) : map.current.setTerrain();
-    }
-
-    const visibleLayers = ['nkrafa-ortho-layer', 'roads', 'buildings']//['provinces']
-
 
   function toggleVisibility(id) {
     if (!visibleLayers.includes(id)) map.current.setLayoutProperty(
@@ -225,6 +340,20 @@ function App() {
           map.current.getCanvas().style.cursor = '';
           });
         
+                    //SKY
+        // add a sky layer that will show when the map is highly pitched
+
+        if (!map.current.getLayer('sky')) map.current.addLayer({
+          'id': 'sky',
+          'type': 'sky',
+          'paint': {
+            'sky-type': 'atmosphere',
+            'sky-atmosphere-sun': [0.0, 0.0],
+            'sky-atmosphere-sun-intensity': 15
+          }
+        });
+
+        //  MARK Mapbox Terrain
 
         if (!map.current.getSource('mapbox-dem')) map.current.addSource('mapbox-dem', {
           'type': 'raster-dem',
@@ -235,59 +364,6 @@ function App() {
         // add the DEM source as a terrain layer with exaggerated height
         // map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
 
-        //Province
-        if (!map.current.getSource('provinces_source')) map.current.addSource('provinces_source', {
-          type: 'geojson',
-          // Use a URL for the value for the `data` property.
-          data: 'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson'//'http://localhost:8080/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson'//'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson' 
-        });
-
-
-        // MARK:- RASTER
-
-      //   if (!map.current.getSource('nkrafa-ortho-src')) map.current.addSource('nkrafa-ortho-src', {
-      //     "type": "raster",
-      //     "url": "mapbox://chaloemphol.8ts25qif", //"mapbox://chaloemphol.6hmfuluu", //
-      //     "tileSize": 256
-      // });
-
-      //   if (!map.current.getLayer('nkrafa-ortho-layer')) map.current.addLayer(
-      //     {
-      //     'id': 'nkrafa-ortho-layer',
-      //     'type': 'raster',
-      //     'source': 'nkrafa-ortho-src',
-      //     'paint': {}
-      //     }
-      //     );
-
-      /**
-       * BBOX ให้ใช้ {bbox-epsg-3857}
-       */
-        if (!map.current.getSource('nkrafa-ortho-src')) map.current.addSource('nkrafa-ortho-src', {
-          'type': 'raster',
-          // use the tiles option to specify a WMS tile source URL
-          // https://docs.mapbox.com/mapbox-gl-js/style-spec/sources/
-          'tiles': [
-            'http://sppsim.rtaf.mi.th/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis:MapPlan_Orthomosaic_export_ThuAug25215405728558&bbox={bbox-epsg-3857}&srs=EPSG:3857&transparent=true&width=512&height=512&styles=&format=image/png'//'http://sppsim.rtaf.mi.th/geoserver/uas4gis/wms?bbox={bbox-epsg-4326}&format=image/png?service=WMS&version=1.1.0&request=GetMap&srs=EPSG:4326&transparent=true&width=512&height=512&layers=uas4gis%3AMapPlan_Orthomosaic_export_ThuAug25215405728558'
-            //'http://localhost:8080/geoserver/uas4gis/wms?bbox={bbox-epsg-4326}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:4326&transparent=true&width=512&height=512&layers=uas4gis%3AMapPlan_Orthomosaic_export_ThuAug25215405728558_mask'
-
-            //http://sppsim.rtaf.mi.th/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis%3AMapPlan_Orthomosaic_export_ThuAug25215405728558&bbox={bbox-epsg-4326}&width=512&height=512&srs=EPSG%3A4326&styles=&format=image%2Fpng
-          ],
-          
-          //http://localhost:8080/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis%3AMapPlan_Orthomosaic_export_ThuAug25215405728558_mask&bbox=101.18050176466429%2C14.645264282309714%2C101.19264152666247%2C14.660350813379504&width=617&height=768&srs=EPSG%3A4326&styles=&format=application/openlayers#toggle
-          'tileSize': 512
-          });
-
-        if (!map.current.getLayer('nkrafa-ortho-layer')) {
-          map.current.addLayer({
-            'id': 'nkrafa-ortho-layer',
-            'type': 'raster',
-            'source': 'nkrafa-ortho-src',
-            'paint': {}
-          });
-
-          toggleVisibility('nkrafa-ortho-layer')
-        }
 
         // MARK:- DEM
 
@@ -304,170 +380,53 @@ function App() {
             'source': 'nkrafa-dem',
             'paint': {}
           },
-          'nkrafa-ortho-layer'
+          'nkrafa-ortho-6508-layer'
         );
 
         toggleVisibility('nkrafa-dem-layer')
       }
 
 
-          
+        // MARK:- RASTER
 
+      /**
+       * BBOX ให้ใช้ {bbox-epsg-3857}
+       * 
+      //  */
 
-        // Add a province layer to visualize the polygon.
-        if (!map.current.getLayer('provinces')) {
-          map.current.addLayer({
-            'id': 'provinces',
-            'type': 'fill',
-            'source': 'provinces_source', // reference the data source
-            'layout': {},
-            'paint': {
-              'fill-color': '#0080ff', // blue color fill
-              'fill-opacity': 0.1
-            }
-          });
-          toggleVisibility('provinces')
+      
+      Object.entries(ortho).forEach(([name, con]) => {
+        if (!map.current.getSource(con.layer.source)) {
+        console.log(name);
+          map.current.addSource(con.layer.source, con.src);
         }
-          
-
-
-        // //Amphoe
-        // if (!map.current.getSource('amphoes')) map.current.addSource('amphoes', {
-        //   type: 'geojson',
-        //   // Use a URL for the value for the `data` property.
-        //   data: 'http://localhost:8080/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AAmphoe&outputFormat=application%2Fjson'// 'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AAmphoe&outputFormat=application%2Fjson'
-        // });
-
-        // // Add amphoes layer to visualize the polygon.
-        // if (!map.current.getLayer('amphoes')) map.current.addLayer({
-        //     'id': 'amphoes',
-        //     'type': 'line',
-        //     'source': 'amphoes', // reference the data source
-        //     'layout': {},
-        //     'paint': {
-        //       'line-color': '#800',
-        //       'line-width': 2
-        //     }
-        // });
-        // if (!visibleLayers.includes('amphoes')) map.current.setLayoutProperty(
-        //   'amphoes',
-        //   'visibility',
-        //   'none'
-        // );
-
-        // //Tambol
-        // if (!map.current.getSource('tambols')) map.current.addSource('tambols', {
-        //   type: 'geojson',
-        //   // Use a URL for the value for the `data` property.
-        //   data: 'http://localhost:8080/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3ATambon&outputFormat=application%2Fjson'
-        // });
-
-        // // Add tambols layer to visualize the polygon.
-        // if (!map.current.getLayer('tambols')) map.current.addLayer({
-        //     'id': 'tambols',
-        //     'type': 'line',
-        //     'source': 'tambols', // reference the data source
-        //     'layout': {},
-        //     'paint': {
-        //       'line-color': '#080',
-        //       'line-width': 1
-        //     }
-        //   });
-        //   if (!visibleLayers.includes('tambols')) map.current.setLayoutProperty(
-        //     'tambols',
-        //     'visibility',
-        //     'none'
-        //   );
-
-        // // Add a black outline around the polygon.
-        // if (!map.current.getLayer('provinces_outline')) map.current.addLayer({
-        //   'id': 'provinces_outline',
-        //   'type': 'line',
-        //   'source': 'provinces_source',
-        //   'layout': {},
-        //   'paint': {
-        //     'line-color': '#000',
-        //     'line-width': 1
-        //   }
-        // });
-
-        // add a sky layer that will show when the map is highly pitched
-
-        // //Roads
-        if (!map.current.getSource('roads-source')) map.current.addSource('roads-source', {
-          type: 'geojson',
-          // Use a URL for the value for the `data` property.
-          data: 'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Aroad_line&outputFormat=application%2Fjson'
-        });
-
-        // Add tambols layer to visualize the polygon.
-      if (!map.current.getLayer('roads')) {
-        map.current.addLayer({
-          'id': 'roads',
-          'type': 'line',
-          'source': 'roads-source', // reference the data source
-          'layout': {},
-          'paint': {
-            'line-color': '#1E90FF',
-            'line-width': 4
-          }
-        });
-        toggleVisibility('roads')
-      }
-          
-
-
-        // //Buildings
-        if (!map.current.getSource('buildings-source')) map.current.addSource('buildings-source', {
-          type: 'geojson',
-          // Use a URL for the value for the `data` property.
-          data: 'http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Abuilding&outputFormat=application%2Fjson'
-        });
-
-        // Add tambols layer to visualize the polygon.
-        if (!map.current.getLayer('buildings')) {
-          map.current.addLayer({
-            'id': 'buildings',
-            'type': 'fill',
-            'source': 'buildings-source', // reference the data source,
-            'layout': {},
-            'paint': {
-              'fill-color': '#FFFF00', // blue color fill
-              'fill-opacity': 0.5
-            }
-          });
-
-          toggleVisibility('buildings')
+        if (!map.current.getLayer(name)) {
+          map.current.addLayer(con.layer);
+          toggleVisibility(name)
         }
-
-          //SKY
-        if (!map.current.getLayer('sky')) map.current.addLayer({
-          'id': 'sky',
-          'type': 'sky',
-          'paint': {
-            'sky-type': 'atmosphere',
-            'sky-atmosphere-sun': [0.0, 0.0],
-            'sky-atmosphere-sun-intensity': 15
+      });
+      
+        // Admin areas
+        Object.entries(admins).forEach(([name, con]) => {
+          if (!map.current.getSource(con.layer.source)) map.current.addSource(con.layer.source, con.src);
+          if (!map.current.getLayer(name)) {
+            map.current.addLayer(con.layer);
+            toggleVisibility(name)
           }
         });
 
-        map.current.off('data', loadSource);
-      }
-    }
+        // Buildings and roads
+        Object.entries(constructions).forEach(([name, con]) => {
+          if (!map.current.getSource(con.layer.source)) {
+          console.log(name);
+            map.current.addSource(con.layer.source, con.src);
+          }
+          if (!map.current.getLayer(name)) {
+            map.current.addLayer(con.layer);
+            toggleVisibility(name)
+          }
+        });
 
-    map.current.on('data', loadSource);
-
-    map.current.on('sourcedata', (e) => {
-      // console.log(e);
-      // if (e.isSourceLoaded) {
-      //   setSpinners(o => ({...o, [e.sourceId] : <>spinning</>}))
-      // } else {
-      //   setSpinners(o => ({...o, [e.sourceId] : <></>}))
-      // }
-    })
-
-      // After the last frame rendered before the map enters an "idle" state.
-    map.current.on('idle', () => {
 
 
         const layers = document.getElementById('menu');
@@ -481,7 +440,7 @@ function App() {
           layers.appendChild(toggleTerrainCB);
 
           const toggleTerrainLabel = document.createElement("label");
-          toggleTerrainLabel.innerText = "Toggle Terrain"
+          toggleTerrainLabel.innerText = "แสดง Terrain"
           toggleTerrainLabel.htmlFor =  "toggleTerrain" ;
           layers.appendChild(toggleTerrainLabel);
         }
@@ -533,6 +492,26 @@ function App() {
         layers.appendChild(link);
       }
 
+        map.current.off('data', loadSource);
+      }
+    }
+
+    map.current.on('data', loadSource);
+
+    map.current.on('sourcedata', (e) => {
+      // console.log(e);
+      // if (e.isSourceLoaded) {
+      //   setSpinners(o => ({...o, [e.sourceId] : <>spinning</>}))
+      // } else {
+      //   setSpinners(o => ({...o, [e.sourceId] : <></>}))
+      // }
+    })
+
+      // After the last frame rendered before the map enters an "idle" state.
+      map.current.on('idle', () => {
+
+
+
       // map.current.setLayoutProperty('provinces', 'text-field', [
       //     'format',
       //     ['get', 'name_e'],
@@ -577,41 +556,13 @@ function updateArea(e) {
 
 
 
-    // let isAtStart = true;
-    
-    document.getElementById('titleblock').addEventListener('click', () => {
-      // depending on whether we're currently at point a or b, aim for
-      // point a or b
-      // const target = isAtStart ? end : start;
-      
-      // and now we're at the opposite point
-      // isAtStart = !isAtStart;
-      
-      map.current.flyTo({
-        // These options control the ending camera position: centered at
-        // the target, at zoom level 9, and north up.
-        center: start,
-        zoom: _zoom,
-        bearing: _bearing,
-        pitch: _pitch,
-        
-        // These options control the flight curve, making it move
-        // slowly and zoom out almost completely before starting
-        // to pan.
-        speed: 0.5, // make the flying slow
-        curve: 1, // change the speed at which it zooms out
-        
-        // This can be any easing function: it takes a number between
-        // 0 and 1 and returns another number between 0 and 1.
-        easing: (t) => t,
-        
-        // this animation is considered essential with respect to prefers-reduced-motion
-        essential: true
-      });
-    });
 
+  }, [compareMode]);
 
-  });
+  function toggleTerrain(event) {
+    event.checked ? map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 }) : map.current.setTerrain();
+ }
+
 
   function toggleSidebar(id) {
     const elem = document.getElementById(id);
@@ -673,6 +624,21 @@ function updateArea(e) {
   // let sidebarmenuProps = {
   //   closeNav
   // }
+
+if (compareMode) { 
+  return (<React.Fragment>
+  
+  <div id="comparison-container">
+    <div id="before" className="map" />
+    <div id="after" className="map" />
+ </div> 
+  <div id='titleblock'><TitleBlock /></div>
+  
+  <div className='button-group-right'>
+        <Button onClick={() => setCompareMode(b => !b)}  color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button>
+      </div>
+</React.Fragment>) } else {
+
   return (
     <div>
       <div ref={mapContainer} className="map-container" />
@@ -701,9 +667,15 @@ function updateArea(e) {
       </div>
 
       <div id='titleblock'><TitleBlock /></div>
+      <div className='button-group-right'>
+        <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
+      </div>
       
     </div>
   );
+}
+
+
 }
 
 export default App;
