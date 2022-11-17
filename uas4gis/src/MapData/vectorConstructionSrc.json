@@ -1,5 +1,6 @@
 {
     "roads": {
+        "id" : 0,
         "src": {
             "type": "geojson",
             "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Aroad_line&outputFormat=application%2Fjson"
@@ -15,10 +16,13 @@
             }
         },
         "info" : {
-            "desc" : "ถนน"
+            "group" : "Vectors",
+            "desc" : "ถนน",
+            "visible": true
         }
     },
     "buildings": {
+        "id" : 1,
         "src": {
             "type": "geojson",
             "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Abuilding651108&outputFormat=application%2Fjson"
@@ -27,14 +31,46 @@
             "id": "buildings",
             "type": "fill",
             "source": "buildings-source",
+            "maxzoom": 16,
             "layout": {},
             "paint": {
                 "fill-color": "#FFFF00",
                 "fill-opacity": 0.5
             }
         },
+        "extrude": {
+            "id": "buildings-extrude",
+            "source": "buildings-source",
+            "type": "fill-extrusion",
+            "minzoom": 16,
+            "paint": {
+                "fill-extrusion-color": "#FFFF00",
+                "fill-extrusion-height": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    15,
+                    0,
+                    15.05,
+                    20
+                ],
+                "fill-extrusion-base": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    15,
+                    0,
+                    15.05,
+                    0
+                ],
+                "fill-extrusion-opacity": 0.8
+            }
+        },
         "info" : {
-            "desc" : "อาคาร"
+            "group" : "Vectors",
+            "desc" : "อาคาร",
+            "extrude" : true,
+            "visible": true
         }
     }
 }

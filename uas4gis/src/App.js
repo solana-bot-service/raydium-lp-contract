@@ -48,17 +48,26 @@ function App() {
   const ortho = require('./MapData/nkrafaortho.json')
   const admins = require('./MapData/vectorAdminSrc.json')
   const constructions = require('./MapData/vectorConstructionSrc.json')
+  const essentialLayers = {...ortho, ...admins, ...constructions}
 
-
-  const mapIds = Object.entries({...ortho, ...admins, ...constructions}).reduce((p, [name, con]) => {
+  const mapIds = Object.entries(essentialLayers).reduce((p, [name, con]) => {
     return {...p, [name] : con.info.desc}
   }, {'nkrafa-dem-layer': 'ชั้นความสูง DEM'});
   // Enumerate ids of the layers.
-  const toggleableLayerIds = ['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'nkrafa-dem-layer', 'provinces', 'roads', 'buildings']; //'contours', 'museums',
+  const toggleableLayerIds = Object.keys(essentialLayers).reduce((p, name) => {
+    Array.isArray(p) ? p.push(name) : p = name
+    return p
+  }, [])
+
+  //['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'nkrafa-dem-layer', 'provinces', 'roads', 'buildings']; //'contours', 'museums',
   //['provinces', 'amphoes', 'tambols', 'sky', 'nkrafa-ortho-6508-layer']; //'contours', 'museums',
   // If these two layers were not added to the map, abort
 
-  const visibleLayers = ['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'roads', 'buildings']//['provinces']
+  const visibleLayers = Object.entries(essentialLayers).reduce((p, [name, con]) => {
+    if (con.info.visible) Array.isArray(p) ? p.push(name) : p = name
+    return p
+  }, [])
+  //['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'roads', 'buildings']//['provinces']
 
   const [spinners, setSpinners] = useState(toggleableLayerIds.reduce((p, id) => ({...p, [id]: <></>}), {}));
   
@@ -395,7 +404,7 @@ function App() {
       //  */
 
       
-      Object.entries(ortho).forEach(([name, con]) => {
+      Object.entries(ortho).sort((a, b) => a[1].info.date - b[1].info.date).forEach(([name, con]) => {
         if (!map.current.getSource(con.layer.source)) {
         console.log(name);
           map.current.addSource(con.layer.source, con.src);
@@ -407,7 +416,7 @@ function App() {
       });
       
         // Admin areas
-        Object.entries(admins).forEach(([name, con]) => {
+        Object.entries(admins).sort((a, b) => a[1].id - b[1].id).forEach(([name, con]) => {
           if (!map.current.getSource(con.layer.source)) map.current.addSource(con.layer.source, con.src);
           if (!map.current.getLayer(name)) {
             map.current.addLayer(con.layer);
@@ -425,6 +434,9 @@ function App() {
             map.current.addLayer(con.layer);
             toggleVisibility(name)
           }
+
+          if (con.info.extrude && !map.current.getLayer(con.extrude.id)) map.current.addLayer(con.extrude)
+
         });
 
 
@@ -449,48 +461,66 @@ function App() {
           return;
         }
 
+        let layerGroupsSet = new Set()
+        
+        Object.values(essentialLayers).forEach(con => {
+          
+          // console.log(con);
+          layerGroupsSet.add(con.info.group)
+        // 
+        });
 
         // Set up the corresponding toggle button for each layer.
-        for (const id of toggleableLayerIds) {
-          // Skip layers that already have a button set up.
-          if (document.getElementById(id)) {
-            continue;
-          }
+        layerGroupsSet.forEach(group => {
+              const name = document.createElement('p')
+              name.textContent = group
+              name.style.textDecoration = 'underline'
+              layers.appendChild(name)
 
-          // Create a link.
-          const link = document.createElement('a');
+              for (const id of toggleableLayerIds) {
+                // Skip layers that already have a button set up.
+                if (document.getElementById(id) || !Object.entries(essentialLayers)
+                  .filter(([_, con]) => (con.info.group === group))
+                  .map(([name, _]) => name).includes(id)) {
+                  continue;
+                }
 
-          link.id = id;
-          link.href = '#';
-          link.textContent = mapIds[id] || id;
-          link.className = visibleLayers.includes(id) ? 'active' : '';
+                // Create a link.
+                const link = document.createElement('a');
 
-          // Show or hide layer when the toggle is clicked.
-          link.onclick = function (e) {
-            const clickedLayer = this.id;
+                link.id = id;
+                link.href = '#';
+                link.textContent = mapIds[id] || id;
+                link.className = visibleLayers.includes(id) ? 'active' : '';
 
-            e.preventDefault();
-            e.stopPropagation();
+                // Show or hide layer when the toggle is clicked.
+                link.onclick = function (e) {
+                  const clickedLayer = this.id;
 
-            const visibility = map.current.getLayoutProperty(
-              clickedLayer,
-              'visibility'
-            );
-            // Toggle layer visibility by changing the layout object's visibility property.
-            if (!visibility || visibility === 'visible' ) {
-              map.current.setLayoutProperty(clickedLayer, 'visibility', 'none');
-              this.className = '';
-            } else {
-              this.className = 'active';
-              map.current.setLayoutProperty(
-                clickedLayer,
-                'visibility',
-                'visible'
-              );
-            }
-          };
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  const visibility = map.current.getLayoutProperty(
+                    clickedLayer,
+                    'visibility'
+                  );
+                  // Toggle layer visibility by changing the layout object's visibility property.
+                  if (!visibility || visibility === 'visible') {
+                    map.current.setLayoutProperty(clickedLayer, 'visibility', 'none');
+                    this.className = '';
+                  } else {
+                    this.className = 'active';
+                    map.current.setLayoutProperty(
+                      clickedLayer,
+                      'visibility',
+                      'visible'
+                    );
+                  }
+                };
         layers.appendChild(link);
       }
+
+    });
 
         map.current.off('data', loadSource);
       }
@@ -590,14 +620,13 @@ function updateArea(e) {
 
   const TitleBlock = () => {
     return ( 
-    <Card sx={{ display: 'flex', bgcolor:"transparent"}}>
+    <Card sx={{ display: 'flex', bgcolor:"transparent", maxHeight : "15vh"}}>
       <CardMedia
           component="img"
           image="nkrafalogo.png"
           alt="nkrafa logo"
-          sx={{ height: 80, width:80, m: 1}}
-        />
-        
+          sx={{ maxHeight: '15vh', width:80, objectFit:'contain'}}
+        />        
       <CardContent>
       <Box sx={{ textAlign: 'center', typography:'h5', color:'white' }}>ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี</Box>
         </CardContent>
@@ -635,45 +664,46 @@ if (compareMode) {
   <div id='titleblock'><TitleBlock /></div>
   
   <div className='button-group-right'>
-        <Button onClick={() => setCompareMode(b => !b)}  color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button>
+        <Button onClick={() => {
+          window.location.reload()
+          }}  color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button>
       </div>
-</React.Fragment>) } else {
+</React.Fragment>) } 
 
-  return (
-    <div>
-      <div ref={mapContainer} className="map-container" />
-      {/* <SidebarMenu {...sidebarmenuProps} /> */}
-      {/* <button id='openbtn' className="openbtn" onClick={openNav}>☰</button> */}
+return (
+  <div>
+    <div ref={mapContainer} className="map-container" />
+    {/* <SidebarMenu {...sidebarmenuProps} /> */}
+    {/* <button id='openbtn' className="openbtn" onClick={openNav}>☰</button> */}
 
-      <div id="left" className="sidebar flex-center left collapsed">
-          <div className="sidebar-content rounded-rect flex-center">
+    <div id="left" className="sidebar flex-center left collapsed">
+        <div className="sidebar-content rounded-rect flex-center">
 
-            <Stack spacing={2} direction="column" >
-        
-              <LayersTOC />
-              {/* <BaseMaps /> */}
-            </Stack>
-            <div className="sidebar-toggle rounded-rect left" onClick={event => { toggleSidebar('left'); }}>
-            →
-            </div>
+          <Stack spacing={2} direction="column" >
+      
+            <LayersTOC />
+            {/* <BaseMaps /> */}
+          </Stack>
+          <div className="sidebar-toggle rounded-rect left" onClick={event => { toggleSidebar('left'); }}>
+          →
           </div>
-      </div>
-
-      
-      <InfoBar {...props} />
-      <div id='calculation-box' className="calculation-box">
-        <p>ขนาดพื้นที่รวม</p>
-        <div id="calculated-area" />
-      </div>
-
-      <div id='titleblock'><TitleBlock /></div>
-      <div className='button-group-right'>
-        <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
-      </div>
-      
+        </div>
     </div>
-  );
-}
+
+    
+    <InfoBar {...props} />
+    <div id='calculation-box' className="calculation-box">
+      <p>ขนาดพื้นที่รวม</p>
+      <div id="calculated-area" />
+    </div>
+
+    <div id='titleblock'><TitleBlock /></div>
+    <div className='button-group-right'>
+      <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
+    </div>
+    
+  </div>
+);
 
 
 }

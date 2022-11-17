@@ -15,13 +15,14 @@
   margin: 0px auto;
   top: 10px;
   width: 50%;
+  max-height: 35vh;
   padding: 10px;
   border: none;
   border-radius: 10px;
-  font-size: 24px;
   text-align: center;
   color: #fff;
   background: #000000c4;
+  box-sizing: border-box;
   }
 
 #left-panel {
@@ -128,7 +129,7 @@ p {
   height: 50px;
   width: auto;
   position: absolute;
-  top: 8px;
+  top: 10px;
   right: 60px;
   text-align: center;
   border-radius: 10px;
@@ -162,9 +163,7 @@ The toggleSidebar() function removes this class from the element in order to exp
 
   #titleblock {
     width: 100%;
-    height: 10%;
     top: 0;
-    font-size: 12px;
     border-radius: 0;
     background: #000000;
   }

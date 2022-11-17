@@ -1,5 +1,6 @@
 {
     "provinces": {
+        "id" : 2,
         "src": {
             "type": "geojson",
             "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson"
@@ -15,10 +16,13 @@
             }
         },
         "info" : {
-            "desc" : "ขอบเขตจังหวัด"
+            "group" : "ขอบเขตการปกครอง",
+            "desc" : "ขอบเขตจังหวัด",
+            "visible": false
         }
     },
     "amphoes": {
+        "id" :1,
         "src": {
             "type": "geojson",
             "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AAmphoe&outputFormat=application%2Fjson"
@@ -33,10 +37,13 @@
             }
         },
         "info" : {
-            "desc" : "ขอบเขตอำเภอ"
+            "group" : "ขอบเขตการปกครอง",
+            "desc" : "ขอบเขตอำเภอ",
+            "visible": false
         }
     },
     "tambols": {
+        "id" : 0,
         "src": {
             "type": "geojson",
             "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3ATambon&outputFormat=application%2Fjson"
@@ -52,7 +59,9 @@
             }
         },
         "info" : {
-            "desc" : "ขอบเขตตำบล"
+            "group" : "ขอบเขตการปกครอง",
+            "desc" : "ขอบเขตตำบล",
+            "visible": false
         }
     }
 }
