@@ -43,6 +43,7 @@ function App() {
   const [bearing, setBearing] = useState(_bearing); //-108
   const [pitch, setPitch] = useState(_pitch); //76
   const [compareMode, setCompareMode] = useState(false);
+  const [toggleSymbol, setToggleSymbol] = useState("▶︎");
 
   //map data sources
   const ortho = require('./MapData/nkrafaortho.json')
@@ -475,6 +476,8 @@ function App() {
               const name = document.createElement('p')
               name.textContent = group
               name.style.textDecoration = 'underline'
+              name.style.marginTop = '10px'
+              name.style.textAlign = 'center'
               layers.appendChild(name)
 
               for (const id of toggleableLayerIds) {
@@ -599,14 +602,19 @@ function updateArea(e) {
     // Add or remove the 'collapsed' CSS class from the sidebar element.
     // Returns boolean "true" or "false" whether 'collapsed' is in the class list.
     const collapsed = elem.classList.toggle('collapsed');
+    const duration = 1000
     const padding = {};
     // 'id' is 'right' or 'left'. When run at start, this object looks like: '{left: 300}';
     padding[id] = collapsed ? 0 : 200; // 0 if collapsed, 300 px if not. This matches the width of the sidebars in the .sidebar CSS class.
     // Use `map.easeTo()` with a padding option to adjust the map's center accounting for the position of sidebars.
     map.current.easeTo({
       padding: padding,
-      duration: 1000 // In ms. This matches the CSS transition duration property.
+      duration // In ms. This matches the CSS transition duration property.
     });
+
+    setTimeout(() => {      
+      setToggleSymbol(collapsed ? "▶︎" : "◀︎")
+    }, duration);
   }
 
   // useEffect(() => {
@@ -684,8 +692,8 @@ return (
             <LayersTOC />
             {/* <BaseMaps /> */}
           </Stack>
-          <div className="sidebar-toggle rounded-rect left" onClick={event => { toggleSidebar('left'); }}>
-          →
+          <div className="sidebar-toggle left" onClick={event => { toggleSidebar('left'); }}>
+          {toggleSymbol}
           </div>
         </div>
     </div>

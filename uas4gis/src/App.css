@@ -65,7 +65,7 @@ p {
 }
 
 .rounded-rect {
-  background: rgba(255, 255, 255, 0);
+  background: rgba(0, 0, 0, 0);
   border-radius: 10px;
   box-shadow: 0 0 50px -25px rgba(0, 0, 0, 0);
 }
@@ -93,7 +93,9 @@ p {
 }
 
 .sidebar-toggle {
-  background: rgb(255, 255, 255);
+  background: rgba(255, 255, 255, 0);
+  color: #FFF;
+  font-size: xx-large;
   position: absolute;
   width: 1.3em;
   height: 1.3em;
@@ -104,7 +106,7 @@ p {
 }
 
 .sidebar-toggle.left {
-  right: -1.5em;
+  right: -1em;
 }
 
 .sidebar-toggle.right {
