@@ -174,7 +174,7 @@ function App() {
     map.current.addControl(draw.current);
     }
 
-  }, [compareMode]);
+  });
 
   useEffect(() => {
 
@@ -590,7 +590,21 @@ function updateArea(e) {
 
 
 
-  }, [compareMode]);
+  });
+
+  // useEffect(() => {
+    
+  //   async function checkGeoserver() {
+          
+  //     let geoserverUrl = 'http://sppsim.rtaf.mi.th'
+  //     console.log(await webexists(geoserverUrl));
+
+  //   }
+
+  //   checkGeoserver()
+
+
+  // });
 
   function toggleTerrain(event) {
     event.checked ? map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 }) : map.current.setTerrain();
@@ -713,7 +727,11 @@ return (
   </div>
 );
 
+}
 
+export async function webexists(url) {
+  const result = await fetch(url, { method: 'HEAD' });
+  return result.ok;
 }
 
 export default App;
