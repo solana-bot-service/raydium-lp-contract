@@ -103,41 +103,21 @@
                 ["concat","อาคาร ", ["get", "AREA_SQM"]]],
               "text-size": 14,
               "icon-image": [
-                  "case",
-                  ["has", "maki_beta"],
-                  [
-                      "coalesce",
-                      ["image", ["get", "maki_beta"]],
-                      ["image", ["get", "maki"]]
-                  ],
-                  ["image", ["get", "maki"]]
-              ],
+                "step",
+                ["zoom"],
+                "",
+                16,
+                "leader_line_silver"
+            ],
+              "icon-anchor": "bottom",
+              "icon-offset" : [0, -20],
               "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
               "text-offset": [
                   "step",
                   ["zoom"],
-                  [
-                      "step",
-                      1,
-                      ["literal", [0, 0]],
-                      5,
-                      ["literal", [0, -15]]
-                  ],
+                  ["literal", [0, 0]],
                   16,
-                  [
-                      "step",
-                      1,
-                      ["literal", [0, 0]],
-                      13,
-                      ["literal", [0, -15]]
-                  ]
-              ],
-              "text-anchor": [
-                  "step",
-                  ["zoom"],
-                  ["step", 1, "center", 5, "top"],
-                  16,
-                  ["step", 1, "center", 13, "top"]
+                  ["literal", [0, -12.5]]
               ]
             },
             "paint": {
@@ -178,8 +158,7 @@
             "group" : "Vectors",
             "desc" : "อาคาร",
             "extrude" : true,
-            "visible": true,
-            "label": "NAME"
+            "visible": true
         }
     }
 }

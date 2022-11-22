@@ -147,7 +147,7 @@ function App() {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       // style: 'mapbox://styles/mapbox/streets-v11',
-      style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+      style: 'mapbox://styles/chaloemphol/clasf7ipf00dp14mpio2dnq8h',//'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
       center: [lng, lat],
       pitch,
       bearing,
