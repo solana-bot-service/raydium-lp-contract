@@ -18,7 +18,8 @@
         "info" : {
             "group" : "ขอบเขตการปกครอง",
             "desc" : "ขอบเขตจังหวัด",
-            "visible": false
+            "visible": false,
+            "label": "name_t"
         }
     },
     "amphoes": {

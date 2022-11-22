@@ -32,7 +32,7 @@ function App() {
   const comparemap = useRef()
   const beforeMap = useRef()
   const afterMap = useRef()
-  
+
   const draw = useRef(null);
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
   const start = [101.1866, 14.6534];
@@ -71,7 +71,7 @@ function App() {
   //['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'roads', 'buildings']//['provinces']
 
   const [spinners, setSpinners] = useState(toggleableLayerIds.reduce((p, id) => ({...p, [id]: <></>}), {}));
-  
+
   useEffect(() => {
 
     if (compareMode) {
@@ -86,9 +86,9 @@ function App() {
           bearing,
           zoom,
         });
-         
+
         if (!afterMap.current) afterMap.current = new mapboxgl.Map({
-        container: 'after',          
+        container: 'after',
         style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
         center: [lng, lat],
         pitch,
@@ -98,8 +98,8 @@ function App() {
 
 
       afterMap.current.addControl(new mapboxgl.NavigationControl());
-         
-              
+
+
         beforeMap.current.on('data', () => {
 
           Object.entries(ortho).slice(0, 1).forEach(([name, con]) => {
@@ -135,7 +135,7 @@ function App() {
 
         // A selector or reference to HTML element
         const container = '#comparison-container';
-         
+
         comparemap.current = new MapboxCompare(beforeMap.current, afterMap.current, container, {
         // Set this to enable comparing two maps by mouse movement:
         // mousemove: true
@@ -163,7 +163,7 @@ function App() {
       controls: {
         // line_string: true,
         // combine_features: true,
-        // uncombine_features: true,        
+        // uncombine_features: true,
       polygon: true,
       trash: true
       },
@@ -178,12 +178,12 @@ function App() {
 
   useEffect(() => {
 
-        
+
     document.getElementById('titleblock').addEventListener('click', () => {
       // depending on whether we're currently at point a or b, aim for
       // point a or b
       // const target = isAtStart ? end : start;
-      
+
       // and now we're at the opposite point
       // isAtStart = !isAtStart;
       let flyParams = {
@@ -193,28 +193,28 @@ function App() {
         zoom: _zoom,
         bearing: _bearing,
         pitch: _pitch,
-        
+
         // These options control the flight curve, making it move
         // slowly and zoom out almost completely before starting
         // to pan.
         speed: 1.5, // make the flying slow
         curve: 1, // change the speed at which it zooms out
-        
+
         // This can be any easing function: it takes a number between
         // 0 and 1 and returns another number between 0 and 1.
         easing: (t) => t,
-        
+
         // this animation is considered essential with respect to prefers-reduced-motion
         essential: true
       }
-      
+
       if (compareMode) {
         beforeMap.current.flyTo(flyParams);
       } else {
         map.current.flyTo(flyParams);
       }
     });
-    
+
     if (!map.current || compareMode) return; // wait for map to initialize
     const size = 200;
 
@@ -241,9 +241,9 @@ function App() {
       //   console.log('checking visibility', id);
       //   console.log('====================================');
       //   toggleVisibility(id)
-        
+
       // });
-      
+
       // map.current.addSource('dot-point', {
       //   'type': 'geojson',
       //   'data': {
@@ -337,19 +337,19 @@ function App() {
           .setHTML(e.features[0].properties.name_t)
           .addTo(map.current);
           });
-          
+
           // Change the cursor to a pointer when
           // the mouse is over the states layer.
           map.current.on('mouseenter', 'provinces', () => {
           map.current.getCanvas().style.cursor = 'pointer';
           });
-          
+
           // Change the cursor back to a pointer
           // when it leaves the states layer.
           map.current.on('mouseleave', 'provinces', () => {
           map.current.getCanvas().style.cursor = '';
           });
-        
+
                     //SKY
         // add a sky layer that will show when the map is highly pitched
 
@@ -401,10 +401,10 @@ function App() {
 
       /**
        * BBOX ให้ใช้ {bbox-epsg-3857}
-       * 
+       *
       //  */
 
-      
+
       Object.entries(ortho).sort((a, b) => a[1].info.date - b[1].info.date).forEach(([name, con]) => {
         if (!map.current.getSource(con.layer.source)) {
         console.log(name);
@@ -415,7 +415,7 @@ function App() {
           toggleVisibility(name)
         }
       });
-      
+
         // Admin areas
         Object.entries(admins).sort((a, b) => a[1].id - b[1].id).forEach(([name, con]) => {
           if (!map.current.getSource(con.layer.source)) map.current.addSource(con.layer.source, con.src);
@@ -434,6 +434,9 @@ function App() {
           if (!map.current.getLayer(name)) {
             map.current.addLayer(con.layer);
             toggleVisibility(name)
+
+            if (con.label && !map.current.getLayer(name + "-label")) map.current.addLayer(con.label);
+
           }
 
           if (con.info.extrude && !map.current.getLayer(con.extrude.id)) map.current.addLayer(con.extrude)
@@ -463,64 +466,80 @@ function App() {
         }
 
         let layerGroupsSet = new Set()
-        
+
         Object.values(essentialLayers).forEach(con => {
-          
+
           // console.log(con);
           layerGroupsSet.add(con.info.group)
-        // 
+        //
         });
 
         // Set up the corresponding toggle button for each layer.
         layerGroupsSet.forEach(group => {
               const name = document.createElement('p')
               name.textContent = group
+              name.id = group
               name.style.textDecoration = 'underline'
               name.style.marginTop = '10px'
               name.style.textAlign = 'center'
-              layers.appendChild(name)
+              if (!document.getElementById(group)) layers.appendChild(name)
 
               for (const id of toggleableLayerIds) {
                 // Skip layers that already have a button set up.
-                if (document.getElementById(id) || !Object.entries(essentialLayers)
-                  .filter(([_, con]) => (con.info.group === group))
-                  .map(([name, _]) => name).includes(id)) {
+                if (document.getElementById(id)) {
                   continue;
                 }
 
-                // Create a link.
-                const link = document.createElement('a');
+                if (Object.entries(essentialLayers)
+                  .filter(([_, con]) => (con.info.group === group))
+                  .map(([name, _]) => name).includes(id)) {
 
-                link.id = id;
-                link.href = '#';
-                link.textContent = mapIds[id] || id;
-                link.className = visibleLayers.includes(id) ? 'active' : '';
 
-                // Show or hide layer when the toggle is clicked.
-                link.onclick = function (e) {
-                  const clickedLayer = this.id;
+                  // Create a link.
+                  const link = document.createElement('a');
 
-                  e.preventDefault();
-                  e.stopPropagation();
+                  link.id = id;
+                  link.href = '#';
+                  link.textContent = mapIds[id] || id;
+                  link.className = visibleLayers.includes(id) ? 'active' : '';
 
-                  const visibility = map.current.getLayoutProperty(
-                    clickedLayer,
-                    'visibility'
-                  );
-                  // Toggle layer visibility by changing the layout object's visibility property.
-                  if (!visibility || visibility === 'visible') {
-                    map.current.setLayoutProperty(clickedLayer, 'visibility', 'none');
-                    this.className = '';
-                  } else {
-                    this.className = 'active';
-                    map.current.setLayoutProperty(
+                  // Show or hide layer when the toggle is clicked.
+                  link.onclick = function (e) {
+                    const clickedLayer = this.id;
+                    const clickedLayerLabel = clickedLayer + "-label"
+                    const clickedLayerExtrude = clickedLayer + "-extrude"
+
+                    const allLayers = [clickedLayer, clickedLayerLabel, clickedLayerExtrude]
+
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const visibility = map.current.getLayoutProperty(
                       clickedLayer,
-                      'visibility',
-                      'visible'
+                      'visibility'
                     );
-                  }
-                };
-        layers.appendChild(link);
+                    // Toggle layer visibility by changing the layout object's visibility property.
+                    if (!visibility || visibility === 'visible') {
+                      allLayers.forEach(layer => {
+                        if (map.current.getLayer(layer)) map.current.setLayoutProperty(layer, 
+                          'visibility', 
+                          'none');
+                      });
+                      this.className = '';
+                    } else {
+                      allLayers.forEach(layer => {
+                        if (map.current.getLayer(layer)) map.current.setLayoutProperty(layer, 
+                          'visibility', 
+                          'visible');
+                      });
+                      this.className = 'active';
+                    }
+                  };
+                  layers.appendChild(link);
+
+                } else {
+                  continue
+                }
       }
 
     });
@@ -565,7 +584,7 @@ function App() {
     map.current.on('draw.delete', updateArea);
     map.current.on('draw.update', updateArea);
     map.current.on('draw.modechange', updateArea);
- 
+
 function updateArea(e) {
 
     console.log(draw.current.getMode());
@@ -593,9 +612,9 @@ function updateArea(e) {
   });
 
   // useEffect(() => {
-    
+
   //   async function checkGeoserver() {
-          
+
   //     let geoserverUrl = 'http://sppsim.rtaf.mi.th'
   //     console.log(await webexists(geoserverUrl));
 
@@ -626,13 +645,13 @@ function updateArea(e) {
       duration // In ms. This matches the CSS transition duration property.
     });
 
-    setTimeout(() => {      
+    setTimeout(() => {
       setToggleSymbol(collapsed ? "▶︎" : "◀︎")
     }, duration);
   }
 
   // useEffect(() => {
-    
+
   //   console.log(spinners);
   // }, [spinners]);
 
@@ -641,14 +660,14 @@ function updateArea(e) {
   }
 
   const TitleBlock = () => {
-    return ( 
+    return (
     <Card sx={{ display: 'flex', bgcolor:"transparent", maxHeight : "15vh"}}>
       <CardMedia
           component="img"
           image="nkrafalogo.png"
           alt="nkrafa logo"
           sx={{ maxHeight: '15vh', width:80, objectFit:'contain'}}
-        />        
+        />
       <CardContent>
       <Box sx={{ textAlign: 'center', typography:'h5', color:'white' }}>ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี</Box>
         </CardContent>
@@ -676,24 +695,24 @@ function updateArea(e) {
   //   closeNav
   // }
 
-if (compareMode) { 
+if (compareMode) {
   return (<React.Fragment>
-  
+
   <div id="comparison-container">
     <div id="before" className="map" />
     <div id="after" className="map" />
- </div> 
+ </div>
   <div id='titleblock'><TitleBlock /></div>
-  
+
   <div className='button-group-right'>
         <Button onClick={() => {
           window.location.reload()
           }}  color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button>
       </div>
-</React.Fragment>) } 
+</React.Fragment>) }
 
 return (
-  <div>
+  <React.Fragment>
     <div ref={mapContainer} className="map-container" />
     {/* <SidebarMenu {...sidebarmenuProps} /> */}
     {/* <button id='openbtn' className="openbtn" onClick={openNav}>☰</button> */}
@@ -702,7 +721,7 @@ return (
         <div className="sidebar-content rounded-rect flex-center">
 
           <Stack spacing={2} direction="column" >
-      
+
             <LayersTOC />
             {/* <BaseMaps /> */}
           </Stack>
@@ -712,7 +731,7 @@ return (
         </div>
     </div>
 
-    
+
     <InfoBar {...props} />
     <div id='calculation-box' className="calculation-box">
       <p>ขนาดพื้นที่รวม</p>
@@ -723,8 +742,8 @@ return (
     <div className='button-group-right'>
       <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
     </div>
-    
-  </div>
+
+  </React.Fragment>
 );
 
 }
