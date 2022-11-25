@@ -107,17 +107,16 @@
                 ["zoom"],
                 "",
                 16,
-                "leader_line_silver"
+                "leader_line"
             ],
               "icon-anchor": "bottom",
-              "icon-offset" : [0, -20],
               "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
               "text-offset": [
                   "step",
                   ["zoom"],
                   ["literal", [0, 0]],
                   16,
-                  ["literal", [0, -12.5]]
+                  ["literal", [0, -15]]
               ]
             },
             "paint": {

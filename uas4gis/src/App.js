@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import MapboxCompare from 'mapbox-gl-compare';
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
@@ -161,11 +161,11 @@ function App() {
       displayControlsDefault: false,
       // Select which mapbox-gl-draw control buttons to add to the map.
       controls: {
-        // line_string: true,
+        line_string: true,
         // combine_features: true,
         // uncombine_features: true,
-      polygon: true,
-      trash: true
+        polygon: true,
+        trash: true
       },
       // Set mapbox-gl-draw to draw by default.
       // The user does not have to click the polygon control button first.
@@ -174,52 +174,7 @@ function App() {
     map.current.addControl(draw.current);
     }
 
-  });
 
-  useEffect(() => {
-
-
-    document.getElementById('titleblock').addEventListener('click', () => {
-      // depending on whether we're currently at point a or b, aim for
-      // point a or b
-      // const target = isAtStart ? end : start;
-
-      // and now we're at the opposite point
-      // isAtStart = !isAtStart;
-      let flyParams = {
-        // These options control the ending camera position: centered at
-        // the target, at zoom level 9, and north up.
-        center: start,
-        zoom: _zoom,
-        bearing: _bearing,
-        pitch: _pitch,
-
-        // These options control the flight curve, making it move
-        // slowly and zoom out almost completely before starting
-        // to pan.
-        speed: 1.5, // make the flying slow
-        curve: 1, // change the speed at which it zooms out
-
-        // This can be any easing function: it takes a number between
-        // 0 and 1 and returns another number between 0 and 1.
-        easing: (t) => t,
-
-        // this animation is considered essential with respect to prefers-reduced-motion
-        essential: true
-      }
-
-      if (compareMode) {
-        beforeMap.current.flyTo(flyParams);
-      } else {
-        map.current.flyTo(flyParams);
-      }
-    });
-
-    if (!map.current || compareMode) return; // wait for map to initialize
-    const size = 200;
-
-    // This implements `StyleImageInterface`
-    // to draw a pulsing dot icon on the map
 
     map.current.on('load', () => {
 
@@ -315,13 +270,13 @@ function App() {
     });
 
 
-  function toggleVisibility(id) {
-    if (!visibleLayers.includes(id)) map.current.setLayoutProperty(
-      id,
-      'visibility',
-      'none'
-    );
-  }
+    function toggleVisibility(id) {
+      if (!visibleLayers.includes(id)) map.current.setLayoutProperty(
+        id,
+        'visibility',
+        'none'
+      );
+    }
 
 
     var loadSource = () => {
@@ -476,77 +431,84 @@ function App() {
 
         // Set up the corresponding toggle button for each layer.
         layerGroupsSet.forEach(group => {
-              const name = document.createElement('p')
-              name.textContent = group
-              name.id = group
-              name.style.textDecoration = 'underline'
-              name.style.marginTop = '10px'
-              name.style.textAlign = 'center'
-              if (!document.getElementById(group)) layers.appendChild(name)
+          const name = document.createElement('p')
+          name.textContent = group
+          name.id = group
+          name.style.textDecoration = 'underline'
+          name.style.marginTop = '10px'
+          name.style.textAlign = 'center'
+          if (!document.getElementById(group)) layers.appendChild(name)
 
-              for (const id of toggleableLayerIds) {
-                // Skip layers that already have a button set up.
-                if (document.getElementById(id)) {
-                  continue;
-                }
+          for (const id of toggleableLayerIds) {
+            // Skip layers that already have a button set up.
+            if (document.getElementById(id)) {
+              continue;
+            }
 
-                if (Object.entries(essentialLayers)
-                  .filter(([_, con]) => (con.info.group === group))
-                  .map(([name, _]) => name).includes(id)) {
+            if (Object.entries(essentialLayers)
+              .filter(([_, con]) => (con.info.group === group))
+              .map(([name, _]) => name).includes(id)) {
 
 
-                  // Create a link.
-                  const link = document.createElement('a');
+              // Create a link.
+              const link = document.createElement('a');
 
-                  link.id = id;
-                  link.href = '#';
-                  link.textContent = mapIds[id] || id;
-                  link.className = visibleLayers.includes(id) ? 'active' : '';
+              link.id = id;
+              link.href = '#';
+              link.textContent = mapIds[id] || id;
+              link.className = visibleLayers.includes(id) ? 'active' : '';
 
-                  // Show or hide layer when the toggle is clicked.
-                  link.onclick = function (e) {
-                    const clickedLayer = this.id;
-                    const clickedLayerLabel = clickedLayer + "-label"
-                    const clickedLayerExtrude = clickedLayer + "-extrude"
+              // Show or hide layer when the toggle is clicked.
+              link.onclick = function (e) {
+                const clickedLayer = this.id;
+                const clickedLayerLabel = clickedLayer + "-label"
+                const clickedLayerExtrude = clickedLayer + "-extrude"
 
-                    const allLayers = [clickedLayer, clickedLayerLabel, clickedLayerExtrude]
+                const allLayers = [clickedLayer, clickedLayerLabel, clickedLayerExtrude]
 
-                    e.preventDefault();
-                    e.stopPropagation();
+                e.preventDefault();
+                e.stopPropagation();
 
-                    const visibility = map.current.getLayoutProperty(
-                      clickedLayer,
-                      'visibility'
-                    );
-                    // Toggle layer visibility by changing the layout object's visibility property.
-                    if (!visibility || visibility === 'visible') {
-                      allLayers.forEach(layer => {
-                        if (map.current.getLayer(layer)) map.current.setLayoutProperty(layer, 
-                          'visibility', 
-                          'none');
-                      });
-                      this.className = '';
-                    } else {
-                      allLayers.forEach(layer => {
-                        if (map.current.getLayer(layer)) map.current.setLayoutProperty(layer, 
-                          'visibility', 
-                          'visible');
-                      });
-                      this.className = 'active';
-                    }
-                  };
-                  layers.appendChild(link);
-
+                const visibility = map.current.getLayoutProperty(
+                  clickedLayer,
+                  'visibility'
+                );
+                // Toggle layer visibility by changing the layout object's visibility property.
+                if (!visibility || visibility === 'visible') {
+                  allLayers.forEach(layer => {
+                    if (map.current.getLayer(layer)) map.current.setLayoutProperty(layer,
+                      'visibility',
+                      'none');
+                  });
+                  this.className = '';
                 } else {
-                  continue
+                  allLayers.forEach(layer => {
+                    if (map.current.getLayer(layer)) map.current.setLayoutProperty(layer,
+                      'visibility',
+                      'visible');
+                  });
+                  this.className = 'active';
                 }
-      }
+              };
+              layers.appendChild(link);
 
-    });
+            } else {
+              continue
+            }
+          }
+
+        });
 
         map.current.off('data', loadSource);
       }
     }
+
+    //draw tools
+    map.current.on('draw.create', updateCalculation);
+    map.current.on('draw.delete', updateCalculation);
+    map.current.on('draw.update', updateCalculation);
+    map.current.on('draw.modechange', updateCalculation);
+    map.current.on('draw.render', updateCalculation);
 
     map.current.on('data', loadSource);
 
@@ -571,6 +533,106 @@ function App() {
 
     });
 
+
+    function updateCalculation(e) {
+
+        console.log(e.type, draw.current.getMode());
+        let mode = draw.current.getMode()
+
+        const data = draw.current.getAll();
+        if (e.type !== 'draw.render') console.log(data);
+        const answer = document.getElementById('calculated-area');
+        let headerText = document.createElement('p')
+        headerText.id = 'headerText'
+
+        const calculationBox = document.getElementById('calculation-box');
+        if (!document.getElementById('headerText')) calculationBox.prepend(headerText)
+        
+        calculationBox.style.display = data.features.length > 0 ? 'block' : 'none'
+
+        switch (mode) {
+          case 'draw_polygon':
+                
+            document.getElementById('headerText').textContent = 'ขนาดพื้นที่รวม'
+            
+            if (data.features.length > 0) {
+              const area = turf.area(data);
+              // Restrict the area to 2 decimal points.
+              const rounded_area = Math.round(area * 100) / 100;
+              answer.innerHTML = `<p><strong>${rounded_area.toLocaleString()}</strong> ตร.ม.</p>`;
+            } else {
+              answer.innerHTML = '';
+              // if (e.type !== 'draw.delete')
+              //   alert('Click the map to draw a polygon.');
+            }
+            break;
+          
+          case 'draw_line_string':
+                
+            document.getElementById('headerText').textContent = 'ระยะทางรวม'
+            
+            if (data.features.length > 0) {
+              const length = turf.length(data, { units : 'meters'});
+              // Restrict the area to 2 decimal points.
+              console.log(length);
+              const rounded_length = length.toFixed(3);
+              answer.innerHTML = `<p><strong>${rounded_length.toLocaleString()}</strong> ม.</p>`;
+            } else {
+              answer.innerHTML = '';
+              // if (e.type !== 'draw.delete')
+              //   alert('Click the map to draw a polygon.');
+            }
+            break;
+          
+        
+          default:
+            break;
+        }
+
+    }
+
+  const element = document.getElementById('titleblock')
+    if (element.getAttribute('listener') !== 'true') element.addEventListener('click', () => {
+      // depending on whether we're currently at point a or b, aim for
+      // point a or b
+      // const target = isAtStart ? end : start;
+
+      // and now we're at the opposite point
+      // isAtStart = !isAtStart;
+      let flyParams = {
+        // These options control the ending camera position: centered at
+        // the target, at zoom level 9, and north up.
+        center: start,
+        zoom: _zoom,
+        bearing: _bearing,
+        pitch: _pitch,
+
+        // These options control the flight curve, making it move
+        // slowly and zoom out almost completely before starting
+        // to pan.
+        speed: 1.5, // make the flying slow
+        curve: 1, // change the speed at which it zooms out
+
+        // This can be any easing function: it takes a number between
+        // 0 and 1 and returns another number between 0 and 1.
+        easing: (t) => t,
+
+        // this animation is considered essential with respect to prefers-reduced-motion
+        essential: true
+      }
+
+      if (compareMode) {
+        beforeMap.current.flyTo(flyParams);
+      } else {
+        map.current.flyTo(flyParams);
+      }
+    });
+  });
+
+  useEffect(() => {
+
+    if (!map.current) return
+    
     map.current.on('move', () => {
       setLng(map.current.getCenter().lng.toFixed(4));
       setLat(map.current.getCenter().lat.toFixed(4));
@@ -578,37 +640,6 @@ function App() {
       setBearing(map.current.getBearing().toFixed(2));
       setPitch(map.current.getPitch().toFixed(2));
     });
-
-    //draw tools
-    map.current.on('draw.create', updateArea);
-    map.current.on('draw.delete', updateArea);
-    map.current.on('draw.update', updateArea);
-    map.current.on('draw.modechange', updateArea);
-
-function updateArea(e) {
-
-    console.log(draw.current.getMode());
-    const data = draw.current.getAll();
-    const answer = document.getElementById('calculated-area');
-
-    const calculationBox = document.getElementById('calculation-box');
-    calculationBox.style.display = data.features.length > 0 ? 'block' : 'none'
-
-    if (data.features.length > 0) {
-      const area = turf.area(data);
-      // Restrict the area to 2 decimal points.
-      const rounded_area = Math.round(area * 100) / 100;
-      answer.innerHTML = `<p><strong>${rounded_area.toLocaleString()}</strong> ตร.ม.</p>`;
-    } else {
-      answer.innerHTML = '';
-      // if (e.type !== 'draw.delete')
-      //   alert('Click the map to draw a polygon.');
-    }
-}
-
-
-
-
   });
 
   // useEffect(() => {
@@ -655,11 +686,10 @@ function updateArea(e) {
   //   console.log(spinners);
   // }, [spinners]);
 
-  let props = {
-    lat, lng, zoom, bearing, pitch
-  }
+
 
   const TitleBlock = () => {
+    console.log('in TitleBlock');
     return (
     <Card sx={{ display: 'flex', bgcolor:"transparent", maxHeight : "15vh"}}>
       <CardMedia
@@ -694,57 +724,78 @@ function updateArea(e) {
   // let sidebarmenuProps = {
   //   closeNav
   // }
+  
 
-if (compareMode) {
-  return (<React.Fragment>
+  // function InfoBarDiv() {
+  //   return useMemo(() => {
+  //     return <InfoBar lat={lat} lng={lng} zoom={zoom} bearing={bearing} pitch={pitch} />
+  //   }, [lat, lng, zoom, bearing, pitch])
+  // }
 
-  <div id="comparison-container">
-    <div id="before" className="map" />
-    <div id="after" className="map" />
- </div>
-  <div id='titleblock'><TitleBlock /></div>
+  function Content(props) {
 
-  <div className='button-group-right'>
-        <Button onClick={() => {
-          window.location.reload()
-          }}  color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button>
-      </div>
-</React.Fragment>) }
+    let {compareMode} = props
 
-return (
-  <React.Fragment>
-    <div ref={mapContainer} className="map-container" />
-    {/* <SidebarMenu {...sidebarmenuProps} /> */}
-    {/* <button id='openbtn' className="openbtn" onClick={openNav}>☰</button> */}
+    if (compareMode) {
 
-    <div id="left" className="sidebar flex-center left collapsed">
-        <div className="sidebar-content rounded-rect flex-center">
+      return (<React.Fragment>
 
-          <Stack spacing={2} direction="column" >
+      <div id="comparison-container">
+        <div id="before" className="map" />
+        <div id="after" className="map" />
+    </div>
+      <div id='titleblock'><TitleBlock /></div>
 
-            <LayersTOC />
-            {/* <BaseMaps /> */}
-          </Stack>
-          <div className="sidebar-toggle left" onClick={event => { toggleSidebar('left'); }}>
-          {toggleSymbol}
+      <div className='button-group-right'>
+            <Button onClick={() => {
+              map.current = null
+              setCompareMode(b => !b)}  }  color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button>
           </div>
+    </React.Fragment>) }
+    
+      let info = {
+        lat, lng, zoom, bearing, pitch
+      }
+
+    return (
+      <React.Fragment>
+        <div ref={mapContainer} className="map-container" />
+        {/* <SidebarMenu {...sidebarmenuProps} /> */}
+        {/* <button id='openbtn' className="openbtn" onClick={openNav}>☰</button> */}
+
+        <div id="left" className="sidebar flex-center left collapsed">
+            <div className="sidebar-content rounded-rect flex-center">
+
+              <Stack spacing={2} direction="column" >
+
+                <LayersTOC />
+                {/* <BaseMaps /> */}
+              </Stack>
+              <div className="sidebar-toggle left" onClick={event => { toggleSidebar('left'); }}>
+              {toggleSymbol}
+              </div>
+            </div>
         </div>
-    </div>
 
 
-    <InfoBar {...props} />
-    <div id='calculation-box' className="calculation-box">
-      <p>ขนาดพื้นที่รวม</p>
-      <div id="calculated-area" />
-    </div>
+       {/* <InfoBar {...info}/> */}
+        <div id='calculation-box' className="calculation-box">          
+          <div id="calculated-area" />
+        </div>
 
-    <div id='titleblock'><TitleBlock /></div>
-    <div className='button-group-right'>
-      <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
-    </div>
+        <div id='titleblock'><TitleBlock /></div>
+        <div className='button-group-right'>
+          <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
+        </div>
 
-  </React.Fragment>
-);
+      </React.Fragment>
+    );
+
+  }
+
+return useMemo(() => {
+  return <Content compareMode={compareMode} />
+}, [compareMode])
 
 }
 
