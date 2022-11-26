@@ -12,6 +12,8 @@ import { LayersTOC } from './mapLayouts/LayersTOC/LayersTOC';
 import { BaseMaps } from './mapLayouts/BaseMaps/BaseMaps';
 import { SidebarMenu } from './mapLayouts/SidebarMenu/SidebarMenu';
 
+import { unit } from 'mathjs'
+
 
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -539,8 +541,8 @@ function App() {
         console.log(e.type, draw.current.getMode());
         let mode = draw.current.getMode()
 
-        const data = draw.current.getAll();
-        if (e.type !== 'draw.render') console.log(data);
+        let data = draw.current.getAll();
+        // if (e.type !== 'draw.render') console.log(data);
         const answer = document.getElementById('calculated-area');
         let headerText = document.createElement('p')
         headerText.id = 'headerText'
@@ -550,16 +552,30 @@ function App() {
         
         calculationBox.style.display = data.features.length > 0 ? 'block' : 'none'
 
+        if (e.type === 'draw.update') {
+          // switch (data.features.) {
+          //   case value:
+              
+          //     break;
+          
+          //   default:
+          //     break;
+          // }
+        }
         switch (mode) {
           case 'draw_polygon':
                 
             document.getElementById('headerText').textContent = 'ขนาดพื้นที่รวม'
-            
+            data.features = data.features.filter(f => f.geometry.type === 'Polygon')
+            console.log(data);
+
             if (data.features.length > 0) {
+              const displayingUnit = 'm2'
               const area = turf.area(data);
               // Restrict the area to 2 decimal points.
               const rounded_area = Math.round(area * 100) / 100;
-              answer.innerHTML = `<p><strong>${rounded_area.toLocaleString()}</strong> ตร.ม.</p>`;
+              answer.innerHTML = `<p><strong>${rounded_area} sqm.</strong></p>
+              <p><strong>${unit(area, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</strong></p>`;
             } else {
               answer.innerHTML = '';
               // if (e.type !== 'draw.delete')
@@ -570,13 +586,16 @@ function App() {
           case 'draw_line_string':
                 
             document.getElementById('headerText').textContent = 'ระยะทางรวม'
+            data.features = data.features.filter(f => f.geometry.type === 'LineString')
+            console.log(data);
             
             if (data.features.length > 0) {
+              const displayingUnit = 'meters'
               const length = turf.length(data, { units : 'meters'});
               // Restrict the area to 2 decimal points.
-              console.log(length);
-              const rounded_length = length.toFixed(3);
-              answer.innerHTML = `<p><strong>${rounded_length.toLocaleString()}</strong> ม.</p>`;
+              // console.log(length);
+              // const rounded_length = length.toFixed(3);
+              answer.innerHTML = `<p><strong>${unit(length, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</strong></p>`;
             } else {
               answer.innerHTML = '';
               // if (e.type !== 'draw.delete')
@@ -588,6 +607,8 @@ function App() {
           default:
             break;
         }
+
+
 
     }
 
