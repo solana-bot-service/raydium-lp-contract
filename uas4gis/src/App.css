@@ -132,9 +132,17 @@ p {
   position: absolute;
   top: 10px;
   right: 60px;
-  text-align: center;
+  text-align: right;
   border-radius: 10px;
 }
+
+
+
+.button-group-right > *:not(:last-child) {
+  margin-bottom: 10px; 
+} 
+
+
 
 /*
 The sidebar styling has them "expanded" by default, we use CSS transforms to push them offscreen

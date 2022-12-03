@@ -24,6 +24,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Stack from '@mui/material/Stack';
 import { Typography } from '@mui/material';
 import { Box } from '@mui/system';
+import SearchBox from './mapComponents/SearchBox/SearchBox';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
@@ -270,6 +271,7 @@ function App() {
       // }
       // });
     });
+    
 
 
     function toggleVisibility(id) {
@@ -807,6 +809,7 @@ function App() {
         <div id='titleblock'><TitleBlock /></div>
         <div className='button-group-right'>
           <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
+          <SearchBox />
         </div>
 
       </React.Fragment>
