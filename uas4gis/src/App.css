@@ -156,7 +156,7 @@ The toggleSidebar() function removes this class from the element in order to exp
   position: absolute;
   width: 25%;
   top: 0;
-  bottom: 0;
+  height: 50%;
   left: 0;
   font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
   background-color: #efefef;

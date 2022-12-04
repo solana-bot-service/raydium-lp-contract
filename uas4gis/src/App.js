@@ -47,7 +47,7 @@ function App() {
   const [pitch, setPitch] = useState(_pitch); //76
   const [compareMode, setCompareMode] = useState(false);
   const [toggleSymbol, setToggleSymbol] = useState("▶︎");
-  const [searchingLayer, setSearchingLayer] = useState('');
+  const [searchingLayer, setSearchingLayer] = useState('buildings');
 
   //map data sources
   const ortho = require('./MapData/nkrafaortho.json')
@@ -102,12 +102,16 @@ function App() {
         });
 
 
+      const comparaleMaps =  Object.entries(ortho).slice(-2)
+
       afterMap.current.addControl(new mapboxgl.NavigationControl());
 
 
         beforeMap.current.on('data', () => {
 
-          Object.entries(ortho).slice(0, 1).forEach(([name, con]) => {
+          if (comparaleMaps.length) {
+              
+            let [name, con] = comparaleMaps.shift()
             if (!beforeMap.current.getSource(con.layer.source)) {
               console.log(name);
               beforeMap.current.addSource(con.layer.source, con.src);
@@ -115,7 +119,11 @@ function App() {
             if (!beforeMap.current.getLayer(name)) {
               beforeMap.current.addLayer(con.layer);
             }
-          });
+          }
+
+          // Object.entries(ortho).slice(0, 1).forEach(([name, con]) => {
+
+          // });
 
           beforeMap.current.off('data', () => {});
         });
@@ -123,7 +131,9 @@ function App() {
 
         afterMap.current.on('data', () => {
 
-          Object.entries(ortho).slice(1, 2).forEach(([name, con]) => {
+          if (comparaleMaps.length) {
+              
+            let [name, con] = comparaleMaps.shift()
             if (!afterMap.current.getSource(con.layer.source)) {
               console.log(name);
               afterMap.current.addSource(con.layer.source, con.src);
@@ -131,7 +141,11 @@ function App() {
             if (!afterMap.current.getLayer(name)) {
               afterMap.current.addLayer(con.layer);
             }
-          });
+          }
+
+          // Object.entries(ortho).slice(1, 2).forEach(([name, con]) => {
+
+          // });
 
           afterMap.current.off('data', () => {});
         });
@@ -879,10 +893,11 @@ function App() {
           {/* <SearchBox /> */}
         </div>
 
-        <div className="map-overlay">
+        {/* <div className="map-overlay">
           <fieldset>
           <input id="feature-filter" type="text" placeholder="Filter results by name" />
-          </fieldset></div>
+          </fieldset>
+        </div> */}
       </React.Fragment>
     );
 
