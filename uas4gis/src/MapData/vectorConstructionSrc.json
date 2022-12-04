@@ -158,6 +158,9 @@
             "desc" : "อาคาร",
             "extrude" : true,
             "visible": true
+        },
+        "searchable" : {
+            "fields" : ["AREA_SQM"]
         }
     }
 }

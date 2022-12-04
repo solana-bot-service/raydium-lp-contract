@@ -47,12 +47,14 @@ function App() {
   const [pitch, setPitch] = useState(_pitch); //76
   const [compareMode, setCompareMode] = useState(false);
   const [toggleSymbol, setToggleSymbol] = useState("▶︎");
+  const [searchingLayer, setSearchingLayer] = useState('');
 
   //map data sources
   const ortho = require('./MapData/nkrafaortho.json')
   const admins = require('./MapData/vectorAdminSrc.json')
   const constructions = require('./MapData/vectorConstructionSrc.json')
   const essentialLayers = {...ortho, ...admins, ...constructions}
+  
 
   const mapIds = Object.entries(essentialLayers).reduce((p, [name, con]) => {
     return {...p, [name] : con.info.desc}
@@ -147,6 +149,8 @@ function App() {
     } else  {
       comparemap.current = null
     if (map.current) return; // initialize map only once
+
+
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       // style: 'mapbox://styles/mapbox/streets-v11',
@@ -178,6 +182,10 @@ function App() {
     }
 
 
+    const filterEl = document.getElementById('feature-filter');
+
+    let searchables = []
+
 
     map.current.on('load', () => {
 
@@ -190,6 +198,38 @@ function App() {
           map.current.setStyle('mapbox://styles/mapbox/' + layerId);
         };
       }
+
+      filterEl.addEventListener('keyup', (e) => {
+        const value = normalize(e.target.value);
+
+        // Filter visible features that match the input value.
+        const filtered = [];
+
+          
+        for (const feature of searchables) {
+          const name = normalize(feature.properties['AREA_SQM']);
+          if (name.includes(value)) {//|| code.includes(value)) {
+            filtered.push(feature);
+          }
+        }
+
+        // Populate the sidebar with filtered results
+        // renderListings(filtered);
+
+        // Set the filter to populate features into the layer.
+        if (filtered.length) {
+          map.current.setFilter(searchingLayer, [
+            'match',
+            ['get', 'AREA_SQM'],
+            filtered.map((feature) => {
+              return feature.properties['AREA_SQM'];
+            }),
+            true,
+            false
+          ]);
+        }
+      });
+
 
       toggleSidebar('left');
 
@@ -386,6 +426,8 @@ function App() {
 
         // Buildings and roads
         Object.entries(constructions).forEach(([name, con]) => {
+
+          if (!searchingLayer && con.searchable) setSearchingLayer(name) 
           if (!map.current.getSource(con.layer.source)) {
           console.log(name);
             map.current.addSource(con.layer.source, con.src);
@@ -506,6 +548,30 @@ function App() {
         map.current.off('data', loadSource);
       }
     }
+
+    //filtration:
+
+      map.current.on('movestart', () => {
+      // reset features filter as the map starts moving
+        map.current.setFilter(searchingLayer, ['has', 'AREA_SQM']);
+      });
+       
+      map.current.on('moveend', () => {
+      const features = map.current.queryRenderedFeatures({ layers: [searchingLayer] });
+       
+      if (features) {
+      const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
+      // Populate features for the listing overlay.
+      // renderListings(uniqueFeatures);
+       
+      // Clear the input container
+      filterEl.value = '';
+       
+      // Store the current features in sn `airports` variable to
+      // later use for filtering on `keyup`.
+      searchables = uniqueFeatures;
+      }
+    });
 
     //draw tools
     map.current.on('draw.create', updateCalculation);
@@ -779,6 +845,7 @@ function App() {
       let info = {
         lat, lng, zoom, bearing, pitch
       }
+      
 
     return (
       <React.Fragment>
@@ -809,9 +876,13 @@ function App() {
         <div id='titleblock'><TitleBlock /></div>
         <div className='button-group-right'>
           <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
-          <SearchBox />
+          {/* <SearchBox /> */}
         </div>
 
+        <div className="map-overlay">
+          <fieldset>
+          <input id="feature-filter" type="text" placeholder="Filter results by name" />
+          </fieldset></div>
       </React.Fragment>
     );
 
@@ -827,5 +898,22 @@ export async function webexists(url) {
   const result = await fetch(url, { method: 'HEAD' });
   return result.ok;
 }
+
+export function normalize(string) {
+  return string.trim().toLowerCase();
+}
+
+export function getUniqueFeatures(features, comparatorProperty) {
+    const uniqueIds = new Set();
+    const uniqueFeatures = [];
+    for (const feature of features) {
+      const id = feature.properties[comparatorProperty];
+      if (!uniqueIds.has(id)) {
+        uniqueIds.add(id);
+        uniqueFeatures.push(feature);
+      }
+    }
+    return uniqueFeatures;
+  }
 
 export default App;

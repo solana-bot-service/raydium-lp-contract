@@ -4,15 +4,15 @@ import TextField from '@mui/material/TextField';
 
 export default function SearchBox(props) {
 
-    let { top100Films } = props
+    let { filteredConstructions, setFilteredConstructions } = props
   return (
     <Autocomplete
       multiple
       limitTags={2}
       id="multiple-limit-tags"
-      options={top100Films}
+      options={filteredConstructions}
       getOptionLabel={(option) => option.title}
-      defaultValue={[top100Films[13], top100Films[12], top100Films[11]]}
+      // defaultValue={[filteredConstructions[13], filteredConstructions[12], filteredConstructions[11]]}
       renderInput={(params) => (
         <TextField {...params} label="ค้นหา" placeholder="ส่งก่อสร้าง/ ถนน" />
       )}
