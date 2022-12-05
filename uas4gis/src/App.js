@@ -77,6 +77,8 @@ function App() {
 
   const [spinners, setSpinners] = useState(toggleableLayerIds.reduce((p, id) => ({...p, [id]: <></>}), {}));
 
+  let searchables = []
+
   useEffect(() => {
 
     if (compareMode) {
@@ -197,8 +199,46 @@ function App() {
 
 
     const filterEl = document.getElementById('feature-filter');
+    const listingEl = document.getElementById('feature-listing');
+ 
 
-    let searchables = []
+    function renderListings(features) {
+      const empty = document.createElement('p');
+      // Clear any existing listings
+      listingEl.innerHTML = '';
+      if (features.length) {
+        for (const feature of features) {
+          const itemLink = document.createElement('a');
+          const label = `อาคาร ${feature.properties.AREA_SQM}`;
+          itemLink.href = feature.properties.wikipedia;
+          itemLink.target = '_blank';
+          itemLink.textContent = label;
+          // itemLink.addEventListener('mouseover', () => {
+          // // Highlight corresponding feature on the map
+          // popup
+          // .setLngLat(feature.geometry.coordinates)
+          // .setText(label)
+          // .addTo(map);
+          // });
+          listingEl.appendChild(itemLink);
+        }
+        
+        // Show the filter input
+        filterEl.parentNode.style.display = 'block';
+      } else if (features.length === 0 && filterEl.value !== '') {
+          empty.textContent = 'ไม่พบผลลัพธ์ค้นหา';
+          listingEl.appendChild(empty);
+      } else {
+          empty.textContent = 'เลื่อนแผนที่เพื่อดูผลลัพธ์ค้นหา';
+          listingEl.appendChild(empty);
+          
+          // Hide the filter input
+          filterEl.parentNode.style.display = 'none';
+          
+          // remove features filter
+          map.current.setFilter(searchingLayer, ['has', 'AREA_SQM']);
+      }
+    }
 
 
     map.current.on('load', () => {
@@ -213,36 +253,6 @@ function App() {
         };
       }
 
-      filterEl.addEventListener('keyup', (e) => {
-        const value = normalize(e.target.value);
-
-        // Filter visible features that match the input value.
-        const filtered = [];
-
-          
-        for (const feature of searchables) {
-          const name = normalize(feature.properties['AREA_SQM']);
-          if (name.includes(value)) {//|| code.includes(value)) {
-            filtered.push(feature);
-          }
-        }
-
-        // Populate the sidebar with filtered results
-        // renderListings(filtered);
-
-        // Set the filter to populate features into the layer.
-        if (filtered.length) {
-          map.current.setFilter(searchingLayer, [
-            'match',
-            ['get', 'AREA_SQM'],
-            filtered.map((feature) => {
-              return feature.properties['AREA_SQM'];
-            }),
-            true,
-            false
-          ]);
-        }
-      });
 
 
       toggleSidebar('left');
@@ -559,6 +569,45 @@ function App() {
 
         });
 
+
+      if (filterEl.getAttribute('listener') !== 'true') filterEl.addEventListener('keyup', (e) => {
+        console.log('====================================');
+        console.log(e);
+        console.log('====================================');
+        const value = normalize(e.target.value);
+        console.log('value', value);
+
+        // Filter visible features that match the input value.
+        const filtered = [];
+
+          
+        for (const feature of searchables) {
+          const name = normalize(feature.properties['AREA_SQM']);
+          console.log('name', name);
+          if (name.includes(value)) {//|| code.includes(value)) {
+            filtered.push(feature);
+          }
+        }
+
+        // Populate the sidebar with filtered results
+        renderListings(filtered);
+
+        // Set the filter to populate features into the layer.
+        if (filtered.length) {
+          map.current.setFilter(searchingLayer, [
+            'match',
+            ['get', 'AREA_SQM'],
+            filtered.map((feature) => {
+              console.log(feature);
+              return feature.properties['AREA_SQM'];
+            }),
+            true,
+            false
+          ]);
+        }
+      });
+      
+
         map.current.off('data', loadSource);
       }
     }
@@ -574,18 +623,25 @@ function App() {
       const features = map.current.queryRenderedFeatures({ layers: [searchingLayer] });
        
       if (features) {
-      const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
-      // Populate features for the listing overlay.
-      // renderListings(uniqueFeatures);
-       
-      // Clear the input container
-      filterEl.value = '';
-       
-      // Store the current features in sn `airports` variable to
-      // later use for filtering on `keyup`.
-      searchables = uniqueFeatures;
+        const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
+        // Populate features for the listing overlay.
+          renderListings(uniqueFeatures);
+        
+        // Clear the input container
+        //TODO:- uncomment here
+        filterEl.value = '';
+        
+        // Store the current features in sn `airports` variable to
+        // later use for filtering on `keyup`.
+        searchables = uniqueFeatures;
+        console.log(searchables);
       }
     });
+
+
+    // Call this function on initialization
+    // passing an empty array to render an empty state
+    // renderListings([]);
 
     //draw tools
     map.current.on('draw.create', updateCalculation);
@@ -893,11 +949,12 @@ function App() {
           {/* <SearchBox /> */}
         </div>
 
-        {/* <div className="map-overlay">
+        <div className="map-overlay">
           <fieldset>
-          <input id="feature-filter" type="text" placeholder="Filter results by name" />
+          <input id="feature-filter" type="text" placeholder="ค้นหา" />
           </fieldset>
-        </div> */}
+          <div id="feature-listing" className="listing" />
+        </div>
       </React.Fragment>
     );
 

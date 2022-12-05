@@ -151,12 +151,11 @@ The toggleSidebar() function removes this class from the element in order to exp
 .left.collapsed {
   transform: translateX(-195px);
 }
-
 .map-overlay {
   position: absolute;
   width: 25%;
   top: 0;
-  height: 50%;
+  bottom: 0;
   left: 0;
   font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
   background-color: #efefef;
@@ -206,7 +205,6 @@ The toggleSidebar() function removes this class from the element in order to exp
   .map-overlay .listing a:hover {
   background: #f0f0f0;
   }
-
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
