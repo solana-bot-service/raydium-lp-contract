@@ -153,10 +153,10 @@ The toggleSidebar() function removes this class from the element in order to exp
 }
 .map-overlay {
   position: absolute;
-  width: 25%;
-  top: 0;
+  width: 20%;
+  top: 80px;
   bottom: 0;
-  left: 0;
+  right: 0;
   font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
   background-color: #efefef;
   max-height: 100%;
