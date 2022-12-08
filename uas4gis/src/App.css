@@ -1,3 +1,4 @@
+
 .map-container {
   height: 100%;
   position: absolute;
@@ -21,8 +22,7 @@
   text-align: center;
   color: #fff;
   background: #000000c4;
-  box-sizing: border-box;
-}
+  box-sizing: border-box;  }
 
 #left-panel {
   background-color: #FFF;
@@ -123,7 +123,7 @@ p {
   width: 200px;
   top: 40px;
   display: flex;
-  height: 80%;
+  height:80%;
 }
 
 .button-group-right {
@@ -136,9 +136,13 @@ p {
   border-radius: 10px;
 }
 
-.button-group-right>*:not(:last-child) {
-  margin-bottom: 10px;
-}
+
+
+.button-group-right > *:not(:last-child) {
+  margin-bottom: 10px; 
+} 
+
+
 
 /*
 The sidebar styling has them "expanded" by default, we use CSS transforms to push them offscreen
@@ -147,28 +151,27 @@ The toggleSidebar() function removes this class from the element in order to exp
 .left.collapsed {
   transform: translateX(-195px);
 }
-
-.search_container {
+.map-overlay {
   position: absolute;
   width: 25%;
   top: 0;
   bottom: 0;
   left: 0;
   font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  background-color: #e4fbff;
-  max-height: 90%;
+  background-color: #efefef;
+  max-height: 100%;
   overflow: hidden;
-}
-
-.search_container fieldset {
+  }
+   
+  .map-overlay fieldset {
   display: none;
-  background: #ccf7ff;
+  background: #ddd;
   border: none;
   padding: 10px;
   margin: 0;
-}
-
-.search_container input {
+  }
+   
+  .map-overlay input {
   display: block;
   border: none;
   width: 100%;
@@ -176,50 +179,37 @@ The toggleSidebar() function removes this class from the element in order to exp
   padding: 10px;
   margin: 0;
   box-sizing: border-box;
-}
-
-.search_container .listing {
+  }
+   
+  .map-overlay .listing {
   overflow: auto;
   max-height: 100%;
-}
-
-.search_container .listing>* {
+  }
+   
+  .map-overlay .listing > * {
   display: block;
   padding: 5px 10px;
   margin: 0;
-}
-
-.search_container .listing a {
+  }
+   
+  .map-overlay .listing a {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   color: #404;
   text-decoration: none;
-}
-
-.search_container .listing a:last-child {
+  }
+   
+  .map-overlay .listing a:last-child {
   border: none;
-}
-
-.search_container .listing a:hover {
-  background: #aef3ff;
-}
+  }
+   
+  .map-overlay .listing a:hover {
+  background: #f0f0f0;
+  }
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
-
-
-.search_container {
-  position: absolute;
-  width: 20%;
-  top: 40px;
-  bottom: 0;
-  right: 60px;
-  background-color: #e4fbff;
-  max-height: 90%;
-  overflow: hidden;
-}
-
 }
 
 
@@ -229,7 +219,7 @@ The toggleSidebar() function removes this class from the element in order to exp
 
   .map-container {
     position: absolute;
-    top: 10%;
+    top:10%;
     height: 80%;
     bottom: 10%;
   }
