@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
@@ -6,11 +5,7 @@ import MapboxCompare from 'mapbox-gl-compare';
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 import * as turf from '@turf/turf'
-import { PulsingDot } from './mapComponents/pulseingDot';
-import { InfoBar } from './mapLayouts/InfoBar/InfoBar';
 import { LayersTOC } from './mapLayouts/LayersTOC/LayersTOC';
-import { BaseMaps } from './mapLayouts/BaseMaps/BaseMaps';
-import { SidebarMenu } from './mapLayouts/SidebarMenu/SidebarMenu';
 
 import { unit } from 'mathjs'
 
@@ -22,9 +17,7 @@ import CardMedia from '@mui/material/CardMedia';
 
 
 import Stack from '@mui/material/Stack';
-import { Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import SearchBox from './mapComponents/SearchBox/SearchBox';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
