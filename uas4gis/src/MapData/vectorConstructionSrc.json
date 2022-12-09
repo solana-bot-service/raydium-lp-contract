@@ -160,7 +160,11 @@
             "visible": true
         },
         "searchable" : {
-            "fields" : ["AREA_SQM"]
+            "fields" : {
+                "AREA_SQM": {
+                    "prefix": "อาคาร "
+                }
+            }
         }
     }
 }

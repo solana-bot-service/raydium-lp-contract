@@ -1,6 +1,7 @@
 
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 import React, { useRef, useEffect, useState, useMemo } from 'react';
+import './MainMap.css'
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import MapboxCompare from 'mapbox-gl-compare';
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
@@ -42,7 +43,8 @@ export function MainMap() {
   const [pitch, setPitch] = useState(_pitch); //76
 //   const [compareMode, setCompareMode] = useState(false);
   const [toggleSymbol, setToggleSymbol] = useState("▶︎");
-  const [searchingLayer, setSearchingLayer] = useState('buildings');
+  // const [searchingLayer, setSearchingLayer] = useState('');
+  const searchingLayer = useRef()
 
   //map data sources
   const ortho = require('../../MapData/nkrafaortho.json')
@@ -103,7 +105,7 @@ export function MainMap() {
       // Set mapbox-gl-draw to draw by default.
       // The user does not have to click the polygon control button first.
       // defaultMode: 'draw_polygon'
-      });
+    });
     map.current.addControl(draw.current);
     
     const filterEl = document.getElementById('feature-filter');
@@ -111,15 +113,19 @@ export function MainMap() {
 
 
     function renderListings(features) {
+
+      console.log('searchingLayer in renderListings', searchingLayer.current);
+
       const empty = document.createElement('p');
       // Clear any existing listings
       listingEl.innerHTML = '';
       if (features.length) {
         for (const feature of features) {
+          const labels = Object.entries()
           const itemLink = document.createElement('a');
-          const label = `อาคาร ${feature.properties.AREA_SQM}`;
-          itemLink.href = feature.properties.wikipedia;
-          itemLink.target = '_blank';
+          const label = `อาคาร ${feature.properties['AREA_SQM']}`;
+          itemLink.href = '#' //feature.properties.wikipedia;
+          itemLink.target = '_self';
           itemLink.textContent = label;
           // itemLink.addEventListener('mouseover', () => {
           // // Highlight corresponding feature on the map
@@ -137,14 +143,18 @@ export function MainMap() {
           empty.textContent = 'ไม่พบผลลัพธ์ค้นหา';
           listingEl.appendChild(empty);
       } else {
-          empty.textContent = 'เลื่อนแผนที่เพื่อดูผลลัพธ์ค้นหา';
+          empty.textContent = 'เลื่อนแผนที่เพื่อค้นหาและดูผลลัพธ์';
           listingEl.appendChild(empty);
           
           // Hide the filter input
           filterEl.parentNode.style.display = 'none';
           
           // remove features filter
-          map.current.setFilter(searchingLayer, ['has', 'AREA_SQM']);
+
+          Array.from(searchingLayer.current).forEach(l => {
+            map.current.setFilter(l, ['has', 'AREA_SQM']);            
+          })
+          
       }
     }
 
@@ -320,8 +330,7 @@ export function MainMap() {
             'type': 'hillshade',
             'source': 'nkrafa-dem',
             'paint': {}
-          },
-          'nkrafa-ortho-6508-layer'
+          }
         );
 
         toggleVisibility('nkrafa-dem-layer')
@@ -359,7 +368,20 @@ export function MainMap() {
         // Buildings and roads
         Object.entries(constructions).forEach(([name, con]) => {
 
-          if (!searchingLayer && con.searchable) setSearchingLayer(name) 
+          console.log('====================================');
+          console.log(name);
+          console.log('====================================');
+          console.log('====================================');
+          console.log(con.searchable);
+          console.log('====================================');
+
+
+          if (!searchingLayer.current && con.searchable) {
+            console.log('setting searchable:', name);
+            // setSearchingLayer(`${name}`)
+            searchingLayer.current = new Set()
+            searchingLayer.current.add(name)
+          }
           if (!map.current.getSource(con.layer.source)) {
           console.log(name);
             map.current.addSource(con.layer.source, con.src);
@@ -372,7 +394,10 @@ export function MainMap() {
 
           }
 
-          if (con.info.extrude && !map.current.getLayer(con.extrude.id)) map.current.addLayer(con.extrude)
+          if (con.info.extrude && !map.current.getLayer(con.extrude.id)) {
+            map.current.addLayer(con.extrude)
+            searchingLayer.current.add(con.extrude.id)
+          }
 
         });
 
@@ -480,6 +505,11 @@ export function MainMap() {
       
 
         map.current.off('data', loadSource);
+      
+
+        // Call this function on initialization
+        // passing an empty array to render an empty state
+        renderListings([]);
       }
     }
 
@@ -487,11 +517,17 @@ export function MainMap() {
 
       map.current.on('movestart', () => {
       // reset features filter as the map starts moving
-        map.current.setFilter(searchingLayer, ['has', 'AREA_SQM']);
+        console.log('searchingLayer in movestart', searchingLayer.current);
+        Array.from(searchingLayer.current).forEach(l => {
+          map.current.setFilter(l, ['has', 'AREA_SQM']);
+          if (map.current.getLayer(l + "-label")) map.current.setFilter(l + "-label", ['has', 'AREA_SQM'])
+        })
       });
        
       map.current.on('moveend', () => {
-      const features = map.current.queryRenderedFeatures({ layers: [searchingLayer] });
+        console.log('searchingLayer in moveend', searchingLayer.current);
+
+      const features = map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
        
       if (features) {
         const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
@@ -501,18 +537,13 @@ export function MainMap() {
         // Clear the input container
         //TODO:- uncomment here
         filterEl.value = '';
-        
+
         // Store the current features in sn `airports` variable to
         // later use for filtering on `keyup`.
         searchables.current = uniqueFeatures;
-        console.log(searchables.current);
       }
     });
 
-
-    // Call this function on initialization
-    // passing an empty array to render an empty state
-    // renderListings([]);
 
     //draw tools
     map.current.on('draw.create', updateCalculation);
@@ -655,9 +686,8 @@ export function MainMap() {
     });
 
     if (filterEl.getAttribute('listener') !== 'true')  filterEl.addEventListener('keyup', (e) => {
-        console.log(e.target.value);
+        
         const value = normalize(`${e.target.value}`);
-        console.log('value', value);
   
         // Filter visible features that match the input value.
         const filtered = [];
@@ -676,15 +706,28 @@ export function MainMap() {
   
         // Set the filter to populate features into the layer.
         if (filtered.length) {
-          map.current.setFilter(searchingLayer, [
-            'match',
-            ['get', 'AREA_SQM'],
-            filtered.map((feature) => {
-              return feature.properties['AREA_SQM'];
-            }),
-            true,
-            false
-          ]);
+
+        Array.from(searchingLayer.current).forEach(layerComponents => {
+          let visibleLayers = []
+          let targets = [layerComponents, layerComponents + "-label"]
+          targets.forEach(layer => {
+            if (map.current.getLayer(layer)) visibleLayers.push(layer)
+          })
+          visibleLayers.forEach(l => {
+
+            
+                            
+              map.current.setFilter(l, [
+                'match',
+                ['get', 'AREA_SQM'],
+                filtered.map((feature) => {
+                  return feature.properties['AREA_SQM'];
+                }),
+                true,
+                false
+              ]);          
+            })
+          });
         }
       });
 

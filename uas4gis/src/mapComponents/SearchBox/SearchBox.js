@@ -12,7 +12,7 @@ export default function SearchBox(props) {
       id="multiple-limit-tags"
       options={filteredConstructions}
       getOptionLabel={(option) => option.title}
-      // defaultValue={[filteredConstructions[13], filteredConstructions[12], filteredConstructions[11]]}
+      defaultValue={[filteredConstructions[0]]}
       renderInput={(params) => (
         <TextField {...params} label="ค้นหา" placeholder="ส่งก่อสร้าง/ ถนน" />
       )}
