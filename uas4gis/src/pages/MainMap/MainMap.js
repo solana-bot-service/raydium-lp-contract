@@ -74,6 +74,32 @@ export function MainMap() {
 
   const [spinners, setSpinners] = useState(toggleableLayerIds.reduce((p, id) => ({...p, [id]: <></>}), {}));
 
+
+  function zoomToFeature(feature) {
+
+    let center = feature.geometry.coordinates[0][0]
+    let flyParams = {
+      // These options control the ending camera position: centered at
+      // the target, at zoom level 9, and north up.
+      center,
+      // These options control the flight curve, making it move
+      // slowly and zoom out almost completely before starting
+      // to pan.
+      speed: 1.5, // make the flying slow
+      curve: 1, // change the speed at which it zooms out
+
+      // This can be any easing function: it takes a number between
+      // 0 and 1 and returns another number between 0 and 1.
+      easing: (t) => t,
+
+      // this animation is considered essential with respect to prefers-reduced-motion
+      essential: true
+    }
+
+    map.current.flyTo(flyParams);
+    
+  }
+
   useEffect(() => {
 
     if (map.current) return; // initialize map only once
@@ -82,7 +108,7 @@ export function MainMap() {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       // style: 'mapbox://styles/mapbox/streets-v11',
-      style: 'mapbox://styles/chaloemphol/clasf7ipf00dp14mpio2dnq8h',//'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+      style: 'mapbox://styles/chaloemphol/cjkje3cwt17e72smseq2pmmxu',// 'mapbox://styles/chaloemphol/clasf7ipf00dp14mpio2dnq8h',//'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
       center: [lng, lat],
       pitch,
       bearing,
@@ -121,12 +147,16 @@ export function MainMap() {
       listingEl.innerHTML = '';
       if (features.length) {
         for (const feature of features) {
-          const labels = Object.entries()
+          
+          // const labels = Object.entries()
           const itemLink = document.createElement('a');
           const label = `อาคาร ${feature.properties['AREA_SQM']}`;
           itemLink.href = '#' //feature.properties.wikipedia;
           itemLink.target = '_self';
           itemLink.textContent = label;
+          itemLink.addEventListener('mousedown', () => zoomToFeature(feature))
+
+          // itemLink.onmousedown = () => zoomToFeature(feature)
           // itemLink.addEventListener('mouseover', () => {
           // // Highlight corresponding feature on the map
           // popup
@@ -134,6 +164,7 @@ export function MainMap() {
           // .setText(label)
           // .addTo(map);
           // });
+          
           listingEl.appendChild(itemLink);
         }
         
@@ -147,7 +178,7 @@ export function MainMap() {
           listingEl.appendChild(empty);
           
           // Hide the filter input
-          filterEl.parentNode.style.display = 'none';
+          // filterEl.parentNode.style.display = 'none';
           
           // remove features filter
 
@@ -402,6 +433,35 @@ export function MainMap() {
         });
 
 
+        console.log('searchingLayer in loadSource', searchingLayer.current);
+
+        let features = []
+        Array.from(searchingLayer.current).forEach(sourceId => {
+          let f = map.current.querySourceFeatures({  sourceId : 'buildings-source' })
+          console.log('====================================');
+          console.log(f);
+          console.log('====================================');
+          features = [...features, ...map.current.querySourceFeatures({  sourceId : sourceId })];
+        })
+        
+        if (features) {
+          const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
+          // Populate features for the listing overlay.
+            renderListings(uniqueFeatures);
+          
+          // Clear the input container
+          //TODO:- uncomment here
+          filterEl.value = '';
+
+          // Store the current features in sn `airports` variable to
+          // later use for filtering on `keyup`.
+          searchables.current = uniqueFeatures;
+
+        console.log('searchables in loadSource', searchables.current);
+
+        }
+
+
 
         const layers = document.getElementById('menu');
 
@@ -524,25 +584,25 @@ export function MainMap() {
         })
       });
        
-      map.current.on('moveend', () => {
-        console.log('searchingLayer in moveend', searchingLayer.current);
+      // map.current.on('moveend', () => {
+      //   console.log('searchingLayer in moveend', searchingLayer.current);
 
-      const features = map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
-       
-      if (features) {
-        const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
-        // Populate features for the listing overlay.
-          renderListings(uniqueFeatures);
+      //   const features = map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
         
-        // Clear the input container
-        //TODO:- uncomment here
-        filterEl.value = '';
+      //   if (features) {
+      //     const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
+      //     // Populate features for the listing overlay.
+      //       renderListings(uniqueFeatures);
+          
+      //     // Clear the input container
+      //     //TODO:- uncomment here
+      //     filterEl.value = '';
 
-        // Store the current features in sn `airports` variable to
-        // later use for filtering on `keyup`.
-        searchables.current = uniqueFeatures;
-      }
-    });
+      //     // Store the current features in sn `airports` variable to
+      //     // later use for filtering on `keyup`.
+      //     searchables.current = uniqueFeatures;
+      //   }
+      // });
 
 
     //draw tools
@@ -688,6 +748,22 @@ export function MainMap() {
     if (filterEl.getAttribute('listener') !== 'true')  filterEl.addEventListener('keyup', (e) => {
         
         const value = normalize(`${e.target.value}`);
+        console.log('====================================');
+        console.log(value);
+        console.log('====================================');
+
+        if (value === '') {
+          // reset features filter as the map starts moving
+          console.log('searchingLayer in movestart', searchingLayer.current);
+          Array.from(searchingLayer.current).forEach(l => {
+            console.log('====================================');
+            console.log(l);
+            console.log('====================================');
+            map.current.setFilter(l, ['has', 'AREA_SQM']);
+            if (map.current.getLayer(l + "-label")) map.current.setFilter(l + "-label", ['has', 'AREA_SQM'])
+          })
+          return
+        }
   
         // Filter visible features that match the input value.
         const filtered = [];
@@ -705,7 +781,7 @@ export function MainMap() {
         renderListings(filtered);
   
         // Set the filter to populate features into the layer.
-        if (filtered.length) {
+        if (false) {//(filtered.length) {
 
         Array.from(searchingLayer.current).forEach(layerComponents => {
           let visibleLayers = []
@@ -715,7 +791,7 @@ export function MainMap() {
           })
           visibleLayers.forEach(l => {
 
-            
+
                             
               map.current.setFilter(l, [
                 'match',

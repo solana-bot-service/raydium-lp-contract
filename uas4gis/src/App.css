@@ -161,7 +161,7 @@ The toggleSidebar() function removes this class from the element in order to exp
 }
 
 .search_container fieldset {
-  display: none;
+  /* display: none; */
   background: #ccf7ff;
   border: none;
   padding: 10px;

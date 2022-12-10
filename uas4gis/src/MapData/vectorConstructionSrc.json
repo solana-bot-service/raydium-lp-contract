@@ -116,7 +116,7 @@
                   ["zoom"],
                   ["literal", [0, 0]],
                   16,
-                  ["literal", [0, -15]]
+                  ["literal", [0, -10]]
               ]
             },
             "paint": {
