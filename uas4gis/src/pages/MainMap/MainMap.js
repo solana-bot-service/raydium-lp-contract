@@ -27,6 +27,7 @@ export function MainMap() {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const searchables = useRef()
+  const popup = useRef()
 
   const draw = useRef(null);
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
@@ -69,18 +70,23 @@ export function MainMap() {
   //['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'roads', 'buildings']//['provinces']
 
   const [spinners, setSpinners] = useState(toggleableLayerIds.reduce((p, id) => ({...p, [id]: <></>}), {}));
-
+  
 
   function zoomToFeature(feature) {
 
-    let center = feature.geometry.coordinates[0][0]
+    let center = feature.geometry.coordinates
+    let polygon = turf.polygon(center);
+    let centroid = turf.centroid(polygon);
     let flyParams = {
       // These options control the ending camera position: centered at
       // the target, at zoom level 9, and north up.
-      center,
+      center: centroid.geometry.coordinates,
       // These options control the flight curve, making it move
       // slowly and zoom out almost completely before starting
       // to pan.
+      // zoom,
+      // bearing: 45,
+      // pitch: 20,
       speed: 1.5, // make the flying slow
       curve: 1, // change the speed at which it zooms out
 
@@ -91,6 +97,7 @@ export function MainMap() {
       // this animation is considered essential with respect to prefers-reduced-motion
       essential: true
     }
+    // map.flyTo({center: centroid.geometry.coordinates, zoom: 12});
 
     map.current.flyTo(flyParams);
     
@@ -109,6 +116,10 @@ export function MainMap() {
       pitch,
       bearing,
       zoom,
+    });
+
+    popup.current = new mapboxgl.Popup({
+      closeButton: false
     });
 
     map.current.addControl(new mapboxgl.FullscreenControl());
@@ -153,13 +164,17 @@ export function MainMap() {
           itemLink.addEventListener('mousedown', () => zoomToFeature(feature))
 
           // itemLink.onmousedown = () => zoomToFeature(feature)
-          // itemLink.addEventListener('mouseover', () => {
-          // // Highlight corresponding feature on the map
-          // popup
-          // .setLngLat(feature.geometry.coordinates)
-          // .setText(label)
-          // .addTo(map);
-          // });
+          itemLink.addEventListener('mouseover', () => {
+                      
+            let center = feature.geometry.coordinates
+            let polygon = turf.polygon(center);
+            let centroid = turf.centroid(polygon);
+            // Highlight corresponding feature on the map
+            popup.current
+            .setLngLat(centroid.geometry.coordinates)
+            .setText(label)
+            .addTo(map.current);
+          });
           
           listingEl.appendChild(itemLink);
         }
@@ -572,32 +587,40 @@ export function MainMap() {
     //filtration:
 
       map.current.on('movestart', () => {
-      // reset features filter as the map starts moving
-        console.log('searchingLayer in movestart', searchingLayer.current);
-        Array.from(searchingLayer.current).forEach(l => {
-          map.current.setFilter(l, ['has', 'AREA_SQM']);
-          if (map.current.getLayer(l + "-label")) map.current.setFilter(l + "-label", ['has', 'AREA_SQM'])
-        })
+        if (!searchables.current) {
+            
+        // reset features filter as the map starts moving
+          console.log('searchingLayer in movestart', searchingLayer.current);
+          Array.from(searchingLayer.current).forEach(l => {
+            map.current.setFilter(l, ['has', 'AREA_SQM']);
+            if (map.current.getLayer(l + "-label")) map.current.setFilter(l + "-label", ['has', 'AREA_SQM'])
+          })
+        }
       });
        
       map.current.on('moveend', () => {
-        console.log('searchingLayer in moveend', searchingLayer.current);
 
-        const features = map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
-        
-        if (features) {
-          const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
-          // Populate features for the listing overlay.
-            renderListings(uniqueFeatures);
+        if (!searchables.current) {
+
+          console.log('searchingLayer in moveend', searchingLayer.current);
+
+          const features = map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
           
-          // Clear the input container
-          //TODO:- uncomment here
-          filterEl.value = '';
-
-          // Store the current features in sn `airports` variable to
-          // later use for filtering on `keyup`.
-          searchables.current = uniqueFeatures;
+          if (features) {
+            const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
+            // Populate features for the listing overlay.
+              renderListings([]);
+            
+            // Clear the input container
+            //TODO:- uncomment here
+            filterEl.value = '';
+  
+            // Store the current features in sn `airports` variable to
+            // later use for filtering on `keyup`.
+            searchables.current = uniqueFeatures;
+          }
         }
+
       });
 
 
@@ -749,16 +772,28 @@ export function MainMap() {
         console.log('====================================');
 
         if (value === '') {
-          // reset features filter as the map starts moving
-          console.log('searchingLayer in movestart', searchingLayer.current);
-          Array.from(searchingLayer.current).forEach(l => {
-            console.log('====================================');
-            console.log(l);
-            console.log('====================================');
-            map.current.setFilter(l, ['has', 'AREA_SQM']);
-            if (map.current.getLayer(l + "-label")) map.current.setFilter(l + "-label", ['has', 'AREA_SQM'])
-          })
-          return
+          let flyParams = {
+            // These options control the ending camera position: centered at
+            // the target, at zoom level 9, and north up.
+            center: start,
+    
+            // These options control the flight curve, making it move
+            // slowly and zoom out almost completely before starting
+            // to pan.
+            speed: 1.5, // make the flying slow
+            curve: 1, // change the speed at which it zooms out
+    
+            // This can be any easing function: it takes a number between
+            // 0 and 1 and returns another number between 0 and 1.
+            easing: (t) => t,
+    
+            // this animation is considered essential with respect to prefers-reduced-motion
+            essential: true
+          }
+    
+          map.current.flyTo(flyParams);
+
+          return renderListings([])
         }
   
         // Filter visible features that match the input value.
@@ -777,18 +812,15 @@ export function MainMap() {
         renderListings(filtered);
   
         // Set the filter to populate features into the layer.
-        if (filtered.length) { //(false) {//
+        if (false) {//(filtered.length) { //
 
         Array.from(searchingLayer.current).forEach(layerComponents => {
-          let visibleLayers = []
-          let targets = [layerComponents, layerComponents + "-label"]
-          targets.forEach(layer => {
-            if (map.current.getLayer(layer)) visibleLayers.push(layer)
-          })
-          visibleLayers.forEach(l => {
-
-
-                            
+            let visibleLayers = []
+            let targets = [layerComponents, layerComponents + "-label"]
+            targets.forEach(layer => {
+              if (map.current.getLayer(layer)) visibleLayers.push(layer)
+            })
+            visibleLayers.forEach(l => {
               map.current.setFilter(l, [
                 'match',
                 ['get', 'AREA_SQM'],
@@ -802,7 +834,6 @@ export function MainMap() {
           });
         }
       });
-
   });
 
   useEffect(() => {
@@ -815,6 +846,8 @@ export function MainMap() {
       setZoom(map.current.getZoom().toFixed(2));
       setBearing(map.current.getBearing().toFixed(2));
       setPitch(map.current.getPitch().toFixed(2));
+
+      
     });
   });
 
