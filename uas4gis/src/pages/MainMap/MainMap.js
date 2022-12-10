@@ -1,9 +1,8 @@
 
-import { Routes, Route, Outlet, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import './MainMap.css'
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import MapboxCompare from 'mapbox-gl-compare';
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 import * as turf from '@turf/turf'
@@ -27,9 +26,6 @@ export function MainMap() {
 
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const comparemap = useRef()
-  const beforeMap = useRef()
-  const afterMap = useRef()
   const searchables = useRef()
 
   const draw = useRef(null);
@@ -433,33 +429,33 @@ export function MainMap() {
         });
 
 
-        console.log('searchingLayer in loadSource', searchingLayer.current);
+        // console.log('searchingLayer in loadSource', searchingLayer.current);
 
-        let features = []
-        Array.from(searchingLayer.current).forEach(sourceId => {
-          let f = map.current.querySourceFeatures({  sourceId : 'buildings-source' })
-          console.log('====================================');
-          console.log(f);
-          console.log('====================================');
-          features = [...features, ...map.current.querySourceFeatures({  sourceId : sourceId })];
-        })
+        // let features = []
+        // Array.from(searchingLayer.current).forEach(sourceId => {
+        //   let f = map.current.querySourceFeatures({  sourceId : 'buildings-source' })
+        //   console.log('====================================');
+        //   console.log(f);
+        //   console.log('====================================');
+        //   features = [...features, ...map.current.querySourceFeatures({  sourceId : sourceId })];
+        // })
         
-        if (features) {
-          const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
-          // Populate features for the listing overlay.
-            renderListings(uniqueFeatures);
+        // if (features) {
+        //   const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
+        //   // Populate features for the listing overlay.
+        //     renderListings(uniqueFeatures);
           
-          // Clear the input container
-          //TODO:- uncomment here
-          filterEl.value = '';
+        //   // Clear the input container
+        //   //TODO:- uncomment here
+        //   filterEl.value = '';
 
-          // Store the current features in sn `airports` variable to
-          // later use for filtering on `keyup`.
-          searchables.current = uniqueFeatures;
+        //   // Store the current features in sn `airports` variable to
+        //   // later use for filtering on `keyup`.
+        //   searchables.current = uniqueFeatures;
 
-        console.log('searchables in loadSource', searchables.current);
+        // console.log('searchables in loadSource', searchables.current);
 
-        }
+        // }
 
 
 
@@ -584,25 +580,25 @@ export function MainMap() {
         })
       });
        
-      // map.current.on('moveend', () => {
-      //   console.log('searchingLayer in moveend', searchingLayer.current);
+      map.current.on('moveend', () => {
+        console.log('searchingLayer in moveend', searchingLayer.current);
 
-      //   const features = map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
+        const features = map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
         
-      //   if (features) {
-      //     const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
-      //     // Populate features for the listing overlay.
-      //       renderListings(uniqueFeatures);
+        if (features) {
+          const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
+          // Populate features for the listing overlay.
+            renderListings(uniqueFeatures);
           
-      //     // Clear the input container
-      //     //TODO:- uncomment here
-      //     filterEl.value = '';
+          // Clear the input container
+          //TODO:- uncomment here
+          filterEl.value = '';
 
-      //     // Store the current features in sn `airports` variable to
-      //     // later use for filtering on `keyup`.
-      //     searchables.current = uniqueFeatures;
-      //   }
-      // });
+          // Store the current features in sn `airports` variable to
+          // later use for filtering on `keyup`.
+          searchables.current = uniqueFeatures;
+        }
+      });
 
 
     //draw tools
@@ -614,7 +610,7 @@ export function MainMap() {
 
     map.current.on('data', loadSource);
 
-    map.current.on('sourcedata', (e) => {
+    map.current.on('sourcedata', () => {
       // console.log(e);
       // if (e.isSourceLoaded) {
       //   setSpinners(o => ({...o, [e.sourceId] : <>spinning</>}))
@@ -781,7 +777,7 @@ export function MainMap() {
         renderListings(filtered);
   
         // Set the filter to populate features into the layer.
-        if (false) {//(filtered.length) {
+        if (filtered.length) { //(false) {//
 
         Array.from(searchingLayer.current).forEach(layerComponents => {
           let visibleLayers = []
@@ -900,94 +896,6 @@ export function MainMap() {
   //   document.getElementById("openbtn").style.visibility = "visible";
   // }
 
-  /**
-   *
-   */
-  // let sidebarmenuProps = {
-  //   closeNav
-  // }
-  
-
-  // function InfoBarDiv() {
-  //   return useMemo(() => {
-  //     return <InfoBar lat={lat} lng={lng} zoom={zoom} bearing={bearing} pitch={pitch} />
-  //   }, [lat, lng, zoom, bearing, pitch])
-  // }
-
-  // function Content(props) {
-
-  //   let {compareMode, toggleSymbol} = props
-
-  //   if (compareMode) {
-
-  //     return (<React.Fragment>
-
-  //     <div id="comparison-container">
-  //       <div id="before" className="map" />
-  //       <div id="after" className="map" />
-  //   </div>
-  //     <div id='titleblock'><TitleBlock /></div>
-
-  //     <div className='button-group-right'>
-  //           <Button onClick={() => {
-  //             // map.current = null
-  //             setCompareMode(b => !b)
-  //             window.location.reload()
-  //             }  }  color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button>
-  //         </div>
-  //   </React.Fragment>) }
-    
-  //     let info = {
-  //       lat, lng, zoom, bearing, pitch
-  //     }
-      
-
-  //   return (
-  //     <React.Fragment>
-  //       <div ref={mapContainer} className="map-container" />
-  //       {/* <SidebarMenu {...sidebarmenuProps} /> */}
-  //       {/* <button id='openbtn' className="openbtn" onClick={openNav}>☰</button> */}
-
-  //       <div id="left" className="sidebar flex-center left collapsed">
-  //           <div className="sidebar-content rounded-rect flex-center">
-
-  //             <Stack spacing={2} direction="column" >
-
-  //               <LayersTOC />
-  //               {/* <BaseMaps /> */}
-  //             </Stack>
-  //             <div className="sidebar-toggle left" onClick={event => { toggleSidebar('left'); }}>
-  //             {toggleSymbol}
-  //             </div>
-  //           </div>
-  //       </div>
-
-
-  //      {/* <InfoBar {...info}/> */}
-  //       <div id='calculation-box' className="calculation-box">          
-  //         <div id="calculated-area" />
-  //       </div>
-
-  //       <div id='titleblock'><TitleBlock /></div>
-  //       <div className='button-group-right'>
-  //         <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
-  //         {/* <SearchBox /> */}
-  //       </div>
-
-  //       <div className="search_container">
-  //         <fieldset>
-  //         <input id="feature-filter" type="text" placeholder="ค้นหา" />
-  //         </fieldset>
-  //         <div id="feature-listing" className="listing" />
-  //       </div>
-  //     </React.Fragment>
-  //   );
-
-  // }
-
-  let info = {
-    lat, lng, zoom, bearing, pitch
-  }
 
 // return (
 //     <React.Fragment>
@@ -1046,7 +954,7 @@ return useMemo(() => {
               <LayersTOC />
               {/* <BaseMaps /> */}
             </Stack>
-            <div className="sidebar-toggle left" onClick={event => { toggleSidebar('left'); }}>
+            <div className="sidebar-toggle left" onClick={() => { toggleSidebar('left'); }}>
             {toggleSymbol}
             </div>
           </div>
