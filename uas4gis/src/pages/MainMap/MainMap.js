@@ -19,6 +19,7 @@ import CardMedia from '@mui/material/CardMedia';
 
 import Stack from '@mui/material/Stack';
 import { Box } from '@mui/system';
+import SearchControl from "../../MapControls/SearchControl";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
@@ -142,6 +143,15 @@ export function MainMap() {
     });
     map.current.addControl(draw.current);
     
+
+    // Search Control
+
+
+    // const searchControl = new SearchControl();
+
+    // map.current.addControl(searchControl);
+
+
     const filterEl = document.getElementById('feature-filter');
     const listingEl = document.getElementById('feature-listing');
 
@@ -635,33 +645,31 @@ export function MainMap() {
 
              var fs = Array.from(searchingLayer.current).reduce((p, c) => {
               
-              console.log('c', c);
-              console.log('sourceId', e.sourceId);
-                if (`${e.sourceId}` !== (c + '-source') || !e.isSourceLoaded || !map.current.getSource(c + '-source')) return p
-                
-                var f = map.current.querySourceFeatures(c + '-source')
+              if (`${e.sourceId}` !== (c + '-source') || !e.isSourceLoaded || !map.current.getSource(c + '-source')) return p
+              
+              var f = map.current.querySourceFeatures(c + '-source')
 
-                console.log('f', f);
+              console.log('f', f);
 
-                if (f.length === 0) return p              
-                // console.log('====================================');
-                // console.log(constructions[c].src);
-                // console.log('====================================');
-                // let newbbox = turf.bbox(constructions[c].src);
-                // console.log('====================================');
-                // console.log(newbbox);
-                // console.log('====================================');
-                return Array.isArray(p) ? [...p, ...f] : [...f]
-              }, [])
-            }
+              if (f.length === 0) return p              
+              // console.log('====================================');
+              // console.log(constructions[c].src);
+              // console.log('====================================');
+              // let newbbox = turf.bbox(constructions[c].src);
+              // console.log('====================================');
+              // console.log(newbbox);
+              // console.log('====================================');
+              return Array.isArray(p) ? [...p, ...f] : [...f]
+            }, [])
+          }
 
-            if (fs.length) {
-              console.log(fs);
-              searchableBBox.current = turf.bbox({
-                type: 'FeatureCollection',
-                features: fs
-              });
-            }
+          if (fs.length) {
+            console.log(fs);
+            searchableBBox.current = turf.bbox({
+              type: 'FeatureCollection',
+              features: fs
+            });
+          }
 
 
       // console.log(e);
@@ -798,6 +806,7 @@ export function MainMap() {
       filterEl.addEventListener('keyup', (e) => {
 
         const value = normalize(`${e.target.value}`);
+        if (value === '') return map.current.fitBounds(searchableBBox.current)
 
         // Filter visible features that match the input value.
         const filtered = [];
@@ -840,11 +849,7 @@ export function MainMap() {
 
       filterEl.addEventListener('focus' , (e) => {
         const value = normalize(`${e.target.value}`);
-        if (value === '') {
-          
-          console.log(searchableBBox.current);
-          map.current.fitBounds(searchableBBox.current)
-        }
+        if (value === '') map.current.fitBounds(searchableBBox.current)
       })
     }
   });
