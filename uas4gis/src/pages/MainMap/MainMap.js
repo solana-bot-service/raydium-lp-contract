@@ -28,6 +28,7 @@ export function MainMap() {
   const map = useRef(null);
   const searchables = useRef()
   const popup = useRef()
+  const searchableBBox = useRef()
 
   const draw = useRef(null);
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
@@ -410,30 +411,25 @@ export function MainMap() {
         // Buildings and roads
         Object.entries(constructions).forEach(([name, con]) => {
 
-          console.log('====================================');
-          console.log(name);
-          console.log('====================================');
-          console.log('====================================');
-          console.log(con.searchable);
-          console.log('====================================');
-
-
           if (!searchingLayer.current && con.searchable) {
             console.log('setting searchable:', name);
             // setSearchingLayer(`${name}`)
             searchingLayer.current = new Set()
             searchingLayer.current.add(name)
+
+  
           }
+
           if (!map.current.getSource(con.layer.source)) {
-          console.log(name);
+            console.log(name);
             map.current.addSource(con.layer.source, con.src);
+
           }
           if (!map.current.getLayer(name)) {
             map.current.addLayer(con.layer);
             toggleVisibility(name)
 
             if (con.label && !map.current.getLayer(name + "-label")) map.current.addLayer(con.label);
-
           }
 
           if (con.info.extrude && !map.current.getLayer(con.extrude.id)) {
@@ -442,7 +438,7 @@ export function MainMap() {
           }
 
         });
-
+  
 
         // console.log('searchingLayer in loadSource', searchingLayer.current);
 
@@ -633,7 +629,41 @@ export function MainMap() {
 
     map.current.on('data', loadSource);
 
-    map.current.on('sourcedata', () => {
+    map.current.on('sourcedata', (e) => {
+
+          if (searchingLayer.current) {
+
+             var fs = Array.from(searchingLayer.current).reduce((p, c) => {
+              
+              console.log('c', c);
+              console.log('sourceId', e.sourceId);
+                if (`${e.sourceId}` !== (c + '-source') || !e.isSourceLoaded || !map.current.getSource(c + '-source')) return p
+                
+                var f = map.current.querySourceFeatures(c + '-source')
+
+                console.log('f', f);
+
+                if (f.length === 0) return p              
+                // console.log('====================================');
+                // console.log(constructions[c].src);
+                // console.log('====================================');
+                // let newbbox = turf.bbox(constructions[c].src);
+                // console.log('====================================');
+                // console.log(newbbox);
+                // console.log('====================================');
+                return Array.isArray(p) ? [...p, ...f] : [...f]
+              }, [])
+            }
+
+            if (fs.length) {
+              console.log(fs);
+              searchableBBox.current = turf.bbox({
+                type: 'FeatureCollection',
+                features: fs
+              });
+            }
+
+
       // console.log(e);
       // if (e.isSourceLoaded) {
       //   setSpinners(o => ({...o, [e.sourceId] : <>spinning</>}))
@@ -764,57 +794,30 @@ export function MainMap() {
       map.current.flyTo(flyParams);
     });
 
-    if (filterEl.getAttribute('listener') !== 'true')  filterEl.addEventListener('keyup', (e) => {
-        
+    if (filterEl.getAttribute('listener') !== 'true') {
+      filterEl.addEventListener('keyup', (e) => {
+
         const value = normalize(`${e.target.value}`);
-        console.log('====================================');
-        console.log(value);
-        console.log('====================================');
 
-        if (value === '') {
-          let flyParams = {
-            // These options control the ending camera position: centered at
-            // the target, at zoom level 9, and north up.
-            center: start,
-    
-            // These options control the flight curve, making it move
-            // slowly and zoom out almost completely before starting
-            // to pan.
-            speed: 1.5, // make the flying slow
-            curve: 1, // change the speed at which it zooms out
-    
-            // This can be any easing function: it takes a number between
-            // 0 and 1 and returns another number between 0 and 1.
-            easing: (t) => t,
-    
-            // this animation is considered essential with respect to prefers-reduced-motion
-            essential: true
-          }
-    
-          map.current.flyTo(flyParams);
-
-          return renderListings([])
-        }
-  
         // Filter visible features that match the input value.
         const filtered = [];
-  
-          
+
+
         for (const feature of searchables.current) {
-  
+
           const name = normalize(`${feature.properties['AREA_SQM']}`);
-          if (name.includes(value) ) {//|| code.includes(value)) {
+          if (name.includes(value)) { //|| code.includes(value)) {
             filtered.push(feature);
           }
         }
-  
+
         // Populate the sidebar with filtered results
         renderListings(filtered);
-  
-        // Set the filter to populate features into the layer.
-        if (false) {//(filtered.length) { //
 
-        Array.from(searchingLayer.current).forEach(layerComponents => {
+        // Set the filter to populate features into the layer.
+        if (false) { //(filtered.length) { //
+
+          Array.from(searchingLayer.current).forEach(layerComponents => {
             let visibleLayers = []
             let targets = [layerComponents, layerComponents + "-label"]
             targets.forEach(layer => {
@@ -829,11 +832,21 @@ export function MainMap() {
                 }),
                 true,
                 false
-              ]);          
+              ]);
             })
           });
         }
       });
+
+      filterEl.addEventListener('focus' , (e) => {
+        const value = normalize(`${e.target.value}`);
+        if (value === '') {
+          
+          console.log(searchableBBox.current);
+          map.current.fitBounds(searchableBBox.current)
+        }
+      })
+    }
   });
 
   useEffect(() => {
