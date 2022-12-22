@@ -42,6 +42,7 @@ export function MainMap() {
   const [pitch, setPitch] = useState(_pitch); //76
 //   const [compareMode, setCompareMode] = useState(false);
   const [toggleSymbol, setToggleSymbol] = useState("▶︎");
+  const [mode, setMode] = useState("");
   // const [searchingLayer, setSearchingLayer] = useState('');
   const searchingLayer = useRef()
 
@@ -806,7 +807,10 @@ export function MainMap() {
       filterEl.addEventListener('keyup', (e) => {
 
         const value = normalize(`${e.target.value}`);
-        if (value === '') return map.current.fitBounds(searchableBBox.current)
+        if (value === '') {
+          renderListings([])
+          return map.current.fitBounds(searchableBBox.current)
+        }
 
         // Filter visible features that match the input value.
         const filtered = [];
@@ -889,19 +893,27 @@ export function MainMap() {
 
 
   function toggleSidebar(id) {
+
     const elem = document.getElementById(id);
     // Add or remove the 'collapsed' CSS class from the sidebar element.
     // Returns boolean "true" or "false" whether 'collapsed' is in the class list.
+
     const collapsed = elem.classList.toggle('collapsed');
     const duration = 1000
     const padding = {};
     // 'id' is 'right' or 'left'. When run at start, this object looks like: '{left: 300}';
     padding[id] = collapsed ? 0 : 200; // 0 if collapsed, 300 px if not. This matches the width of the sidebars in the .sidebar CSS class.
     // Use `map.easeTo()` with a padding option to adjust the map's center accounting for the position of sidebars.
+
     map.current.easeTo({
       padding: padding,
       duration // In ms. This matches the CSS transition duration property.
     });
+    
+    // console.log('collapsed', collapsed);
+    // console.log('newMode', newMode);
+    // console.log('padding', padding);
+    // console.log('newMode === mode', newMode === mode);
 
     setTimeout(() => {
       console.log('setting arrow');
@@ -916,6 +928,9 @@ export function MainMap() {
   // }, [spinners]);
 
 
+  const SidebarContent = useMemo(() => {
+    return (<LayersTOC mode={mode} />)
+  }, [mode])
 
   const TitleBlock = () => {
     console.log('in TitleBlock');
@@ -993,21 +1008,22 @@ export function MainMap() {
 return useMemo(() => {
   return (
     <React.Fragment>
-      <div ref={mapContainer} className="map-container" />
+      <div ref={mapContainer} className="map-container search" />
       {/* <SidebarMenu {...sidebarmenuProps} /> */}
       {/* <button id='openbtn' className="openbtn" onClick={openNav}>☰</button> */}
   
       <div id="left" className="sidebar flex-center left collapsed">
           <div className="sidebar-content rounded-rect flex-center">
-  
             <Stack spacing={2} direction="column" >
-  
               <LayersTOC />
               {/* <BaseMaps /> */}
             </Stack>
-            <div className="sidebar-toggle left" onClick={() => { toggleSidebar('left'); }}>
-            {toggleSymbol}
+            <div className="sidebar-toggle left" onClick={() => { toggleSidebar('left', ""); }}>
+              {toggleSymbol}
             </div>
+            {/* <div className="sidebar-search-toggle" onClick={() => { toggleSidebar('left', "search"); }}>
+              {toggleSymbol}
+            </div> */}
           </div>
       </div>
   
@@ -1019,17 +1035,18 @@ return useMemo(() => {
   
       <div id='titleblock'><TitleBlock /></div>
       <div className='button-group-right'>
-      <Button component={Link} to="/comparemap" color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
         {/* <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button> */}
         {/* <SearchBox /> */}
+        <div className="search_container">
+          <fieldset>
+          <input id="feature-filter" type="text" placeholder="ค้นหา" />
+          </fieldset>
+          <div id="feature-listing" className="listing" />
+        </div>
+        <Button id="comparebutton" component={Link} to="/comparemap" color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
       </div>
   
-      <div className="search_container">
-        <fieldset>
-        <input id="feature-filter" type="text" placeholder="ค้นหา" />
-        </fieldset>
-        <div id="feature-listing" className="listing" />
-      </div>
+      
     </React.Fragment>
   )
 }, [toggleSymbol])
