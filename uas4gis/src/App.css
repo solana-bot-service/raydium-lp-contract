@@ -171,10 +171,10 @@ The toggleSidebar() function removes this class from the element in order to exp
   top: 40px;
   font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
   background-color: #e4fbff;
+  min-height: 20%;
   max-height: 80%;
-  max-width: max-content;
   border-radius: 8px;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .search_container fieldset {
@@ -197,14 +197,14 @@ The toggleSidebar() function removes this class from the element in order to exp
 
 .search_container .listing {
   overflow: auto;
-  max-height: 80%;
+  height: 80%;
+  text-align: left;
 }
 
 .search_container .listing>* {
   display: block;
   padding: 5px 10px;
   margin: 0;
-  text-align: left;
 }
 
 .search_container .listing a {
@@ -238,7 +238,7 @@ input, input:before, input:after {
 }
 
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 600px) {
 
 
 
@@ -277,7 +277,7 @@ input, input:before, input:after {
 
 
   .button-group-right {
-    padding: px 12px;
+    padding: 6px 12px;
     font-family: monospace;
     font-size: medium;
     z-index: 1;
@@ -294,7 +294,9 @@ input, input:before, input:after {
 
   .button-group-right #comparebutton {
 
-    top: 88%;
+    position: absolute;
+    bottom: 10px;
+    left: 0;
     width: 100%;
     border-radius: 0px;
 
@@ -308,6 +310,7 @@ input, input:before, input:after {
     border-radius: 8px;
     background-color: #e4fbff;
     max-width: 100%;
+    height: 80%;
     border-radius: 0px;
   }
 
