@@ -249,7 +249,7 @@ input, input:before, input:after {
 
   .search {
     position: absolute;
-    top: 10%;
+    top: 15vh;
     height: 50%;
     bottom: 40%;
   }

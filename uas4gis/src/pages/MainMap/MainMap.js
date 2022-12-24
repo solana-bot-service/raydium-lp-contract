@@ -50,7 +50,7 @@ export function MainMap() {
   const ortho = require('../../MapData/nkrafaortho.json')
   const admins = require('../../MapData/vectorAdminSrc.json')
   const constructions = require('../../MapData/vectorConstructionSrc.json')
-  const essentialLayers = {...ortho, ...admins, ...constructions}
+  const essentialLayers = {...ortho, ...constructions} //...admins, 
   
 
   const mapIds = Object.entries(essentialLayers).reduce((p, [name, con]) => {
@@ -125,7 +125,7 @@ export function MainMap() {
       closeButton: false
     });
 
-    map.current.addControl(new mapboxgl.FullscreenControl());
+    // map.current.addControl(new mapboxgl.FullscreenControl());
     map.current.addControl(new mapboxgl.NavigationControl());
 
     if (!draw.current) draw.current = new MapboxDraw({
@@ -411,13 +411,13 @@ export function MainMap() {
       });
 
         // Admin areas
-        Object.entries(admins).sort((a, b) => a[1].id - b[1].id).forEach(([name, con]) => {
-          if (!map.current.getSource(con.layer.source)) map.current.addSource(con.layer.source, con.src);
-          if (!map.current.getLayer(name)) {
-            map.current.addLayer(con.layer);
-            toggleVisibility(name)
-          }
-        });
+        // Object.entries(admins).sort((a, b) => a[1].id - b[1].id).forEach(([name, con]) => {
+        //   if (!map.current.getSource(con.layer.source)) map.current.addSource(con.layer.source, con.src);
+        //   if (!map.current.getLayer(name)) {
+        //     map.current.addLayer(con.layer);
+        //     toggleVisibility(name)
+        //   }
+        // });
 
         // Buildings and roads
         Object.entries(constructions).forEach(([name, con]) => {
@@ -650,8 +650,6 @@ export function MainMap() {
               
               var f = map.current.querySourceFeatures(c + '-source')
 
-              console.log('f', f);
-
               if (f.length === 0) return p              
               // console.log('====================================');
               // console.log(constructions[c].src);
@@ -665,7 +663,6 @@ export function MainMap() {
           }
 
           if (fs.length) {
-            console.log(fs);
             searchableBBox.current = turf.bbox({
               type: 'FeatureCollection',
               features: fs

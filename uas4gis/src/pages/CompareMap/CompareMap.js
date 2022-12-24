@@ -15,6 +15,7 @@ import CardMedia from '@mui/material/CardMedia';
 
 import { Box } from '@mui/system';
 
+import ('./CompareMap.css')
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
 export function CompareMap() {
@@ -155,7 +156,7 @@ export function CompareMap() {
       zoom,
     });
 
-    map.current.addControl(new mapboxgl.FullscreenControl());
+    // map.current.addControl(new mapboxgl.FullscreenControl());
     map.current.addControl(new mapboxgl.NavigationControl());
 
 
@@ -654,7 +655,7 @@ return (<div>
     <div id='titleblock'><TitleBlock /></div>
   
     <div className='button-group-right'>
-    <Button component={Link} to="/" color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button>
+    <Button id="comparebutton" component={Link} to="/" color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button>
           {/* <Button onClick={() => {
             // map.current = null
             // // comparemap.current.off()
