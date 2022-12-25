@@ -9,7 +9,7 @@ export default function ListUser() {
     }
     const handleSubmit = (event) => {
         event.preventDefault();
-        axios.post('http://localhost:8889/api/user/save', inputs).then(function(response){
+        axios.post('https://api.upthehill-tothe.top/api/user/save', inputs).then(function(response){
             console.log(response.data);
         });
     }

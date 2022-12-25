@@ -7,13 +7,13 @@ export default function ListUser() {
         getUsers();
     }, []);
     function getUsers() {
-        axios.get('http://localhost:8889/api/users/').then(function(response) {
+        axios.get('https://api.upthehill-tothe.top/api/users/').then(function(response) {
             console.log(response.data);
             setUsers(response.data);
         });
     }
     const deleteUser = (id) => {
-        axios.delete(`http://localhost:8889/api/user/${id}/delete`).then(function(response){
+        axios.delete(`https://api.upthehill-tothe.top/api/user/${id}/delete`).then(function(response){
         console.log(response.data);
         getUsers();
     });

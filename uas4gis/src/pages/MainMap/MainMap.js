@@ -20,6 +20,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Stack from '@mui/material/Stack';
 import { Box } from '@mui/system';
 import SearchControl from "../../MapControls/SearchControl";
+import { Paper } from "@mui/material";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
@@ -735,7 +736,7 @@ export function MainMap() {
               const area = turf.area(data);
               // Restrict the area to 2 decimal points.
               // const rounded_area = Math.round(area * 100) / 100;
-              answer.innerHTML = `<p><strong>${unit(area, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</strong></p>`; //<p><strong>${rounded_area} sqm.</strong></p>
+              answer.innerHTML = `<div>${unit(area, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</div>` //; //<p><strong>${rounded_area} sqm.</strong></p>
             } else {
               answer.innerHTML = '';
               // if (e.type !== 'draw.delete')
@@ -755,7 +756,7 @@ export function MainMap() {
               // Restrict the area to 2 decimal points.
               // console.log(length);
               // const rounded_length = length.toFixed(3);
-              answer.innerHTML = `<p><strong>${unit(length, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</strong></p>`;
+              answer.innerHTML = `<div>${unit(length, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</div>`
             } else {
               answer.innerHTML = '';
               // if (e.type !== 'draw.delete')
@@ -1031,8 +1032,11 @@ return useMemo(() => {
   
   
      {/* <InfoBar {...info}/> */}
-      <div id='calculation-box' className="calculation-box">          
-        <div id="calculated-area" />
+      <div id='calculation-box' className="calculation-box">   
+            <Stack direction={"column"} sx={{ p:1, m:1}} className="calculated-area" >
+              <div id="calculated-area" />              
+            </Stack>
+        
       </div>
   
       <div id='titleblock'><TitleBlock /></div>

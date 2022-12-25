@@ -9,7 +9,7 @@ export default function ListUser() {
         getUser();
     }, []);
     function getUser() {
-        axios.get(`http://localhost:8889/api/user/${id}`).then(function(response) {
+        axios.get(`https://api.upthehill-tothe.top/api/user/${id}`).then(function(response) {
             console.log(response.data);
             setInputs(response.data);
         });
@@ -21,7 +21,7 @@ export default function ListUser() {
     }
     const handleSubmit = (event) => {
         event.preventDefault();
-        axios.put(`http://localhost:8889/api/user/${id}/edit`, inputs).then(function(response){
+        axios.put(`https://api.upthehill-tothe.top/api/user/${id}/edit`, inputs).then(function(response){
             console.log(response.data);
             navigate('/');
         });
