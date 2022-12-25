@@ -706,6 +706,9 @@ export function MainMap() {
         if (!document.getElementById('headerText')) calculationBox.prepend(headerText)
         
         calculationBox.style.display = data.features.length > 0 ? 'block' : 'none'
+        
+        const searchContainer = document.getElementById('search_container'); 
+        if (searchContainer) searchContainer.style.maxHeight =  data.features.length > 0 ?'40%' : '80%'
 
         if (e.type === 'draw.update') {
           // switch (data.features.) {
@@ -937,7 +940,7 @@ export function MainMap() {
           component="img"
           image="nkrafalogo.png"
           alt="nkrafa logo"
-          sx={{ maxHeight: '15vh', width:80, objectFit:'contain'}}
+          sx={{  width:80, objectFit:'contain'}}
         />
       <CardContent>
       <Box sx={{ textAlign: 'center', typography:'h5', color:'white' }}>ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี</Box>
@@ -1005,7 +1008,7 @@ export function MainMap() {
 return useMemo(() => {
   return (
     <React.Fragment>
-      <div ref={mapContainer} className="map-container search" />
+      <div ref={mapContainer} className="map-container searchmode" />
       {/* <SidebarMenu {...sidebarmenuProps} /> */}
       {/* <button id='openbtn' className="openbtn" onClick={openNav}>☰</button> */}
   
@@ -1034,7 +1037,7 @@ return useMemo(() => {
       <div className='button-group-right'>
         {/* <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button> */}
         {/* <SearchBox /> */}
-        <div className="search_container">
+        <div id="search_container" className="search_container">
           <fieldset>
           <input id="feature-filter" type="text" placeholder="ค้นหา" />
           </fieldset>

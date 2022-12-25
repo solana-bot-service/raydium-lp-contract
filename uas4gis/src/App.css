@@ -237,20 +237,43 @@ input, input:before, input:after {
 
 }
 
+@media screen and (max-height: 480px) {
 
-@media screen and (max-width: 600px) {
+
+  #titleblock {
+    display: block;
+    cursor: pointer;
+    position: absolute;
+    z-index: 1;
+    margin: 0px auto;
+    left: 10px;
+    width: 50%;
+    margin-top: 0;
+    font-size: xx-small;
+  }
 
 
+
+}
+
+@media screen and (max-width: 480px) {
+
+
+
+  .sidebar {
+    z-index: 4;
+    top: 40px;
+    height: 100%;
+  }
 
   .map-container {
     position: absolute;
-    top: 10%;
+    top: 15vh;
   }
 
-  .search {
+  .searchmode {
     position: absolute;
-    top: 15vh;
-    height: 50%;
+    height: 45%;
     bottom: 40%;
   }
 
@@ -259,13 +282,34 @@ input, input:before, input:after {
     top: 0;
     border-radius: 0;
     background: #000000;
-  }
+    height: 15vh;
+    max-height: 45vh;
+    font-size:x-small;
 
+
+  }
 
   .calculation-box {
+    background-color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    background-color: #e4fbff;
+    padding: 6px 12px;
+    font-family: monospace;
+    font-size: large;
+    z-index: 2;
+    position: absolute;
+    top: 60%;
+    right: 0px;
+    height: 30vh;
+    width: 100%;
+    border-radius: 0;
+
+  }
+
+  /* .calculation-box {
     bottom: 16%;
     right: 10px;
-  }
+  } */
 
   .sidebar {
     transition: transform 1s;
@@ -284,7 +328,6 @@ input, input:before, input:after {
     position: absolute;
     top: 60%;
     right: 0px;
-    border-radius: 4px;
     height: 40%;
     width: 100%;
     border-radius: 0;

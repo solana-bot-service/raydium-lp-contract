@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import MapboxCompare from 'mapbox-gl-compare';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
+import './CompareMap.css'
 
 
 
