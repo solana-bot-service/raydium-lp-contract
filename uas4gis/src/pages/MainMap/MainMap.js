@@ -708,7 +708,10 @@ export function MainMap() {
         calculationBox.style.display = data.features.length > 0 ? 'block' : 'none'
         
         const searchContainer = document.getElementById('search_container'); 
-        if (searchContainer) searchContainer.style.maxHeight =  data.features.length > 0 ?'40%' : '80%'
+        if (searchContainer) searchContainer.style.maxHeight =  data.features.length > 0 ?'50%' : '80%'
+
+        const ButtonGroupRight = document.getElementById('button-group-right'); 
+        if (ButtonGroupRight) ButtonGroupRight.style.maxHeight =  data.features.length > 0 ?'50%' : '80%'
 
         if (e.type === 'draw.update') {
           // switch (data.features.) {
@@ -731,9 +734,8 @@ export function MainMap() {
               const displayingUnit = 'm2'
               const area = turf.area(data);
               // Restrict the area to 2 decimal points.
-              const rounded_area = Math.round(area * 100) / 100;
-              answer.innerHTML = `<p><strong>${rounded_area} sqm.</strong></p>
-              <p><strong>${unit(area, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</strong></p>`;
+              // const rounded_area = Math.round(area * 100) / 100;
+              answer.innerHTML = `<p><strong>${unit(area, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</strong></p>`; //<p><strong>${rounded_area} sqm.</strong></p>
             } else {
               answer.innerHTML = '';
               // if (e.type !== 'draw.delete')

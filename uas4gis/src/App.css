@@ -45,10 +45,12 @@
 }
 
 .calculation-box {
+
+  font-size: x-small;
   height: 50px;
-  width: 200px;
+  width: 150px;
   position: absolute;
-  bottom: 60px;
+  bottom: 30px;
   right: 10px;
   background-color: rgba(255, 255, 255, 0.7);
   padding: 10px;
@@ -119,7 +121,7 @@ p {
 
 .sidebar {
   transition: transform 1s;
-  z-index: 1;
+  z-index: 3;
   width: 200px;
   top: 40px;
   display: flex;
@@ -171,8 +173,9 @@ The toggleSidebar() function removes this class from the element in order to exp
   top: 40px;
   font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
   background-color: #e4fbff;
-  min-height: 20%;
-  max-height: 80%;
+  height: 100%;
+  min-height: 20%!important;
+  max-height: max-content;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -258,14 +261,6 @@ input, input:before, input:after {
 
 @media screen and (max-width: 480px) {
 
-
-
-  .sidebar {
-    z-index: 4;
-    top: 40px;
-    height: 100%;
-  }
-
   .map-container {
     position: absolute;
     top: 15vh;
@@ -306,17 +301,13 @@ input, input:before, input:after {
 
   }
 
-  /* .calculation-box {
-    bottom: 16%;
-    right: 10px;
-  } */
 
   .sidebar {
     transition: transform 1s;
-    z-index: 1;
     width: 200px;
-    top: 15%;
-    height: 70%;
+    top: 10px;
+    height: 50%;
+    z-index: 4;
   }
 
 
