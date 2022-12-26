@@ -19,6 +19,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import { Card, CardContent, CardMedia } from "@mui/material";
 
 
 export default function App() {
@@ -62,11 +63,11 @@ const [anchorElNav, setAnchorElNav] = React.useState(null);
         </Route>
       </Routes>
 
-    <AppBar position="static">
+    <AppBar  position="static" color="primary" enableColorOnDark>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-            <Typography
+            {/* <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} /> */}
+            {/* <Typography
               variant="h6"
               noWrap
               component="a"
@@ -82,8 +83,16 @@ const [anchorElNav, setAnchorElNav] = React.useState(null);
               }}
             >
               LOGO
-            </Typography>
+            </Typography> */}
 
+            <Card sx={{ display: { xs: 'none', md: 'flex' }, bgcolor:"transparent"}}>
+                <CardMedia
+                    component="img"
+                    image="nkrafalogo.png"
+                    alt="nkrafa logo"
+                    sx={{  zIndex:1, width:80, objectFit:'contain'}}
+                  />
+            </Card>
             <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
               <IconButton
                 size="large"
@@ -120,8 +129,21 @@ const [anchorElNav, setAnchorElNav] = React.useState(null);
                 ))}
               </Menu>
             </Box>
-            <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-            <Typography
+            <Card sx={{ display: { xs: 'flex', md: 'none' }, bgcolor:"transparent"}}>
+              <CardMedia
+                  component="img"
+                  image="nkrafalogo.png"
+                  alt="nkrafa logo"
+                  sx={{  zIndex:1, width:80, objectFit:'contain'}}
+                />
+          </Card>
+          {/* <Typography variant={{ xs: 'caption', md: 'h6' }} component="div" sx={{ flexGrow: 1, bgcolor:{ xs: 'transparent', md: 'black' } }}>
+          ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี
+          </Typography> */}
+          <Box sx={{ textAlign: 'center',bgcolor:{ xs: 'transparent', md: 'black' },  borderRadius: '20px',typography:{sm: 'p', md: 'h5'}, color:'white' ,  m:2, p:2}}>ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี</Box>
+
+          {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
+            {/* <Typography
               variant="h5"
               noWrap
               component="a"
@@ -138,7 +160,7 @@ const [anchorElNav, setAnchorElNav] = React.useState(null);
               }}
             >
               LOGO
-            </Typography>
+            </Typography> */}
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
               {pages.map((page) => (
                 <Button

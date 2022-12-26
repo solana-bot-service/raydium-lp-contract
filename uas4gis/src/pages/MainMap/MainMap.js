@@ -127,7 +127,7 @@ export function MainMap() {
     });
 
     // map.current.addControl(new mapboxgl.FullscreenControl());
-    map.current.addControl(new mapboxgl.NavigationControl());
+    map.current.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
 
     if (!draw.current) draw.current = new MapboxDraw({
       displayControlsDefault: false,
@@ -143,7 +143,7 @@ export function MainMap() {
       // The user does not have to click the polygon control button first.
       // defaultMode: 'draw_polygon'
     });
-    map.current.addControl(draw.current);
+    map.current.addControl(draw.current, 'bottom-right');
     
 
     // Search Control
