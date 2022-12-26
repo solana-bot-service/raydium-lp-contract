@@ -773,38 +773,38 @@ export function MainMap() {
 
     }
 
-  const element = document.getElementById('titleblock')
-    if (element.getAttribute('listener') !== 'true') element.addEventListener('click', () => {
-      // depending on whether we're currently at point a or b, aim for
-      // point a or b
-      // const target = isAtStart ? end : start;
+  // const element = document.getElementById('titleblock')
+  //   if (element.getAttribute('listener') !== 'true') element.addEventListener('click', () => {
+  //     // depending on whether we're currently at point a or b, aim for
+  //     // point a or b
+  //     // const target = isAtStart ? end : start;
 
-      // and now we're at the opposite point
-      // isAtStart = !isAtStart;
-      let flyParams = {
-        // These options control the ending camera position: centered at
-        // the target, at zoom level 9, and north up.
-        center: start,
-        zoom: _zoom,
-        bearing: _bearing,
-        pitch: _pitch,
+  //     // and now we're at the opposite point
+  //     // isAtStart = !isAtStart;
+  //     let flyParams = {
+  //       // These options control the ending camera position: centered at
+  //       // the target, at zoom level 9, and north up.
+  //       center: start,
+  //       zoom: _zoom,
+  //       bearing: _bearing,
+  //       pitch: _pitch,
 
-        // These options control the flight curve, making it move
-        // slowly and zoom out almost completely before starting
-        // to pan.
-        speed: 1.5, // make the flying slow
-        curve: 1, // change the speed at which it zooms out
+  //       // These options control the flight curve, making it move
+  //       // slowly and zoom out almost completely before starting
+  //       // to pan.
+  //       speed: 1.5, // make the flying slow
+  //       curve: 1, // change the speed at which it zooms out
 
-        // This can be any easing function: it takes a number between
-        // 0 and 1 and returns another number between 0 and 1.
-        easing: (t) => t,
+  //       // This can be any easing function: it takes a number between
+  //       // 0 and 1 and returns another number between 0 and 1.
+  //       easing: (t) => t,
 
-        // this animation is considered essential with respect to prefers-reduced-motion
-        essential: true
-      }
+  //       // this animation is considered essential with respect to prefers-reduced-motion
+  //       essential: true
+  //     }
 
-      map.current.flyTo(flyParams);
-    });
+  //     map.current.flyTo(flyParams);
+  //   });
 
     if (filterEl.getAttribute('listener') !== 'true') {
       filterEl.addEventListener('keyup', (e) => {
@@ -1039,7 +1039,7 @@ return useMemo(() => {
         
       </div>
   
-      <div id='titleblock'><TitleBlock /></div>
+      {/* <div id='titleblock'><TitleBlock /></div> */}
       <div className='button-group-right'>
         {/* <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button> */}
         {/* <SearchBox /> */}
