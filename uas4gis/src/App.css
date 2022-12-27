@@ -1,7 +1,7 @@
 .map-container {
   height: 100%;
   position: absolute;
-  top: 0;
+  top: 64px;
   bottom: 0;
   width: 100%;
 }
@@ -269,7 +269,7 @@ input:after {
 
   .map-container {
     position: absolute;
-    top: 15vh;
+    top: 56px;
   }
 
   .searchmode {

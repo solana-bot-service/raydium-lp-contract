@@ -85,7 +85,7 @@ const [anchorElNav, setAnchorElNav] = React.useState(null);
               LOGO
             </Typography> */}
 
-            <Card sx={{ display: { xs: 'none', md: 'flex' }, bgcolor:"transparent"}}>
+            <Card sx={{ overflow:'visible', display: { xs: 'none', md: 'flex' }, bgcolor:"transparent"}}>
                 <CardMedia
                     component="img"
                     image="nkrafalogo.png"
@@ -129,18 +129,19 @@ const [anchorElNav, setAnchorElNav] = React.useState(null);
                 ))}
               </Menu>
             </Box>
-            <Card sx={{ display: { xs: 'flex', md: 'none' }, bgcolor:"transparent"}}>
+            <Card sx={{ overflow:'visible', display: { xs: 'flex', md: 'none' }, bgcolor:"transparent", mr: 1 }}>
               <CardMedia
                   component="img"
                   image="nkrafalogo.png"
                   alt="nkrafa logo"
-                  sx={{  zIndex:1, width:80, objectFit:'contain'}}
+                  sx={{  zIndex:2, width:{xs: 60, md: 80}, objectFit:'contain'}}
                 />
           </Card>
           {/* <Typography variant={{ xs: 'caption', md: 'h6' }} component="div" sx={{ flexGrow: 1, bgcolor:{ xs: 'transparent', md: 'black' } }}>
           ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี
           </Typography> */}
-          <Box sx={{ textAlign: 'center',bgcolor:{ xs: 'transparent', md: 'black' },  borderRadius: '20px',typography:{sm: 'p', md: 'h5'}, color:'white' ,  m:2, p:2}}>ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี</Box>
+          <Box sx={{ m: {xs: 0, md:2}, p: {xs: 0, md:1}, textAlign: 'center',   borderRadius: '20px', typography:{xs: 'caption', md: 'h6', lg: 'h5'}, color:'white'}}>ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี</Box>
+          {/* bgcolor:{ xs: 'transparent', sm: 'black' },  */}
 
           {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
             {/* <Typography
@@ -176,7 +177,7 @@ const [anchorElNav, setAnchorElNav] = React.useState(null);
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar alt="ผู้ใช้" src="/static/images/avatar/2.jpg" />
                 </IconButton>
               </Tooltip>
               <Menu
