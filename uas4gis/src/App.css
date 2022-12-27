@@ -127,7 +127,7 @@ p {
   transition: transform 1s;
   z-index: 3;
   width: 200px;
-  top: 40px;
+  top: 72px;
   display: flex;
   height: 80%;
 }
@@ -152,8 +152,8 @@ p {
   height: 90%;
   width: auto;
   position: absolute;
-  top: 100px;
-  right: 10px;
+  top: 72px;
+  right: 50px;
   text-align: right;
   border-radius: 10px;
 }
@@ -178,7 +178,7 @@ The toggleSidebar() function removes this class from the element in order to exp
   font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
   background-color: #e4fbff;
   height: auto;
-  min-height: 20%;
+  min-height: 60px;
   max-height: 70%;
   border-radius: 8px;
   overflow: hidden;
@@ -261,21 +261,41 @@ input:after {
     font-size: xx-small;
   }
 
+    
+  .button-group-right {
+    height: 90%;
+    width: auto;
+    position: absolute;
+    text-align: right;
+    border-radius: 10px;
+  }
 
+
+  .calculation-box {
+    bottom: 10px;
+    height: 50px;
+    right: 50px;
+  }
 
 }
+
+/* @media screen and (max-width: 640px)  and (max-height: 480px) {
+  .map-container {
+    position: absolute;
+  }
+
+} */
 
 @media screen and (max-width: 480px) {
 
   .map-container {
     position: absolute;
-    top: 56px;
   }
 
   .searchmode {
     position: absolute;
     top: 56px;
-    height: 52%;
+    height: auto;
     bottom: 40%;
   }
 
@@ -287,7 +307,6 @@ input:after {
     height: 15vh;
     max-height: 45vh;
     font-size: x-small;
-
 
   }
 
@@ -313,7 +332,7 @@ input:after {
   .sidebar {
     transition: transform 1s;
     width: 200px;
-    top: 10px;
+    top: 60px;
     height: 50%;
     z-index: 4;
   }

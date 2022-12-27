@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 import { CompareMap } from "./pages/CompareMap/CompareMap";
 import { MainMap } from "./pages/MainMap/MainMap";
@@ -35,8 +35,10 @@ const theme = createTheme({
     mode: "dark"
   }
 });
-const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
+
+  const [handleResetView, setHandleResetView] = useState(null);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -61,7 +63,7 @@ const [anchorElNav, setAnchorElNav] = React.useState(null);
             parent route elements. See the note about <Outlet> below. */}
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<MainMap />} />
+          <Route index element={<MainMap setHandleResetView={setHandleResetView} />} />
           <Route path="comparemap" element={<CompareMap />} />
 
           {/* Using path="*"" means "match anything", so this route
@@ -72,7 +74,7 @@ const [anchorElNav, setAnchorElNav] = React.useState(null);
       </Routes>
       <ThemeProvider theme={theme}>
       {/* enableColorOnDark */}
-        <AppBar  position="static" > 
+        <AppBar  position="static"> 
           <Container maxWidth="xl">
             <Toolbar disableGutters>
               {/* <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} /> */}

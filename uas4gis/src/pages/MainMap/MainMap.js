@@ -24,7 +24,9 @@ import { Paper } from "@mui/material";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
-export function MainMap() {
+export function MainMap(props) {
+
+  const { setHandleResetView } = props
 
   const mapContainer = useRef(null);
   const map = useRef(null);
@@ -127,7 +129,7 @@ export function MainMap() {
     });
 
     // map.current.addControl(new mapboxgl.FullscreenControl());
-    map.current.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+    map.current.addControl(new mapboxgl.NavigationControl());
 
     if (!draw.current) draw.current = new MapboxDraw({
       displayControlsDefault: false,
@@ -143,7 +145,7 @@ export function MainMap() {
       // The user does not have to click the polygon control button first.
       // defaultMode: 'draw_polygon'
     });
-    map.current.addControl(draw.current, 'bottom-right');
+    map.current.addControl(draw.current);
     
 
     // Search Control
@@ -772,6 +774,38 @@ export function MainMap() {
 
 
     }
+
+    setHandleResetView (() => {
+          // depending on whether we're currently at point a or b, aim for
+          // point a or b
+          // const target = isAtStart ? end : start;
+    
+          // and now we're at the opposite point
+          // isAtStart = !isAtStart;
+          let flyParams = {
+            // These options control the ending camera position: centered at
+            // the target, at zoom level 9, and north up.
+            center: start,
+            zoom: _zoom,
+            bearing: _bearing,
+            pitch: _pitch,
+    
+            // These options control the flight curve, making it move
+            // slowly and zoom out almost completely before starting
+            // to pan.
+            speed: 1.5, // make the flying slow
+            curve: 1, // change the speed at which it zooms out
+    
+            // This can be any easing function: it takes a number between
+            // 0 and 1 and returns another number between 0 and 1.
+            easing: (t) => t,
+    
+            // this animation is considered essential with respect to prefers-reduced-motion
+            essential: true
+          }
+    
+          map.current.flyTo(flyParams);
+        })
 
   // const element = document.getElementById('titleblock')
   //   if (element.getAttribute('listener') !== 'true') element.addEventListener('click', () => {

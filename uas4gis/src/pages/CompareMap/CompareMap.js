@@ -91,7 +91,7 @@ export function CompareMap() {
 
       const comparableMaps =  Object.entries(ortho).slice(-2)
 
-      afterMap.current.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+      afterMap.current.addControl(new mapboxgl.NavigationControl());
 
 
         beforeMap.current.on('data', () => {
@@ -158,7 +158,7 @@ export function CompareMap() {
     });
 
     // map.current.addControl(new mapboxgl.FullscreenControl());
-    map.current.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+    map.current.addControl(new mapboxgl.NavigationControl());
 
 
 
