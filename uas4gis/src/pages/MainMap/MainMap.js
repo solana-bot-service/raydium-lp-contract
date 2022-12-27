@@ -663,7 +663,7 @@ export function MainMap() {
             }, [])
           }
 
-          if (fs.length) {
+          if (fs && fs.length) {
             searchableBBox.current = turf.bbox({
               type: 'FeatureCollection',
               features: fs
@@ -704,7 +704,7 @@ export function MainMap() {
         headerText.id = 'headerText'
 
         const calculationBox = document.getElementById('calculation-box');
-        if (!document.getElementById('headerText')) calculationBox.prepend(headerText)
+        if (!document.getElementById('headerText') && calculationBox) calculationBox.prepend(headerText)
         
         calculationBox.style.display = data.features.length > 0 ? 'block' : 'none'
         

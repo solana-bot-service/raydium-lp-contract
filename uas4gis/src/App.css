@@ -274,7 +274,8 @@ input:after {
 
   .searchmode {
     position: absolute;
-    height: 45%;
+    top: 56px;
+    height: 52%;
     bottom: 40%;
   }
 
