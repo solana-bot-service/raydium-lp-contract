@@ -26,8 +26,6 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpb
 
 export function MainMap(props) {
 
-  const { setHandleResetView } = props
-
   const mapContainer = useRef(null);
   const map = useRef(null);
   const searchables = useRef()
@@ -775,37 +773,37 @@ export function MainMap(props) {
 
     }
 
-    setHandleResetView (() => {
-          // depending on whether we're currently at point a or b, aim for
-          // point a or b
-          // const target = isAtStart ? end : start;
+    // setHandleResetView(() => {
+    //       // depending on whether we're currently at point a or b, aim for
+    //       // point a or b
+    //       // const target = isAtStart ? end : start;
     
-          // and now we're at the opposite point
-          // isAtStart = !isAtStart;
-          let flyParams = {
-            // These options control the ending camera position: centered at
-            // the target, at zoom level 9, and north up.
-            center: start,
-            zoom: _zoom,
-            bearing: _bearing,
-            pitch: _pitch,
+    //       // and now we're at the opposite point
+    //       // isAtStart = !isAtStart;
+    //       let flyParams = {
+    //         // These options control the ending camera position: centered at
+    //         // the target, at zoom level 9, and north up.
+    //         center: start,
+    //         zoom: _zoom,
+    //         bearing: _bearing,
+    //         pitch: _pitch,
     
-            // These options control the flight curve, making it move
-            // slowly and zoom out almost completely before starting
-            // to pan.
-            speed: 1.5, // make the flying slow
-            curve: 1, // change the speed at which it zooms out
+    //         // These options control the flight curve, making it move
+    //         // slowly and zoom out almost completely before starting
+    //         // to pan.
+    //         speed: 1.5, // make the flying slow
+    //         curve: 1, // change the speed at which it zooms out
     
-            // This can be any easing function: it takes a number between
-            // 0 and 1 and returns another number between 0 and 1.
-            easing: (t) => t,
+    //         // This can be any easing function: it takes a number between
+    //         // 0 and 1 and returns another number between 0 and 1.
+    //         easing: (t) => t,
     
-            // this animation is considered essential with respect to prefers-reduced-motion
-            essential: true
-          }
+    //         // this animation is considered essential with respect to prefers-reduced-motion
+    //         essential: true
+    //       }
     
-          map.current.flyTo(flyParams);
-        })
+    //       map.current.flyTo(flyParams);
+    //     })
 
   // const element = document.getElementById('titleblock')
   //   if (element.getAttribute('listener') !== 'true') element.addEventListener('click', () => {

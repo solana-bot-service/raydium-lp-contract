@@ -1,20 +1,12 @@
-
 import { Link } from "react-router-dom";
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import MapboxCompare from 'mapbox-gl-compare';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 import './CompareMap.css'
 
-
-
 import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 
-
-import { Box } from '@mui/system';
 
 import ('./CompareMap.css')
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
@@ -27,6 +19,9 @@ export function CompareMap() {
   const beforeMap = useRef()
   const afterMap = useRef()
 
+  const [beforeMapLayer, setBeforeMapLayer] = useState("");
+  const [afterMapLayer, setAfterMapLayer] = useState("");
+
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
   const start = [101.1866, 14.6534];
   const [_zoom, _bearing, _pitch] = [15, 0, 0]
@@ -35,36 +30,15 @@ export function CompareMap() {
   const [zoom, setZoom] = useState(_zoom); //15
   const [bearing, setBearing] = useState(_bearing); //-108
   const [pitch, setPitch] = useState(_pitch); //76
-  const [toggleSymbol, setToggleSymbol] = useState("▶︎");
-  const [searchingLayer, setSearchingLayer] = useState('buildings');
-
+ 
   //map data sources
   const ortho = require('../../MapData/nkrafaortho.json')
   const admins = require('../../MapData/vectorAdminSrc.json')
   const constructions = require('../../MapData/vectorConstructionSrc.json')
-  const essentialLayers = {...ortho, ...admins, ...constructions}
-  
 
-  const mapIds = Object.entries(essentialLayers).reduce((p, [name, con]) => {
-    return {...p, [name] : con.info.desc}
-  }, {'nkrafa-dem-layer': 'ชั้นความสูง DEM'});
-  // Enumerate ids of the layers.
-  const toggleableLayerIds = Object.keys(essentialLayers).reduce((p, name) => {
-    Array.isArray(p) ? p.push(name) : p = name
-    return p
-  }, [])
-
-  //['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'nkrafa-dem-layer', 'provinces', 'roads', 'buildings']; //'contours', 'museums',
-  //['provinces', 'amphoes', 'tambols', 'sky', 'nkrafa-ortho-6508-layer']; //'contours', 'museums',
-  // If these two layers were not added to the map, abort
-
-  const visibleLayers = Object.entries(essentialLayers).reduce((p, [name, con]) => {
-    if (con.info.visible) Array.isArray(p) ? p.push(name) : p = name
-    return p
-  }, [])
-  //['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'roads', 'buildings']//['provinces']
-
-  const [spinners, setSpinners] = useState(toggleableLayerIds.reduce((p, id) => ({...p, [id]: <></>}), {}));
+  function setBeforeLayerSelected(e) {
+    setBeforeMapLayer(e.target.value)
+  }
 
   useEffect(() => {
 
@@ -72,439 +46,150 @@ export function CompareMap() {
       if (!beforeMap.current) beforeMap.current = new mapboxgl.Map({
         container: 'before',
         // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-          style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
-          center: [lng, lat],
-          pitch,
-          bearing,
-          zoom,
-        });
+        style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+        center: [lng, lat],
+        pitch,
+        bearing,
+        zoom,
+      });
 
-        if (!afterMap.current) afterMap.current = new mapboxgl.Map({
+      if (!afterMap.current) afterMap.current = new mapboxgl.Map({
         container: 'after',
         style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
         center: [lng, lat],
         pitch,
         bearing,
         zoom,
-        });
+      });
 
 
-      const comparableMaps =  Object.entries(ortho).slice(-2)
+      const comparableMaps = Object.entries(ortho).slice(-2)
 
       afterMap.current.addControl(new mapboxgl.NavigationControl());
 
 
-        beforeMap.current.on('data', () => {
+      beforeMap.current.on('data', () => {
 
-          if (comparableMaps.length) {
-              
-            let [name, con] = comparableMaps.shift()
-            if (!beforeMap.current.getSource(con.layer.source)) {
-              console.log(name);
-              beforeMap.current.addSource(con.layer.source, con.src);
-            }
-            if (!beforeMap.current.getLayer(name)) {
-              beforeMap.current.addLayer(con.layer);
-            }
+        if (comparableMaps.length) {
+
+          let [name, con] = comparableMaps.shift()
+          loadBeforeMap(name, con)
+        }
+
+        // Object.entries(ortho).slice(0, 1).forEach(([name, con]) => {
+
+        // });
+        beforeMap.current.off('data', () => {});
+      });
+
+
+      afterMap.current.on('data', () => {
+
+        if (comparableMaps.length) {
+
+          let [name, con] = comparableMaps.shift()
+          if (!afterMap.current.getSource(con.layer.source)) {
+            console.log(name);
+            afterMap.current.addSource(con.layer.source, con.src);
           }
-
-          // Object.entries(ortho).slice(0, 1).forEach(([name, con]) => {
-
-          // });
-
-          beforeMap.current.off('data', () => {});
-        });
-
-
-        afterMap.current.on('data', () => {
-
-          if (comparableMaps.length) {
-              
-            let [name, con] = comparableMaps.shift()
-            if (!afterMap.current.getSource(con.layer.source)) {
-              console.log(name);
-              afterMap.current.addSource(con.layer.source, con.src);
-            }
-            if (!afterMap.current.getLayer(name)) {
-              afterMap.current.addLayer(con.layer);
-            }
+          if (!afterMap.current.getLayer(name)) {
+            afterMap.current.addLayer(con.layer);
           }
+        }
 
-          // Object.entries(ortho).slice(1, 2).forEach(([name, con]) => {
+        // Object.entries(ortho).slice(1, 2).forEach(([name, con]) => {
 
-          // });
+        // });
 
-          afterMap.current.off('data', () => {});
-        });
+        afterMap.current.off('data', () => {});
+      });
 
 
 
-        // A selector or reference to HTML element
-        const container = '#comparison-container';
+      // A selector or reference to HTML element
+      const container = '#comparison-container';
 
-        comparemap.current = new MapboxCompare(beforeMap.current, afterMap.current, container, {
+      comparemap.current = new MapboxCompare(beforeMap.current, afterMap.current, container, {
         // Set this to enable comparing two maps by mouse movement:
         // mousemove: true
-        });
-
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      // style: 'mapbox://styles/mapbox/streets-v11',
-      style: 'mapbox://styles/chaloemphol/clasf7ipf00dp14mpio2dnq8h',//'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
-      center: [lng, lat],
-      pitch,
-      bearing,
-      zoom,
-    });
-
-    // map.current.addControl(new mapboxgl.FullscreenControl());
-    map.current.addControl(new mapboxgl.NavigationControl());
-
-
-
-    map.current.on('load', () => {
-
-      const layerList = document.getElementById('basemaps_menu');
-      const inputs = layerList.getElementsByTagName('input');
-
-      for (const input of inputs) {
-        input.onclick = (layer) => {
-          const layerId = layer.target.id;
-          map.current.setStyle('mapbox://styles/mapbox/' + layerId);
-        };
-      }
-
-
-
-      toggleSidebar('left');
-
-
-      // toggleableLayerIds.forEach(id => {
-      //   console.log('====================================');
-      //   console.log('checking visibility', id);
-      //   console.log('====================================');
-      //   toggleVisibility(id)
-
-      // });
-
-      // map.current.addSource('dot-point', {
-      //   'type': 'geojson',
-      //   'data': {
-      //     'type': 'FeatureCollection',
-      //     'features': [{
-      //       'type': 'Feature',
-      //       'geometry': {
-      //         'type': 'Point',
-      //         'coordinates': [lng, lat] // icon position [lng, lat]
-      //       }
-      //     }]
-      //   }
-      // });
-      // map.current.addLayer({
-      //   'id': 'layer-with-pulsing-dot',
-      //   'type': 'symbol',
-      //   'source': 'dot-point',
-      //   'layout': {
-      //     'icon-image': 'pulsing-dot'
-      //   }
-      // });
-
-      ////https://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson
-
-
-      // map.current.addSource('museums', {
-      //   type: 'vector',
-      //   url: 'mapbox://mapbox.2opop9hr'
-      // });
-
-      // map.current.addLayer({
-      //   'id': 'museums',
-      //   'type': 'circle',
-      //   'source': 'museums',
-      //   'layout': {
-      //     // Make the layer visible by default.
-      //     'visibility': 'visible'
-      //     },
-      //     'paint': {
-      //       'circle-radius': 8,
-      //       'circle-color': 'rgba(55,148,179,1)'
-      //       },
-      //     'source-layer': 'museum-cusco'
-      //   });
-
-      // Add the Mapbox Terrain v2 vector tileset. Read more about
-      // the structure of data in this tileset in the documentation:
-      // https://docs.mapbox.com/vector-tiles/reference/mapbox-terrain-v2/
-      // map.current.addSource('contours', {
-      // type: 'vector',
-      // url: 'mapbox://mapbox.mapbox-terrain-v2'
-      // });
-      // map.current.addLayer({
-      //   'id': 'contours',
-      //   'type': 'line',
-      //   'source': 'contours',
-      //   'source-layer': 'contour',
-      //   'layout': {
-      //     // Make the layer visible by default.
-      //     'visibility': 'visible',
-      //     'line-join': 'round',
-      //     'line-cap': 'round'
-      //   },
-      //   'paint': {
-      //   'line-color': '#877b59',
-      //   'line-width': 1
-      // }
-      // });
-    });
-    
-
-
-    function toggleVisibility(id) {
-      if (!visibleLayers.includes(id)) map.current.setLayoutProperty(
-        id,
-        'visibility',
-        'none'
-      );
-    }
-
-
-    var loadSource = () => {
-      if (map.current.isStyleLoaded()) {
-
-
-        // When a click event occurs on a feature in the states layer,
-        // open a popup at the location of the click, with description
-        // HTML from the click event's properties.
-        map.current.on('click', 'provinces', (e) => {
-          new mapboxgl.Popup()
-          .setLngLat(e.lngLat)
-          .setHTML(e.features[0].properties.name_t)
-          .addTo(map.current);
-          });
-
-          // Change the cursor to a pointer when
-          // the mouse is over the states layer.
-          map.current.on('mouseenter', 'provinces', () => {
-          map.current.getCanvas().style.cursor = 'pointer';
-          });
-
-          // Change the cursor back to a pointer
-          // when it leaves the states layer.
-          map.current.on('mouseleave', 'provinces', () => {
-          map.current.getCanvas().style.cursor = '';
-          });
-
-                    //SKY
-        // add a sky layer that will show when the map is highly pitched
-
-        if (!map.current.getLayer('sky')) map.current.addLayer({
-          'id': 'sky',
-          'type': 'sky',
-          'paint': {
-            'sky-type': 'atmosphere',
-            'sky-atmosphere-sun': [0.0, 0.0],
-            'sky-atmosphere-sun-intensity': 15
-          }
-        });
-
-        //  MARK Mapbox Terrain
-
-        if (!map.current.getSource('mapbox-dem')) map.current.addSource('mapbox-dem', {
-          'type': 'raster-dem',
-          'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-          'tileSize': 512,
-          'maxzoom': 14
-        });
-        // add the DEM source as a terrain layer with exaggerated height
-        // map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
-
-
-        // MARK:- DEM
-
-        if (!map.current.getSource('nkrafa-dem')) map.current.addSource('nkrafa-dem', {
-          "type": "raster-dem",
-          "url": "mapbox://chaloemphol.aqjbpzug",
-          "tileSize": 256
       });
 
-      if (!map.current.getLayer('nkrafa-dem-layer')) {
-        map.current.addLayer({
-            'id': 'nkrafa-dem-layer',
-            'type': 'hillshade',
-            'source': 'nkrafa-dem',
-            'paint': {}
-          },
-          'nkrafa-ortho-6508-layer'
-        );
-
-        toggleVisibility('nkrafa-dem-layer')
-      }
-
-
-        // MARK:- RASTER
-
-      /**
-       * BBOX ให้ใช้ {bbox-epsg-3857}
-       *
-      //  */
-
-
-      Object.entries(ortho).sort((a, b) => a[1].info.date - b[1].info.date).forEach(([name, con]) => {
-        if (!map.current.getSource(con.layer.source)) {
-        console.log(name);
-          map.current.addSource(con.layer.source, con.src);
-        }
-        if (!map.current.getLayer(name)) {
-          map.current.addLayer(con.layer);
-          toggleVisibility(name)
-        }
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        // style: 'mapbox://styles/mapbox/streets-v11',
+        style: 'mapbox://styles/chaloemphol/clasf7ipf00dp14mpio2dnq8h', //'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+        center: [lng, lat],
+        pitch,
+        bearing,
+        zoom,
       });
 
-        // Admin areas
-        Object.entries(admins).sort((a, b) => a[1].id - b[1].id).forEach(([name, con]) => {
-          if (!map.current.getSource(con.layer.source)) map.current.addSource(con.layer.source, con.src);
-          if (!map.current.getLayer(name)) {
-            map.current.addLayer(con.layer);
-            toggleVisibility(name)
-          }
-        });
+      // map.current.addControl(new mapboxgl.FullscreenControl());
+      map.current.addControl(new mapboxgl.NavigationControl());
 
-        // Buildings and roads
-        Object.entries(constructions).forEach(([name, con]) => {
+      map.current.on('load', () => {
 
-          if (!searchingLayer && con.searchable) setSearchingLayer(name) 
-          if (!map.current.getSource(con.layer.source)) {
-          console.log(name);
-            map.current.addSource(con.layer.source, con.src);
-          }
-          if (!map.current.getLayer(name)) {
-            map.current.addLayer(con.layer);
-            toggleVisibility(name)
+        const layerList = document.getElementById('basemaps_menu');
+        const inputs = layerList.getElementsByTagName('input');
 
-            if (con.label && !map.current.getLayer(name + "-label")) map.current.addLayer(con.label);
-
-          }
-
-          if (con.info.extrude && !map.current.getLayer(con.extrude.id)) map.current.addLayer(con.extrude)
-
-        });
-
-
-
-        const layers = document.getElementById('menu');
-
-        if (!document.getElementById('toggleTerrain')) {
-          const toggleTerrainCB = document.createElement('input');
-          toggleTerrainCB.type = 'checkbox';
-          toggleTerrainCB.id = 'toggleTerrain'; // need unique Ids!
-          toggleTerrainCB.checked = (bearing === 0 && pitch === 0) ? '' : map.current.getTerrain() ? 'checked' : '';
-          toggleTerrainCB.onclick = (e) => toggleTerrain(e.target);
-          layers.appendChild(toggleTerrainCB);
-
-          const toggleTerrainLabel = document.createElement("label");
-          toggleTerrainLabel.innerText = "แสดง Terrain"
-          toggleTerrainLabel.htmlFor =  "toggleTerrain" ;
-          layers.appendChild(toggleTerrainLabel);
+        for (const input of inputs) {
+          input.onclick = (layer) => {
+            const layerId = layer.target.id;
+            map.current.setStyle('mapbox://styles/mapbox/' + layerId);
+          };
         }
 
-        if (toggleableLayerIds.some(l => !map.current.getLayer(l))) {
-          return;
+
+
+      });
+
+
+      var loadSource = () => {
+        if (map.current.isStyleLoaded()) {
+
+
+          //SKY
+          // add a sky layer that will show when the map is highly pitched
+
+          if (!map.current.getLayer('sky')) map.current.addLayer({
+            'id': 'sky',
+            'type': 'sky',
+            'paint': {
+              'sky-type': 'atmosphere',
+              'sky-atmosphere-sun': [0.0, 0.0],
+              'sky-atmosphere-sun-intensity': 15
+            }
+          });
+
+          //  MARK Mapbox Terrain
+
+
+          // MARK:- RASTER
+
+          /**
+           * BBOX ให้ใช้ {bbox-epsg-3857}
+           *
+          //  */
+
+
+
+
+          map.current.off('data', loadSource);
         }
-
-        let layerGroupsSet = new Set()
-
-        Object.values(essentialLayers).forEach(con => {
-
-          // console.log(con);
-          layerGroupsSet.add(con.info.group)
-        //
-        });
-
-        // Set up the corresponding toggle button for each layer.
-        layerGroupsSet.forEach(group => {
-          const name = document.createElement('p')
-          name.textContent = group
-          name.id = group
-          name.style.textDecoration = 'underline'
-          name.style.marginTop = '10px'
-          name.style.textAlign = 'center'
-          if (!document.getElementById(group)) layers.appendChild(name)
-
-          for (const id of toggleableLayerIds) {
-            // Skip layers that already have a button set up.
-            if (document.getElementById(id)) {
-              continue;
-            }
-
-            if (Object.entries(essentialLayers)
-              .filter(([_, con]) => (con.info.group === group))
-              .map(([name, _]) => name).includes(id)) {
-
-
-              // Create a link.
-              const link = document.createElement('a');
-
-              link.id = id;
-              link.href = '#';
-              link.textContent = mapIds[id] || id;
-              link.className = visibleLayers.includes(id) ? 'active' : '';
-
-              // Show or hide layer when the toggle is clicked.
-              link.onclick = function (e) {
-                const clickedLayer = this.id;
-                const clickedLayerLabel = clickedLayer + "-label"
-                const clickedLayerExtrude = clickedLayer + "-extrude"
-
-                const allLayers = [clickedLayer, clickedLayerLabel, clickedLayerExtrude]
-
-                e.preventDefault();
-                e.stopPropagation();
-
-                const visibility = map.current.getLayoutProperty(
-                  clickedLayer,
-                  'visibility'
-                );
-                // Toggle layer visibility by changing the layout object's visibility property.
-                if (!visibility || visibility === 'visible') {
-                  allLayers.forEach(layer => {
-                    if (map.current.getLayer(layer)) map.current.setLayoutProperty(layer,
-                      'visibility',
-                      'none');
-                  });
-                  this.className = '';
-                } else {
-                  allLayers.forEach(layer => {
-                    if (map.current.getLayer(layer)) map.current.setLayoutProperty(layer,
-                      'visibility',
-                      'visible');
-                  });
-                  this.className = 'active';
-                }
-              };
-              layers.appendChild(link);
-
-            } else {
-              continue
-            }
-          }
-
-        });
-        map.current.off('data', loadSource);
       }
-    }
 
-    //filtration:
+      //filtration:
 
-    map.current.on('data', loadSource);
+      map.current.on('data', loadSource);
 
-    map.current.on('sourcedata', () => {
-      // console.log(e);
-      // if (e.isSourceLoaded) {
-      //   setSpinners(o => ({...o, [e.sourceId] : <>spinning</>}))
-      // } else {
-      //   setSpinners(o => ({...o, [e.sourceId] : <></>}))
-      // }
-    })
+      map.current.on('sourcedata', (e) => {
+        console.log(e);
+        // if (e.isSourceLoaded) {
+        //   setSpinners(o => ({...o, [e.sourceId] : <>spinning</>}))
+        // } else {
+        //   setSpinners(o => ({...o, [e.sourceId] : <></>}))
+        // }
+      })
 
       // After the last frame rendered before the map enters an "idle" state.
       map.current.on('idle', () => {
@@ -513,43 +198,8 @@ export function CompareMap() {
       //     ['get', 'name_e'],
       //     { 'font-scale': 1.2 }]);
 
-    });
+      });
 
-
-
-  // const element = document.getElementById('titleblock')
-  //   if (element.getAttribute('listener') !== 'true') element.addEventListener('click', () => {
-  //     // depending on whether we're currently at point a or b, aim for
-  //     // point a or b
-  //     // const target = isAtStart ? end : start;
-
-  //     // and now we're at the opposite point
-  //     // isAtStart = !isAtStart;
-  //     let flyParams = {
-  //       // These options control the ending camera position: centered at
-  //       // the target, at zoom level 9, and north up.
-  //       center: start,
-  //       zoom: _zoom,
-  //       bearing: _bearing,
-  //       pitch: _pitch,
-
-  //       // These options control the flight curve, making it move
-  //       // slowly and zoom out almost completely before starting
-  //       // to pan.
-  //       speed: 1.5, // make the flying slow
-  //       curve: 1, // change the speed at which it zooms out
-
-  //       // This can be any easing function: it takes a number between
-  //       // 0 and 1 and returns another number between 0 and 1.
-  //       easing: (t) => t,
-
-  //       // this animation is considered essential with respect to prefers-reduced-motion
-  //       essential: true
-  //     }
-
-      
-  //     beforeMap.current.flyTo(flyParams);
-  //   });
 
 
   });
@@ -567,108 +217,76 @@ export function CompareMap() {
     });
   });
 
-  // useEffect(() => {
+  function loadBeforeMap(name, con) {
+    console.log('loading', 'before'+ name);
+    if (!beforeMap.current.getSource(con.layer.source)) {
+      beforeMap.current.addSource(con.layer.source, con.src);
+    }
+    if (!beforeMap.current.getLayer('before'+ name)) {
+      let beforeLayer = {
+        ...con.layer,
+        id: 'before' + con.layer.id 
+      }
+      beforeMap.current.addLayer(beforeLayer);
+    }
+    Object.keys(ortho).forEach((currentName) => {
+      console.log('checking', 'before' + currentName);
+      if (beforeMap.current.getLayer('before'+ currentName)) {
+        
+        map.current.setLayoutProperty('before' + currentName,
+          'visibility',
+          currentName === name ? 'visible' : 'none'
+        );
+        console.log('setting ', 'before' + currentName, 'to', currentName === name ? 'visible' : 'none');
 
-  //   async function checkGeoserver() {
+      }
 
-  //     let geoserverUrl = 'http://sppsim.rtaf.mi.th'
-  //     console.log(await webexists(geoserverUrl));
-
-  //   }
-
-  //   checkGeoserver()
-
-
-  // });
-
-  function toggleTerrain(event) {
-    event.checked ? map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 }) : map.current.setTerrain();
- }
-
-
-  function toggleSidebar(id) {
-    const elem = document.getElementById(id);
-    // Add or remove the 'collapsed' CSS class from the sidebar element.
-    // Returns boolean "true" or "false" whether 'collapsed' is in the class list.
-    const collapsed = elem.classList.toggle('collapsed');
-    const duration = 1000
-    const padding = {};
-    // 'id' is 'right' or 'left'. When run at start, this object looks like: '{left: 300}';
-    padding[id] = collapsed ? 0 : 200; // 0 if collapsed, 300 px if not. This matches the width of the sidebars in the .sidebar CSS class.
-    // Use `map.easeTo()` with a padding option to adjust the map's center accounting for the position of sidebars.
-    map.current.easeTo({
-      padding: padding,
-      duration // In ms. This matches the CSS transition duration property.
     });
 
-    setTimeout(() => {
-      console.log('setting arrow');
-      console.log(collapsed);
-      setToggleSymbol(collapsed ? "▶︎" : "◀︎")
-    }, duration);
   }
 
-  // useEffect(() => {
-
-  //   console.log(spinners);
-  // }, [spinners]);
-
-
-
-  const TitleBlock = () => {
-    console.log('in TitleBlock');
-    return (
-    <Card sx={{ display: 'flex', bgcolor:"transparent", maxHeight : "15vh"}}>
-      <CardMedia
-          component="img"
-          image="nkrafalogo.png"
-          alt="nkrafa logo"
-          sx={{ maxHeight: '15vh', width:80, objectFit:'contain'}}
-        />
-      <CardContent>
-      <Box sx={{ textAlign: 'center', typography:'h5', color:'white' }}>ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี</Box>
-        </CardContent>
-  </Card>)
-  }
-
-
-
-  // function openNav() {
-  //   document.getElementById("mySidebar").style.width = "250px";
-  //   document.getElementById("main").style.marginLeft = "250px";
-  //   document.getElementById("openbtn").style.visibility = "hidden";
-  // }
-
-  // function closeNav() {
-  //   document.getElementById("mySidebar").style.width = "0";
-  //   document.getElementById("main").style.marginLeft= "0";
-  //   document.getElementById("openbtn").style.visibility = "visible";
-  // }
-
+  const beforeMapRenderer = useMemo(() => {
+    if (beforeMapLayer) {
+      let selected = ortho[beforeMapLayer]
+      loadBeforeMap(beforeMapLayer, selected)
+    }
+    console.log('done loaded', beforeMapLayer);
+    return (<div id="before" className="map" />)
+  }, [beforeMapLayer])
 
 return (<div>
 
 <div ref={mapContainer} className="map-container" />
     <div id="comparison-container">
-      <div id="before" className="map" />
+      {beforeMapRenderer}
       <div id="after" className="map" />
   </div>
     {/* <div id='titleblock'><TitleBlock /></div> */}
   
-    <div className='button-group-right'>
-    <Button id="comparebutton" component={Link} to="/" color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button>
-          {/* <Button onClick={() => {
-            // map.current = null
-            // // comparemap.current.off()
-            // beforeMap.current.off()
-            // afterMap.current.off() setCompareMode(b => !b) window.location.reload()
-            }  }  color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button> */}
-        </div>
-  </div>)
 
-// useMemo(() => {
-//   return <Content compareMode={compareMode} toggleSymbol={toggleSymbol} />
-// }, [compareMode, toggleSymbol])
+    {ortho && Object.entries(ortho).length > 2 
+    ? (<div className="beforemap-select">
+        <div className="beforemap-select">
+          <fieldset>
+            <label>เลือก layer</label>
+              <select id="beforemap-layer" 
+              name="beforemap-layer" 
+              value={beforeMapLayer} 
+              onChange={setBeforeLayerSelected}>
+              { /* Each value matches a layer ID. */ }
+                {Object.entries(ortho).map(([name, con]) => {
+                  return (<option key={name} value={name}>{con.info.desc}</option>)  
+                })}
+              </select>
+          </fieldset>          
+        </div>
+    </div>)
+    : <></>}
+    <div className='button-group-right'>
+      <Button id="comparebutton" component={Link} to="/" color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button>
+    </div>
+
+  </div>)
 
 }
 

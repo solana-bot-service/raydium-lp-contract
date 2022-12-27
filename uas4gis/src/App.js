@@ -38,7 +38,6 @@ const theme = createTheme({
 const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
 
-  const [handleResetView, setHandleResetView] = useState(null);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -63,7 +62,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
             parent route elements. See the note about <Outlet> below. */}
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<MainMap setHandleResetView={setHandleResetView} />} />
+          <Route index element={<MainMap />} />
           <Route path="comparemap" element={<CompareMap />} />
 
           {/* Using path="*"" means "match anything", so this route
@@ -75,7 +74,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       <ThemeProvider theme={theme}>
       {/* enableColorOnDark */}
         <AppBar  position="static"> 
-          <Container maxWidth="xl">
+          <Container maxWidth="xl" >
             <Toolbar disableGutters>
               {/* <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} /> */}
               {/* <Typography
@@ -177,6 +176,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                 {pages.map((page, index) => (
                   <Button
                     key={'label' + index}
+                    component={Link} to={page.to}  
                     onClick={handleCloseNavMenu}
                     sx={{ my: 2, color: 'white', display: 'block' }}
                   >
