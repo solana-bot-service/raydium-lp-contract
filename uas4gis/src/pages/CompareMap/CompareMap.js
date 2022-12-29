@@ -6,18 +6,29 @@ import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 import './CompareMap.css'
 
 import Button from '@mui/material/Button';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import NativeSelect from '@mui/material/NativeSelect';
+import { Box } from "@mui/system";
 
 
 import ('./CompareMap.css')
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
-export function CompareMap() {
+export function CompareMap(props) {
 
   const mapContainer = useRef(null);
   const map = useRef(null);
+
+  //compare map
+
   const comparemap = useRef()
   const beforeMap = useRef()
   const afterMap = useRef()
+  const { orientation } = props
+  const [compareMapOptions, setCompareMapOptions] = useState(orientation === 'portrait' ? {
+    orientation: 'horizontal'
+  } : {});
 
   const [beforeMapLayer, setBeforeMapLayer] = useState("");
   const [afterMapLayer, setAfterMapLayer] = useState("");
@@ -33,12 +44,26 @@ export function CompareMap() {
  
   //map data sources
   const ortho = require('../../MapData/nkrafaortho.json')
-  const admins = require('../../MapData/vectorAdminSrc.json')
-  const constructions = require('../../MapData/vectorConstructionSrc.json')
 
   function setBeforeLayerSelected(e) {
+    if (e.target.value === afterMapLayer) setAfterMapLayer(beforeMapLayer)
     setBeforeMapLayer(e.target.value)
   }
+
+  function setAfterLayerSelected(e) {
+    setAfterMapLayer(e.target.value)
+  }
+
+  useEffect(() => {
+    console.log('chaning compare orientation');
+    
+    setCompareMapOptions(o => ({
+      ...o,
+      ...orientation === 'portrait' ? {
+        orientation: 'horizontal'
+      } : {}
+    }))    
+  }, [orientation]);
 
   useEffect(() => {
 
@@ -72,8 +97,8 @@ export function CompareMap() {
 
         if (comparableMaps.length) {
 
-          let [name, con] = comparableMaps.shift()
-          loadBeforeMap(name, con)
+          let [name, _] = comparableMaps.shift()
+          setBeforeMapLayer(name)
         }
 
         // Object.entries(ortho).slice(0, 1).forEach(([name, con]) => {
@@ -87,14 +112,16 @@ export function CompareMap() {
 
         if (comparableMaps.length) {
 
-          let [name, con] = comparableMaps.shift()
-          if (!afterMap.current.getSource(con.layer.source)) {
-            console.log(name);
-            afterMap.current.addSource(con.layer.source, con.src);
-          }
-          if (!afterMap.current.getLayer(name)) {
-            afterMap.current.addLayer(con.layer);
-          }
+          let [name, _] = comparableMaps.shift()
+          setAfterMapLayer(name)
+
+          // if (!afterMap.current.getSource(con.layer.source)) {
+          //   console.log(name);
+          //   afterMap.current.addSource(con.layer.source, con.src);
+          // }
+          // if (!afterMap.current.getLayer(name)) {
+          //   afterMap.current.addLayer(con.layer);
+          // }
         }
 
         // Object.entries(ortho).slice(1, 2).forEach(([name, con]) => {
@@ -109,10 +136,18 @@ export function CompareMap() {
       // A selector or reference to HTML element
       const container = '#comparison-container';
 
-      comparemap.current = new MapboxCompare(beforeMap.current, afterMap.current, container, {
-        // Set this to enable comparing two maps by mouse movement:
-        // mousemove: true
-      });
+      comparemap.current = new MapboxCompare(beforeMap.current, afterMap.current, container, {});
+      // CONSIDER using memo
+
+      // {
+      //   // Set this to enable comparing two maps by mouse movement:
+      //   // mousemove: true
+      //   ...orientation === 'portrait' ? {orientation: 'horizontal'} : {}
+      // }
+
+    comparemap.current.on('slideend', (e) => {
+      console.log(comparemap.current.currentPosition);
+    });
 
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
@@ -183,7 +218,7 @@ export function CompareMap() {
       map.current.on('data', loadSource);
 
       map.current.on('sourcedata', (e) => {
-        console.log(e);
+        // console.log(e);
         // if (e.isSourceLoaded) {
         //   setSpinners(o => ({...o, [e.sourceId] : <>spinning</>}))
         // } else {
@@ -218,73 +253,125 @@ export function CompareMap() {
   });
 
   function loadBeforeMap(name, con) {
-    console.log('loading', 'before'+ name);
+
     if (!beforeMap.current.getSource(con.layer.source)) {
       beforeMap.current.addSource(con.layer.source, con.src);
     }
-    if (!beforeMap.current.getLayer('before'+ name)) {
-      let beforeLayer = {
-        ...con.layer,
-        id: 'before' + con.layer.id 
-      }
-      beforeMap.current.addLayer(beforeLayer);
+    if (!beforeMap.current.getLayer( name)) {
+      beforeMap.current.addLayer(con.layer);
     }
-    Object.keys(ortho).forEach((currentName) => {
-      console.log('checking', 'before' + currentName);
-      if (beforeMap.current.getLayer('before'+ currentName)) {
-        
-        map.current.setLayoutProperty('before' + currentName,
-          'visibility',
-          currentName === name ? 'visible' : 'none'
-        );
-        console.log('setting ', 'before' + currentName, 'to', currentName === name ? 'visible' : 'none');
+  }
 
-      }
+  function loadAfterMap(name, con) {
 
-    });
+    if (!afterMap.current.getSource(con.layer.source)) {
+      afterMap.current.addSource(con.layer.source, con.src);
+    }
+    if (!afterMap.current.getLayer( name)) {
+      afterMap.current.addLayer(con.layer);
+    }
 
   }
 
   const beforeMapRenderer = useMemo(() => {
-    if (beforeMapLayer) {
+    if (beforeMapLayer && beforeMapLayer !== 'basemap') {
       let selected = ortho[beforeMapLayer]
       loadBeforeMap(beforeMapLayer, selected)
     }
-    console.log('done loaded', beforeMapLayer);
-    return (<div id="before" className="map" />)
+    Object.keys(ortho).forEach((currentName) => {
+        if (beforeMap.current && beforeMap.current.getLayer(currentName)) {
+
+          beforeMap.current.setLayoutProperty(currentName,
+            'visibility',
+            currentName !== beforeMapLayer ? 'none' : 'visible'
+          );
+
+        }
+
+      });
+      return (<div id="before" className="map" />)
   }, [beforeMapLayer])
+
+
+  const afterMapRenderer = useMemo(() => {
+    if (afterMapLayer && afterMapLayer !== 'basemap') {
+      let selected = ortho[afterMapLayer]
+      loadAfterMap(afterMapLayer, selected)
+    }
+    Object.keys(ortho).forEach((currentName) => {
+        if (afterMap.current && afterMap.current.getLayer( currentName)) {
+          
+          afterMap.current.setLayoutProperty( currentName,
+            'visibility',
+            currentName !== afterMapLayer  ? 'none' : 'visible'
+          );
+        }
+      });
+      return (<div id="after" className="map" />)
+  }, [afterMapLayer])
 
 return (<div>
 
 <div ref={mapContainer} className="map-container" />
     <div id="comparison-container">
       {beforeMapRenderer}
-      <div id="after" className="map" />
+      {afterMapRenderer}
   </div>
-    {/* <div id='titleblock'><TitleBlock /></div> */}
+  
+    {/* <div id='titleblock'>{orientation}</div> */}
   
 
-    {ortho && Object.entries(ortho).length > 2 
-    ? (<div className="beforemap-select">
-        <div className="beforemap-select">
-          <fieldset>
-            <label>เลือก layer</label>
-              <select id="beforemap-layer" 
-              name="beforemap-layer" 
-              value={beforeMapLayer} 
-              onChange={setBeforeLayerSelected}>
-              { /* Each value matches a layer ID. */ }
-                {Object.entries(ortho).map(([name, con]) => {
-                  return (<option key={name} value={name}>{con.info.desc}</option>)  
-                })}
-              </select>
-          </fieldset>          
-        </div>
-    </div>)
-    : <></>}
-    <div className='button-group-right'>
+    <div className='button-group-right back'>
       <Button id="comparebutton" component={Link} to="/" color="error" variant="contained"  size="small">ออกจากโหมดเปรียบเทียบ</Button>
     </div>
+
+
+    {ortho && Object.entries(ortho).length > 2 
+    ? (<Box className="beforemap-select" sx={{ p:1, m:2, minWidth: 60 }}>
+    <FormControl fullWidth>
+      <InputLabel variant="standard" htmlFor="uncontrolled-native">
+        เลือก layer ซ้าย
+      </InputLabel>
+      <NativeSelect
+        id="beforemap-layer"
+        name="beforemap-layer" 
+        value={beforeMapLayer} 
+        size="small"
+        
+        onChange={setBeforeLayerSelected}>
+        { /* Each value matches a layer ID. */ }
+        <option key={'basemap'} value={'basemap'}>-</option>
+        {Object.entries(ortho).map(([name, con]) => {
+            return (<option key={name} value={name}>{con.info.desc}</option>)  
+          })}              
+      </NativeSelect>
+    </FormControl>
+  </Box>)
+    : <></>}
+
+
+{ortho && Object.entries(ortho).length > 2 
+    ? (<Box className="aftermap-select" sx={{ p:1, m:2, minWidth: 60 }}>
+    <FormControl fullWidth>
+      <InputLabel variant="standard" htmlFor="uncontrolled-native">
+        เลือก layer ขวา
+      </InputLabel>
+      <NativeSelect
+        id="aftermap-layer"
+        name="aftermap-layer" 
+        value={afterMapLayer} 
+        onChange={setAfterLayerSelected}>
+        { /* Each value matches a layer ID. */ }
+        <option key={'basemap'} value={'basemap'}>-</option>
+        {Object.entries(ortho)
+        .filter(([name, _]) => (name !== beforeMapLayer))
+        .map(([name, con]) => {
+            return (<option key={name} value={name}>{con.info.desc}</option>)  
+          })}              
+      </NativeSelect>
+    </FormControl>
+  </Box>)
+    : <></>}
 
   </div>)
 

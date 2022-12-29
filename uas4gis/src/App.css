@@ -163,6 +163,34 @@ p {
 }
 
 
+.beforemap-select {
+  position: absolute;
+  bottom: 24px;
+  left: 10px;
+  z-index: 4;
+  text-align: right;
+  border-radius: 10px;
+  background: #ffffff4a;
+}
+
+.beforemap-select:hover {
+  background: #aef3ff;
+}
+
+.aftermap-select {
+  position: absolute;
+  bottom: 24px;
+  right: 10px;
+  z-index: 4;
+  text-align: right;
+  border-radius: 10px;
+  background: #ffffff4a;
+}
+
+.aftermap-select:hover {
+  background: #ffd6ae;
+}
+
 /*
 The sidebar styling has them "expanded" by default, we use CSS transforms to push them offscreen
 The toggleSidebar() function removes this class from the element in order to expand it.
@@ -279,12 +307,16 @@ input:after {
 
 }
 
-/* @media screen and (max-width: 640px)  and (max-height: 480px) {
-  .map-container {
-    position: absolute;
+@media screen and (max-width: 640px)  and (max-height: 480px) {
+  
+
+  .beforemap-select {
+    top: 54px;
+    bottom: auto;
   }
 
-} */
+
+}
 
 @media screen and (max-width: 480px) {
 
@@ -340,8 +372,6 @@ input:after {
 
   .button-group-right {
     padding: 6px 12px;
-    font-family: monospace;
-    font-size: medium;
     z-index: 1;
     position: absolute;
     top: 60%;
@@ -352,6 +382,24 @@ input:after {
     text-align: center;
   }
 
+  .back {
+
+    height: auto;
+    width: 50%;
+    font-size: xx-small;
+    left: 10px;
+    top: 96px;
+  }
+
+  .beforemap-select {    
+    bottom: 96px;
+    left: 0px;
+    width: auto;
+  }
+  .aftermap-select {    
+    left: auto;
+    right: 0px;
+  }
 
   .button-group-right #comparebutton {
 

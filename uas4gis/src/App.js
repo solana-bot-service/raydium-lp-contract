@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 import { CompareMap } from "./pages/CompareMap/CompareMap";
 import { MainMap } from "./pages/MainMap/MainMap";
@@ -53,6 +53,24 @@ const [anchorElNav, setAnchorElNav] = useState(null);
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const isLandscape = () => window.matchMedia('(orientation:landscape)').matches,
+  [orientation, setOrientation] = useState(isLandscape() ? 'landscape' : 'portrait'),
+  
+  onWindowResize = () => {
+    clearTimeout(window.resizeLag)
+    window.resizeLag = setTimeout(() => {
+      delete window.resizeLag
+      setOrientation(isLandscape() ? 'landscape' : 'portrait')
+    }, 200)
+  }
+
+  useEffect(() => (
+    onWindowResize(),
+    window.addEventListener('resize', onWindowResize),
+    () => window.removeEventListener('resize', onWindowResize)
+  ),[])
+
   return (
     <div>
       
@@ -63,7 +81,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<MainMap />} />
-          <Route path="comparemap" element={<CompareMap />} />
+          <Route path="comparemap" element={<CompareMap orientation={orientation} />} />
 
           {/* Using path="*"" means "match anything", so this route
                 acts like a catch-all for URLs that we don't have explicit
