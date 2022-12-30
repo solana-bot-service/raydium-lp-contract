@@ -1,7 +1,7 @@
 .map-container {
   height: 100%;
   position: absolute;
-  top: 0;
+  top: 64px;
   bottom: 0;
   width: 100%;
 }
@@ -127,7 +127,7 @@ p {
   transition: transform 1s;
   z-index: 3;
   width: 200px;
-  top: 40px;
+  top: 72px;
   display: flex;
   height: 80%;
 }
@@ -152,8 +152,8 @@ p {
   height: 90%;
   width: auto;
   position: absolute;
-  top: 10px;
-  right: 60px;
+  top: 72px;
+  right: 50px;
   text-align: right;
   border-radius: 10px;
 }
@@ -162,6 +162,34 @@ p {
   margin-bottom: 10px;
 }
 
+
+.beforemap-select {
+  position: absolute;
+  bottom: 24px;
+  left: 10px;
+  z-index: 4;
+  text-align: right;
+  border-radius: 10px;
+  background: #ffffff4a;
+}
+
+.beforemap-select:hover {
+  background: #aef3ff;
+}
+
+.aftermap-select {
+  position: absolute;
+  bottom: 24px;
+  right: 10px;
+  z-index: 4;
+  text-align: right;
+  border-radius: 10px;
+  background: #ffffff4a;
+}
+
+.aftermap-select:hover {
+  background: #ffd6ae;
+}
 
 /*
 The sidebar styling has them "expanded" by default, we use CSS transforms to push them offscreen
@@ -178,8 +206,8 @@ The toggleSidebar() function removes this class from the element in order to exp
   font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
   background-color: #e4fbff;
   height: auto;
-  min-height: 20%;
-  max-height: 90%;
+  min-height: 60px;
+  max-height: 70%;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -261,6 +289,31 @@ input:after {
     font-size: xx-small;
   }
 
+    
+  .button-group-right {
+    height: 90%;
+    width: auto;
+    position: absolute;
+    text-align: right;
+    border-radius: 10px;
+  }
+
+
+  .calculation-box {
+    bottom: 10px;
+    height: 50px;
+    right: 50px;
+  }
+
+}
+
+@media screen and (max-width: 640px)  and (max-height: 480px) {
+  
+
+  .beforemap-select {
+    top: 54px;
+    bottom: auto;
+  }
 
 
 }
@@ -269,12 +322,12 @@ input:after {
 
   .map-container {
     position: absolute;
-    top: 15vh;
   }
 
   .searchmode {
     position: absolute;
-    height: 45%;
+    top: 56px;
+    height: auto;
     bottom: 40%;
   }
 
@@ -286,7 +339,6 @@ input:after {
     height: 15vh;
     max-height: 45vh;
     font-size: x-small;
-
 
   }
 
@@ -312,7 +364,7 @@ input:after {
   .sidebar {
     transition: transform 1s;
     width: 200px;
-    top: 10px;
+    top: 60px;
     height: 50%;
     z-index: 4;
   }
@@ -320,8 +372,6 @@ input:after {
 
   .button-group-right {
     padding: 6px 12px;
-    font-family: monospace;
-    font-size: medium;
     z-index: 1;
     position: absolute;
     top: 60%;
@@ -332,6 +382,24 @@ input:after {
     text-align: center;
   }
 
+  .back {
+
+    height: auto;
+    width: 50%;
+    font-size: xx-small;
+    left: 10px;
+    top: 96px;
+  }
+
+  .beforemap-select {    
+    bottom: 96px;
+    left: 0px;
+    width: auto;
+  }
+  .aftermap-select {    
+    left: auto;
+    right: 0px;
+  }
 
   .button-group-right #comparebutton {
 

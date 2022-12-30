@@ -24,7 +24,7 @@ import { Paper } from "@mui/material";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
-export function MainMap() {
+export function MainMap(props) {
 
   const mapContainer = useRef(null);
   const map = useRef(null);
@@ -663,7 +663,7 @@ export function MainMap() {
             }, [])
           }
 
-          if (fs.length) {
+          if (fs && fs.length) {
             searchableBBox.current = turf.bbox({
               type: 'FeatureCollection',
               features: fs
@@ -704,7 +704,7 @@ export function MainMap() {
         headerText.id = 'headerText'
 
         const calculationBox = document.getElementById('calculation-box');
-        if (!document.getElementById('headerText')) calculationBox.prepend(headerText)
+        if (!document.getElementById('headerText') && calculationBox) calculationBox.prepend(headerText)
         
         calculationBox.style.display = data.features.length > 0 ? 'block' : 'none'
         
@@ -773,38 +773,70 @@ export function MainMap() {
 
     }
 
-  const element = document.getElementById('titleblock')
-    if (element.getAttribute('listener') !== 'true') element.addEventListener('click', () => {
-      // depending on whether we're currently at point a or b, aim for
-      // point a or b
-      // const target = isAtStart ? end : start;
+    // setHandleResetView(() => {
+    //       // depending on whether we're currently at point a or b, aim for
+    //       // point a or b
+    //       // const target = isAtStart ? end : start;
+    
+    //       // and now we're at the opposite point
+    //       // isAtStart = !isAtStart;
+    //       let flyParams = {
+    //         // These options control the ending camera position: centered at
+    //         // the target, at zoom level 9, and north up.
+    //         center: start,
+    //         zoom: _zoom,
+    //         bearing: _bearing,
+    //         pitch: _pitch,
+    
+    //         // These options control the flight curve, making it move
+    //         // slowly and zoom out almost completely before starting
+    //         // to pan.
+    //         speed: 1.5, // make the flying slow
+    //         curve: 1, // change the speed at which it zooms out
+    
+    //         // This can be any easing function: it takes a number between
+    //         // 0 and 1 and returns another number between 0 and 1.
+    //         easing: (t) => t,
+    
+    //         // this animation is considered essential with respect to prefers-reduced-motion
+    //         essential: true
+    //       }
+    
+    //       map.current.flyTo(flyParams);
+    //     })
 
-      // and now we're at the opposite point
-      // isAtStart = !isAtStart;
-      let flyParams = {
-        // These options control the ending camera position: centered at
-        // the target, at zoom level 9, and north up.
-        center: start,
-        zoom: _zoom,
-        bearing: _bearing,
-        pitch: _pitch,
+  // const element = document.getElementById('titleblock')
+  //   if (element.getAttribute('listener') !== 'true') element.addEventListener('click', () => {
+  //     // depending on whether we're currently at point a or b, aim for
+  //     // point a or b
+  //     // const target = isAtStart ? end : start;
 
-        // These options control the flight curve, making it move
-        // slowly and zoom out almost completely before starting
-        // to pan.
-        speed: 1.5, // make the flying slow
-        curve: 1, // change the speed at which it zooms out
+  //     // and now we're at the opposite point
+  //     // isAtStart = !isAtStart;
+  //     let flyParams = {
+  //       // These options control the ending camera position: centered at
+  //       // the target, at zoom level 9, and north up.
+  //       center: start,
+  //       zoom: _zoom,
+  //       bearing: _bearing,
+  //       pitch: _pitch,
 
-        // This can be any easing function: it takes a number between
-        // 0 and 1 and returns another number between 0 and 1.
-        easing: (t) => t,
+  //       // These options control the flight curve, making it move
+  //       // slowly and zoom out almost completely before starting
+  //       // to pan.
+  //       speed: 1.5, // make the flying slow
+  //       curve: 1, // change the speed at which it zooms out
 
-        // this animation is considered essential with respect to prefers-reduced-motion
-        essential: true
-      }
+  //       // This can be any easing function: it takes a number between
+  //       // 0 and 1 and returns another number between 0 and 1.
+  //       easing: (t) => t,
 
-      map.current.flyTo(flyParams);
-    });
+  //       // this animation is considered essential with respect to prefers-reduced-motion
+  //       essential: true
+  //     }
+
+  //     map.current.flyTo(flyParams);
+  //   });
 
     if (filterEl.getAttribute('listener') !== 'true') {
       filterEl.addEventListener('keyup', (e) => {
@@ -1039,7 +1071,7 @@ return useMemo(() => {
         
       </div>
   
-      <div id='titleblock'><TitleBlock /></div>
+      {/* <div id='titleblock'><TitleBlock /></div> */}
       <div className='button-group-right'>
         {/* <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button> */}
         {/* <SearchBox /> */}
