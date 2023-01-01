@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
-import { Routes, Route, Outlet, Link } from "react-router-dom";
+import { createContext, useContext, useEffect, useState } from "react";
+import { Routes, Route, Outlet, Link, useLocation, Navigate } from "react-router-dom";
 import { CompareMap } from "./pages/CompareMap/CompareMap";
 import { MainMap } from "./pages/MainMap/MainMap";
+import { useLiff } from 'react-liff';
 
 import './App.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
+import Drawer from '@mui/material/Drawer';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -21,10 +23,21 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Card, CardContent, CardMedia, createTheme } from "@mui/material";
 import { ThemeProvider } from "@emotion/react";
+import { useAuthContext } from "./auth/AuthContext";
+import { Login } from "./pages/Login/Login";
 
-
+export const isLocalhost = window.location.hostname.includes('localhost')
 export default function App() {
-  
+
+  const { user } = useAuthContext()
+
+  const location = useLocation()
+
+  const pathName = location.state?.from || '/'
+
+  const [profile, setProfile] = useState({});
+  const { error, isLoggedIn, isReady, liff } = useLiff();
+
 const pages = [{
   label: 'โหมดเปรียบเทียบ',
   to: "/comparemap"
@@ -54,22 +67,83 @@ const [anchorElNav, setAnchorElNav] = useState(null);
     setAnchorElUser(null);
   };
 
+  const [drawerOpened, setDrawerOpened] = useState(false);
+  const toggleDrawer = () => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    setDrawerOpened(s => !s)
+  };
+
   const isLandscape = () => window.matchMedia('(orientation:landscape)').matches,
-  [orientation, setOrientation] = useState(isLandscape() ? 'landscape' : 'portrait'),
-  
-  onWindowResize = () => {
-    clearTimeout(window.resizeLag)
-    window.resizeLag = setTimeout(() => {
-      delete window.resizeLag
-      setOrientation(isLandscape() ? 'landscape' : 'portrait')
-    }, 200)
-  }
+    [orientation, setOrientation] = useState(isLandscape() ? 'landscape' : 'portrait'),
+
+    onWindowResize = () => {
+      clearTimeout(window.resizeLag)
+      window.resizeLag = setTimeout(() => {
+        delete window.resizeLag
+        setOrientation(isLandscape() ? 'landscape' : 'portrait')
+      }, 200)
+    }
 
   useEffect(() => (
     onWindowResize(),
     window.addEventListener('resize', onWindowResize),
     () => window.removeEventListener('resize', onWindowResize)
-  ),[])
+  ), [])
+
+  useEffect(() => {
+    if (isLocalhost) return setProfile({
+      "userId": "U79bd13e9496f7310b2a82e59fa4435da",
+      "displayName": "Chaloemphol",
+      "statusMessage": "ev’ry moment new",
+      "pictureUrl": "https://profile.line-scdn.net/0hUaMaxL0sCk5gGCBiq-10MRBICSRDaVNcGXhNfFUYB34IeB9NHipDL1wfACsIe0lLSHwSeFxPAytsC30ofk72emcoVHlZLksRTHdErA"
+  })
+
+    if (!isLoggedIn) return;
+
+    (async () => {
+      const profile = await liff.getProfile();
+      setProfile(profile);
+    })();
+  }, [liff, isLoggedIn]);
+
+  const userStateMenus = () => {
+    
+    if (!isLocalhost) {
+        
+      if (error) return <MenuItem>
+      <Typography textAlign="center">Something is wrong.</Typography></MenuItem>;
+      if (!isReady) return <MenuItem>
+      <Typography textAlign="center">Loading...</Typography></MenuItem>;
+
+      if (!isLoggedIn) {
+        return (<MenuItem key={'login'} onClick={liff.login}>
+          <Typography textAlign="center">เข้าสู่ระบบ</Typography>
+        </MenuItem>
+
+          // <button className="App-button" onClick={liff.login}>
+          //   Login
+          // </button>
+        );
+      } 
+
+    }
+    return (
+      <>
+      <MenuItem key={'profile'} onClick={() => setDrawerOpened(true)}>
+        <Typography textAlign="center">โปรไฟล์</Typography>
+      </MenuItem>
+        <MenuItem key={'logout'} onClick={liff.logout}>
+          <Typography textAlign="center">ออกจากระบบ</Typography>
+        </MenuItem>
+      {/* <p>Welcome to the react-liff demo app, {displayName}!</p>
+        <button className="App-button" onClick={liff.logout}>
+          Logout
+        </button> */}
+      </>
+    );
+  };
 
   return (
     <div>
@@ -79,10 +153,10 @@ const [anchorElNav, setAnchorElNav] = useState(null);
             parent route paths, and nested route elements render inside
             parent route elements. See the note about <Outlet> below. */}
       <Routes>
-        <Route path="/" element={<Layout />}>
+          <Route path="/" element={<Layout />}>
           <Route index element={<MainMap />} />
           <Route path="comparemap" element={<CompareMap orientation={orientation} />} />
-
+          { user ? <Route path='/login' element={<Navigate to={pathName} />} /> : <Route path='/login' element={<Login />} /> }
           {/* Using path="*"" means "match anything", so this route
                 acts like a catch-all for URLs that we don't have explicit
                 routes for. */}
@@ -190,6 +264,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
               >
                 LOGO
               </Typography> */}
+             
               <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                 {pages.map((page, index) => (
                   <Button
@@ -204,9 +279,9 @@ const [anchorElNav, setAnchorElNav] = useState(null);
               </Box>
 
               <Box sx={{ flexGrow: 0 }}>
-                <Tooltip title="Open settings">
+                <Tooltip title={profile.displayName || "ผู้ใช้"}>
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt="ผู้ใช้" src="/static/images/avatar/2.jpg" />
+                    <Avatar alt={profile.displayName || "ผู้ใช้"} src={profile.pictureUrl} />
                   </IconButton>
                 </Tooltip>
                 <Menu
@@ -225,16 +300,31 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
                 >
-                  {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                   {userStateMenus()}
+                   {/* {settings.map((setting) => (
+                    <MenuItem key={setting} onClick={toggleDrawer()}>
                       <Typography textAlign="center">{setting}</Typography>
                     </MenuItem>
-                  ))}
+                  ))} */}
                 </Menu>
               </Box>
             </Toolbar>
           </Container>
         </AppBar>
+        <Drawer
+            anchor={'bottom'}
+            open={drawerOpened}
+            onClose={toggleDrawer()}
+          >
+          <Box
+            sx={{ width: 'auto' }}
+            role="presentation"
+            onClick={toggleDrawer()}
+            onKeyDown={toggleDrawer()}>
+              OK
+
+            </Box>
+        </Drawer>
   {/* 
         <Outlet /> */}
         

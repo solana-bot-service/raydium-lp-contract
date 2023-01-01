@@ -10,6 +10,7 @@ import { LayersTOC } from '../../mapLayouts/LayersTOC/LayersTOC';
 
 import { unit } from 'mathjs'
 
+import { useLiff } from 'react-liff';
 
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -21,6 +22,7 @@ import Stack from '@mui/material/Stack';
 import { Box } from '@mui/system';
 import SearchControl from "../../MapControls/SearchControl";
 import { Paper } from "@mui/material";
+import GenerateGeoJSON from "../../Utils/GenerateGeoJSON";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
@@ -31,6 +33,8 @@ export function MainMap(props) {
   const searchables = useRef()
   const popup = useRef()
   const searchableBBox = useRef()
+
+  const { error, isLoggedIn, isReady, liff } = useLiff();
 
   const draw = useRef(null);
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
@@ -44,6 +48,7 @@ export function MainMap(props) {
 //   const [compareMode, setCompareMode] = useState(false);
   const [toggleSymbol, setToggleSymbol] = useState("▶︎");
   const [mode, setMode] = useState("");
+  const searchFields = useRef();
   // const [searchingLayer, setSearchingLayer] = useState('');
   const searchingLayer = useRef()
 
@@ -56,7 +61,7 @@ export function MainMap(props) {
 
   const mapIds = Object.entries(essentialLayers).reduce((p, [name, con]) => {
     return {...p, [name] : con.info.desc}
-  }, {'nkrafa-dem-layer': 'ชั้นความสูง DEM'});
+  }, {'nkrafa-dem-layer': 'ชั้นความสูง DEM', personnel: 'บุคคล'});
   // Enumerate ids of the layers.
   const toggleableLayerIds = Object.keys(essentialLayers).reduce((p, name) => {
     Array.isArray(p) ? p.push(name) : p = name
@@ -70,7 +75,7 @@ export function MainMap(props) {
   const visibleLayers = Object.entries(essentialLayers).reduce((p, [name, con]) => {
     if (con.info.visible) Array.isArray(p) ? p.push(name) : p = name
     return p
-  }, [])
+  }, ['personnel'])
   //['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'roads', 'buildings']//['provinces']
 
   const [spinners, setSpinners] = useState(toggleableLayerIds.reduce((p, id) => ({...p, [id]: <></>}), {}));
@@ -78,9 +83,19 @@ export function MainMap(props) {
 
   function zoomToFeature(feature) {
 
-    let center = feature.geometry.coordinates
-    let polygon = turf.polygon(center);
-    let centroid = turf.centroid(polygon);
+    let centroid
+    switch (feature.geometry.type) {
+      case 'Point':
+        centroid = feature
+        break;
+    
+      default:
+        let coords = feature.geometry.coordinates
+        let polygon = turf.polygon(coords);
+        centroid = turf.centroid(polygon);
+        break
+    }
+    
     let flyParams = {
       // These options control the ending camera position: centered at
       // the target, at zoom level 9, and north up.
@@ -168,10 +183,17 @@ export function MainMap(props) {
       if (features.length) {
         for (const feature of features) {
           
+          const mainLayerId = feature.layer.id.split('-')[0]
+
+          let fields = searchFields.current[mainLayerId]
           // const labels = Object.entries()
           const itemLink = document.createElement('a');
-          const label = `อาคาร ${feature.properties['AREA_SQM']}`;
-          itemLink.href = '#' //feature.properties.wikipedia;
+          let [field, value] = Object.entries(fields).shift()
+          const label = [value.prefix, feature.properties[field]].join(" ") 
+          
+          //`${mapIds[mainLayerId]} ${feature.properties['AREA_SQM']}`;
+          
+          // itemLink.href = '#' //feature.properties.wikipedia;
           itemLink.target = '_self';
           itemLink.textContent = label;
           itemLink.addEventListener('mousedown', () => zoomToFeature(feature))
@@ -179,9 +201,19 @@ export function MainMap(props) {
           // itemLink.onmousedown = () => zoomToFeature(feature)
           itemLink.addEventListener('mouseover', () => {
                       
-            let center = feature.geometry.coordinates
-            let polygon = turf.polygon(center);
-            let centroid = turf.centroid(polygon);
+            let centroid
+            switch (feature.geometry.type) {
+              case 'Point':
+                centroid = feature
+                break;
+            
+              default:
+                let coords = feature.geometry.coordinates
+                let polygon = turf.polygon(coords);
+                centroid = turf.centroid(polygon);
+                break
+            }
+
             // Highlight corresponding feature on the map
             popup.current
             .setLngLat(centroid.geometry.coordinates)
@@ -207,7 +239,13 @@ export function MainMap(props) {
           // remove features filter
 
           Array.from(searchingLayer.current).forEach(l => {
-            map.current.setFilter(l, ['has', 'AREA_SQM']);            
+            let fields = searchFields.current[l]
+            // console.log(fields);
+            
+            let [field, _] = Object.entries(fields).shift()
+            // const label = [value.prefix, feature.properties[field]].join(" ")           
+            // const name = normalize(`${feature.properties[field]}`);//'AREA_SQM']}`);   
+            map.current.setFilter(l, ['has', field]);            
           })
           
       }
@@ -421,16 +459,17 @@ export function MainMap(props) {
         // });
 
         // Buildings and roads
+        if (!searchingLayer.current) searchingLayer.current = new Set()
+        if (!searchFields.current) searchFields.current = {}
         Object.entries(constructions).forEach(([name, con]) => {
 
-          if (!searchingLayer.current && con.searchable) {
-            console.log('setting searchable:', name);
-            // setSearchingLayer(`${name}`)
-            searchingLayer.current = new Set()
+          if (con.searchable) {
             searchingLayer.current.add(name)
-
-  
+            console.log({[name]: con.searchable.fields});
+            console.log('setting setSearchFields');
+            searchFields.current[name] = con.searchable.fields
           }
+          
 
           if (!map.current.getSource(con.layer.source)) {
             console.log(name);
@@ -447,7 +486,56 @@ export function MainMap(props) {
           if (con.info.extrude && !map.current.getLayer(con.extrude.id)) {
             map.current.addLayer(con.extrude)
             searchingLayer.current.add(con.extrude.id)
+            console.log('setting setSearchFields');
+            searchFields.current[con.extrude.id] = con.searchable.fields
+
           }
+
+
+          const mainLayerId = con.layer.source.split('-')[0]
+
+          
+          if (con.populatePersonnel) {
+
+            // console.log('e.sourceId', e.sourceId);
+          
+            let generateGeoJSON = new GenerateGeoJSON()
+            let personnelMap = con.populatePersonnel
+          
+
+            if (!map.current.getSource(personnelMap.layer.source)) {
+
+              // console.log('e', e);
+
+              // var polygons = map.current.querySourceFeatures(e.source)
+              console.log('polygons', []);
+
+              let src = {
+                'type': 'geojson',
+                'data': generateGeoJSON.createPointsFromPolygons({
+                  polygons: []
+                })
+              }
+              console.log('src', src);
+              map.current.addSource(personnelMap.layer.source, src);
+            }
+
+            if (!map.current.getLayer(personnelMap.layer.id)) {
+              map.current.addLayer(personnelMap.layer);
+              toggleVisibility(personnelMap.layer.id)
+
+              if (personnelMap.label && !map.current.getLayer(personnelMap.label.id)) map.current.addLayer(personnelMap.label);
+              searchingLayer.current.add(personnelMap.layer.id)
+              console.log('setting setSearchFields');
+              searchFields.current[personnelMap.layer.id] = personnelMap.searchable.fields
+            }
+
+
+
+          }
+
+
+
 
         });
   
@@ -599,9 +687,16 @@ export function MainMap(props) {
             
         // reset features filter as the map starts moving
           console.log('searchingLayer in movestart', searchingLayer.current);
+          console.log('searchFields', searchFields.current);
           Array.from(searchingLayer.current).forEach(l => {
-            map.current.setFilter(l, ['has', 'AREA_SQM']);
-            if (map.current.getLayer(l + "-label")) map.current.setFilter(l + "-label", ['has', 'AREA_SQM'])
+            console.log('layer', l);
+
+            let fields = searchFields.current[l]
+            // console.log(fields);
+            
+            let [field, _] = Object.entries(fields).shift()
+            map.current.setFilter(l, ['has', field]);
+            if (map.current.getLayer(l + "-label")) map.current.setFilter(l + "-label", ['has', field])
           })
         }
       });
@@ -613,7 +708,7 @@ export function MainMap(props) {
           console.log('searchingLayer in moveend', searchingLayer.current);
 
           const features = map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
-          
+          console.log('moveend features', features);
           if (features) {
             const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
             // Populate features for the listing overlay.
@@ -625,7 +720,7 @@ export function MainMap(props) {
   
             // Store the current features in sn `airports` variable to
             // later use for filtering on `keyup`.
-            searchables.current = uniqueFeatures;
+            searchables.current = uniqueFeatures//features//uniqueFeatures;
           }
         }
 
@@ -642,6 +737,48 @@ export function MainMap(props) {
     map.current.on('data', loadSource);
 
     map.current.on('sourcedata', (e) => {
+
+      // const mainLayerId = e.sourceId.split('-')[0]
+
+          
+          // if (e.isSourceLoaded && constructions[mainLayerId] && constructions[mainLayerId].populatePersonnel) {
+
+          //   console.log('e.sourceId', e.sourceId);
+          
+          //   let generateGeoJSON = new GenerateGeoJSON()
+          //   let personnelMap = constructions[mainLayerId].populatePersonnel
+          
+
+          //   if (!map.current.getSource(personnelMap.layer.source)) {
+
+          //     console.log('e', e);
+
+          //     var polygons = map.current.querySourceFeatures(e.source)
+          //     console.log('polygons', polygons);
+
+          //     let src = {
+          //       'type': 'geojson',
+          //       'data': generateGeoJSON.createPointsFromPolygons({
+          //         polygons: polygons
+          //       })
+          //     }
+          //     console.log('src', src);
+          //     map.current.addSource(personnelMap.layer.source, src);
+          //   }
+
+          //   if (!map.current.getLayer(personnelMap.layer.id)) {
+          //     map.current.addLayer(personnelMap.layer);
+          //     toggleVisibility(personnelMap.layer.id)
+
+          //     if (personnelMap.label && !map.current.getLayer(personnelMap.label.id)) map.current.addLayer(personnelMap.label);
+          //     // searchingLayer.current.add(personnelMap.layer.id)
+          //   }
+
+
+
+          // }
+
+          
 
           if (searchingLayer.current) {
 
@@ -853,7 +990,16 @@ export function MainMap(props) {
 
         for (const feature of searchables.current) {
 
-          const name = normalize(`${feature.properties['AREA_SQM']}`);
+          // console.log(feature.layer.id);
+          let mainLayerId = feature.layer.id.split('-')[0]
+
+          let fields = searchFields.current[mainLayerId]
+          // console.log(fields);
+          
+          let [field, _] = Object.entries(fields).shift()
+          // const label = [value.prefix, feature.properties[field]].join(" ") 
+          
+          const name = normalize(`${feature.properties[field]}`);//'AREA_SQM']}`);          
           if (name.includes(value)) { //|| code.includes(value)) {
             filtered.push(feature);
           }
@@ -863,27 +1009,27 @@ export function MainMap(props) {
         renderListings(filtered);
 
         // Set the filter to populate features into the layer.
-        if (false) { //(filtered.length) { //
+        // if (false) { //(filtered.length) { //
 
-          Array.from(searchingLayer.current).forEach(layerComponents => {
-            let visibleLayers = []
-            let targets = [layerComponents, layerComponents + "-label"]
-            targets.forEach(layer => {
-              if (map.current.getLayer(layer)) visibleLayers.push(layer)
-            })
-            visibleLayers.forEach(l => {
-              map.current.setFilter(l, [
-                'match',
-                ['get', 'AREA_SQM'],
-                filtered.map((feature) => {
-                  return feature.properties['AREA_SQM'];
-                }),
-                true,
-                false
-              ]);
-            })
-          });
-        }
+        //   Array.from(searchingLayer.current).forEach(layerComponents => {
+        //     let visibleLayers = []
+        //     let targets = [layerComponents, layerComponents + "-label"]
+        //     targets.forEach(layer => {
+        //       if (map.current.getLayer(layer)) visibleLayers.push(layer)
+        //     })
+        //     visibleLayers.forEach(l => {
+        //       map.current.setFilter(l, [
+        //         'match',
+        //         ['get', 'AREA_SQM'],
+        //         filtered.map((feature) => {
+        //           return feature.properties['AREA_SQM'];
+        //         }),
+        //         true,
+        //         false
+        //       ]);
+        //     })
+        //   });
+        // }
       });
 
       filterEl.addEventListener('focus' , (e) => {
@@ -892,6 +1038,13 @@ export function MainMap(props) {
       })
     }
   });
+
+  useEffect(() => {
+    
+    console.log('searchFields', searchFields.current);
+    console.log('searchables', searchables.current);
+
+  }, [searchFields, searchables]);
 
   useEffect(() => {
 
@@ -912,7 +1065,7 @@ export function MainMap(props) {
 
   //   async function checkGeoserver() {
 
-  //     let geoserverUrl = 'http://sppsim.rtaf.mi.th'
+  //     let geoserverUrl = 'https://sppsim.rtaf.mi.th'
   //     console.log(await webexists(geoserverUrl));
 
   //   }

@@ -3,7 +3,7 @@
         "id" : 2,
         "src": {
             "type": "geojson",
-            "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson"
+            "data": "https://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AProvince&outputFormat=application%2Fjson"
         },
         "layer": {
             "id": "provinces",
@@ -26,7 +26,7 @@
         "id" :1,
         "src": {
             "type": "geojson",
-            "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AAmphoe&outputFormat=application%2Fjson"
+            "data": "https://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3AAmphoe&outputFormat=application%2Fjson"
         },
         "layer": {
             "id": "amphoes",
@@ -47,7 +47,7 @@
         "id" : 0,
         "src": {
             "type": "geojson",
-            "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3ATambon&outputFormat=application%2Fjson"
+            "data": "https://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3ATambon&outputFormat=application%2Fjson"
         },
         "layer": {
             "id": "tambols",
