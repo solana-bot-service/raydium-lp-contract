@@ -175,8 +175,6 @@ export function MainMap(props) {
 
     function renderListings(features) {
 
-      console.log('searchingLayer in renderListings', searchingLayer.current);
-
       const empty = document.createElement('p');
       // Clear any existing listings
       listingEl.innerHTML = '';
@@ -440,7 +438,6 @@ export function MainMap(props) {
 
       Object.entries(ortho).sort((a, b) => a[1].info.date - b[1].info.date).forEach(([name, con]) => {
         if (!map.current.getSource(con.layer.source)) {
-        console.log(name);
           map.current.addSource(con.layer.source, con.src);
         }
         if (!map.current.getLayer(name)) {
@@ -465,14 +462,11 @@ export function MainMap(props) {
 
           if (con.searchable) {
             searchingLayer.current.add(name)
-            console.log({[name]: con.searchable.fields});
-            console.log('setting setSearchFields');
             searchFields.current[name] = con.searchable.fields
           }
           
 
           if (!map.current.getSource(con.layer.source)) {
-            console.log(name);
             map.current.addSource(con.layer.source, con.src);
 
           }
@@ -486,13 +480,9 @@ export function MainMap(props) {
           if (con.info.extrude && !map.current.getLayer(con.extrude.id)) {
             map.current.addLayer(con.extrude)
             searchingLayer.current.add(con.extrude.id)
-            console.log('setting setSearchFields');
             searchFields.current[con.extrude.id] = con.searchable.fields
 
           }
-
-
-          const mainLayerId = con.layer.source.split('-')[0]
 
           
           if (con.populatePersonnel) {
@@ -505,18 +495,12 @@ export function MainMap(props) {
 
             if (!map.current.getSource(personnelMap.layer.source)) {
 
-              // console.log('e', e);
-
-              // var polygons = map.current.querySourceFeatures(e.source)
-              console.log('polygons', []);
-
               let src = {
                 'type': 'geojson',
                 'data': generateGeoJSON.createPointsFromPolygons({
                   polygons: []
                 })
               }
-              console.log('src', src);
               map.current.addSource(personnelMap.layer.source, src);
             }
 
@@ -526,7 +510,6 @@ export function MainMap(props) {
 
               if (personnelMap.label && !map.current.getLayer(personnelMap.label.id)) map.current.addLayer(personnelMap.label);
               searchingLayer.current.add(personnelMap.layer.id)
-              console.log('setting setSearchFields');
               searchFields.current[personnelMap.layer.id] = personnelMap.searchable.fields
             }
 
@@ -686,11 +669,7 @@ export function MainMap(props) {
         if (!searchables.current) {
             
         // reset features filter as the map starts moving
-          console.log('searchingLayer in movestart', searchingLayer.current);
-          console.log('searchFields', searchFields.current);
           Array.from(searchingLayer.current).forEach(l => {
-            console.log('layer', l);
-
             let fields = searchFields.current[l]
             // console.log(fields);
             
@@ -705,10 +684,7 @@ export function MainMap(props) {
 
         if (!searchables.current) {
 
-          console.log('searchingLayer in moveend', searchingLayer.current);
-
           const features = map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
-          console.log('moveend features', features);
           if (features) {
             const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
             // Populate features for the listing overlay.
@@ -788,6 +764,8 @@ export function MainMap(props) {
               
               var f = map.current.querySourceFeatures(c + '-source')
 
+              console.log('e.sourceId', e.sourceId);
+              console.log(f.length);
               if (f.length === 0) return p              
               // console.log('====================================');
               // console.log(constructions[c].src);
@@ -801,10 +779,11 @@ export function MainMap(props) {
           }
 
           if (fs && fs.length) {
-            searchableBBox.current = turf.bbox({
+            let newBbox = turf.bbox({
               type: 'FeatureCollection',
               features: fs
             });
+            searchableBBox.current = newBbox
           }
 
 
@@ -831,7 +810,6 @@ export function MainMap(props) {
 
     function updateCalculation(e) {
 
-        console.log(e.type, draw.current.getMode());
         let mode = draw.current.getMode()
 
         let data = draw.current.getAll();
@@ -1037,14 +1015,7 @@ export function MainMap(props) {
         if (value === '') map.current.fitBounds(searchableBBox.current)
       })
     }
-  });
-
-  useEffect(() => {
-    
-    console.log('searchFields', searchFields.current);
-    console.log('searchables', searchables.current);
-
-  }, [searchFields, searchables]);
+  })
 
   useEffect(() => {
 

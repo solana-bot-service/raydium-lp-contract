@@ -3,7 +3,7 @@
         "id": 0,
         "src": {
             "type": "geojson",
-            "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Aroad_line&outputFormat=application%2Fjson"
+            "data": "https://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Aroad_line&outputFormat=application%2Fjson"
         },
         "layer": {
             "id": "roads",
@@ -81,7 +81,7 @@
         "id": 1,
         "src": {
             "type": "geojson",
-            "data": "http://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Abuilding651108&outputFormat=application%2Fjson"
+            "data": "https://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Abuilding651108&outputFormat=application%2Fjson"
         },
         "layer": {
             "id": "buildings",
@@ -167,7 +167,7 @@
                     ]
                 },
                 "paint": {
-                    "text-color": "#FFFF00",
+                    "text-color": "#FF00FF",
                     "text-halo-color": "#000000",
                     "text-halo-width": 1
                 }

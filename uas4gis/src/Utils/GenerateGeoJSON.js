@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { sample } from 'lodash';
 import * as turf from '@turf/turf'
 
 class GenerateGeoJSON {
@@ -21,13 +22,11 @@ class GenerateGeoJSON {
     
     createPointsFromPolygons({ polygons }) {
 
-        console.log('polygons', polygons);
-
         // let coords = feature.geometry.coordinates
         // let polygon = turf.polygon(coords);
         // let centroid = turf.centroid(polygon);
 
-        let features = Array(10).fill().map((f, index) => {
+        let features = Array(100).fill().map((f, index) => {
 
             // let coords = f.geometry.coordinates
             // let polygon = turf.polygon(coords);
@@ -42,10 +41,9 @@ class GenerateGeoJSON {
                 },
                 "geometry_name": "the_geom" + index,
                 "properties": {
-                    "NAME": "museam" + index,
-                    "AREA_SQM": faker.datatype.uuid(),
-                    "THUMBNAIL": "pics/22037827-Ti.jpg",
-                    "MAINPAGE": "pics/22037827-L.jpg"
+                    "NAME": faker.name.fullName(),
+                    "BUILDING" : sample([829, 217, 258, 789, 977, 1035, 2354, 616, 752, 754, 669, 477, 474, 520, 26, 84, 132, 896, 1572, 272, 367, 523, 85, 690, 116, 1741, 3269, 1530, 618, 5009, 921, 3730, 1273, 2625, 1436, 1092, 205, 913, 3040, 181, 274, 52, 2587, 1927, 90, 61, 995, 859, 255, 363, 20, 12, 27, 39, 134, 543, 125, 343, 1613, 231, 360, 1582, 1552, 53, 1271, 103, 1456, 1262, 1323, 1115, 1705, 1393, 2487, 3095, 1665, 633, 59, 976, 1812, 884, 2240, 1605, 66, 1184, 1960, 322, 537, 536, 799, 1484, 783, 1884, 48, 23, 459, 119, 882, 70, 19]),
+                    "AREA_SQM": faker.datatype.uuid()
                 }
             })
         })
