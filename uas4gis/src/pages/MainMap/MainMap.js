@@ -510,7 +510,7 @@ export function MainMap(props) {
 
               if (personnelMap.label && !map.current.getLayer(personnelMap.label.id)) map.current.addLayer(personnelMap.label);
               searchingLayer.current.add(personnelMap.layer.id)
-              searchFields.current[personnelMap.layer.id] = personnelMap.searchable.fields
+              if (personnelMap.searchable) searchFields.current[personnelMap.layer.id] = personnelMap.searchable.fields
             }
 
 
@@ -697,6 +697,27 @@ export function MainMap(props) {
             // Store the current features in sn `airports` variable to
             // later use for filtering on `keyup`.
             searchables.current = uniqueFeatures//features//uniqueFeatures;
+
+            //log
+            // console.log(uniqueFeatures.filter(f => f.layer.id !== 'personnel').map(feature => feature.properties['AREA_SQM']).join(", "));
+
+            // console.log(uniqueFeatures.filter(f => f.layer.id !== 'personnel').map(feature => {
+
+            //   let centroid
+            //   switch (feature.geometry.type) {
+            //     case 'Point':
+            //       centroid = feature
+            //       break;
+              
+            //     default:
+            //       let coords = feature.geometry.coordinates
+            //       let polygon = turf.polygon(coords);
+            //       centroid = turf.centroid(polygon);
+            //       break
+            //   }
+            //   return `[${centroid.geometry.coordinates[0]}, ${centroid.geometry.coordinates[1]}]`
+            // }).join(", "));
+
           }
         }
 
