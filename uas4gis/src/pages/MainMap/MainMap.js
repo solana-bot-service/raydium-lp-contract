@@ -78,6 +78,14 @@ export function MainMap(props) {
   }, ['personnel'])
   //['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'roads', 'buildings']//['provinces']
 
+  function toggleVisibility(id) {
+    if (!visibleLayers.includes(id)) map.current.setLayoutProperty(
+      id,
+      'visibility',
+      'none'
+    );
+  }
+
   const [spinners, setSpinners] = useState(toggleableLayerIds.reduce((p, id) => ({...p, [id]: <></>}), {}));
   
 
@@ -121,6 +129,49 @@ export function MainMap(props) {
     map.current.flyTo(flyParams);
     
   }
+
+  useEffect(() => {
+    
+    if (!map.current) return
+
+
+    if (map.current.isStyleLoaded()) {
+      
+      console.log('isLoggedIn', isLoggedIn);
+
+      Object.entries(constructions).forEach(([name, con]) => {
+
+        if (con.roles && con.roles.rtafregistered && !isLoggedIn) map.current.setLayoutProperty(
+          name,
+          'visibility',
+          'none'
+        )
+
+        if (con.info.extrude && map.current.getLayer(con.extrude.id)) {
+
+
+          if (con.extrude.roles && con.extrude.roles.rtafregistered && !isLoggedIn) map.current.setLayoutProperty(
+            con.extrude.id,
+            'visibility',
+            'none'
+          )
+
+        }
+
+        
+        if (con.populatePersonnel) {
+
+          if (con.populatePersonnel.roles && con.populatePersonnel.roles.rtafregistered && !isLoggedIn) map.current.setLayoutProperty(
+            con.extrude.id,
+            'visibility',
+            'none'
+          )
+        }
+
+      });
+    }
+    
+  }, [map.current, isLoggedIn]);
 
   useEffect(() => {
 
@@ -347,14 +398,6 @@ export function MainMap(props) {
     
 
 
-    function toggleVisibility(id) {
-      if (!visibleLayers.includes(id)) map.current.setLayoutProperty(
-        id,
-        'visibility',
-        'none'
-      );
-    }
-
 
     var loadSource = () => {
       if (map.current.isStyleLoaded()) {
@@ -458,8 +501,10 @@ export function MainMap(props) {
         // Buildings and roads
         if (!searchingLayer.current) searchingLayer.current = new Set()
         if (!searchFields.current) searchFields.current = {}
+        
         Object.entries(constructions).forEach(([name, con]) => {
 
+          if (!isLoggedIn && con.rtafregistered) return
           if (con.searchable) {
             searchingLayer.current.add(name)
             searchFields.current[name] = con.searchable.fields
@@ -478,6 +523,8 @@ export function MainMap(props) {
           }
 
           if (con.info.extrude && !map.current.getLayer(con.extrude.id)) {
+
+            if (!isLoggedIn && con.extrude && con.extrude.rtafregistered) return
             map.current.addLayer(con.extrude)
             searchingLayer.current.add(con.extrude.id)
             searchFields.current[con.extrude.id] = con.searchable.fields
@@ -487,6 +534,7 @@ export function MainMap(props) {
           
           if (con.populatePersonnel) {
 
+            if (!isLoggedIn && con.populatePersonnel.roles && con.populatePersonnel.roles.rtafregistered) return
             // console.log('e.sourceId', e.sourceId);
           
             let generateGeoJSON = new GenerateGeoJSON()

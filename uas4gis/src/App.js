@@ -154,7 +154,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
             parent route elements. See the note about <Outlet> below. */}
       <Routes>
           <Route path="/" element={<Layout />}>
-          <Route index element={<MainMap />} />
+          <Route index element={<MainMap isLoggedIn={isLoggedIn} />} />
           <Route path="comparemap" element={<CompareMap orientation={orientation} />} />
           { user ? <Route path='/login' element={<Navigate to={pathName} />} /> : <Route path='/login' element={<Login />} /> }
           {/* Using path="*"" means "match anything", so this route

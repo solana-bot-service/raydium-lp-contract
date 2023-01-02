@@ -149,22 +149,9 @@
                         ["get", "NAME"]
                     ],
                     "text-size": 14,
-                    "icon-image": [
-                        "step",
-                        ["zoom"],
-                        "",
-                        16,
-                        "leader_line"
-                    ],
                     "icon-anchor": "bottom",
                     "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
-                    "text-offset": [
-                        "step",
-                        ["zoom"],
-                        ["literal", [0, 0]],
-                        16,
-                        ["literal", [0, -10]]
-                    ]
+                    "text-offset": [2, -2]
                 },
                 "paint": {
                     "text-color": "#FF00FF",
@@ -178,6 +165,9 @@
                         "prefix": "ชื่อ "
                     }
                 }
+            },
+            "roles" :   {
+                "rtafregistered" : true
             }
         },
         "extrude": {
