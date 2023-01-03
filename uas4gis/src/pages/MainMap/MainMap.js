@@ -35,6 +35,7 @@ export function MainMap(props) {
   const searchableBBox = useRef()
 
   const { error, isLoggedIn, isReady, liff } = useLiff();
+  // const isLoggedIn = true
 
   const draw = useRef(null);
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
@@ -48,6 +49,7 @@ export function MainMap(props) {
 //   const [compareMode, setCompareMode] = useState(false);
   const [toggleSymbol, setToggleSymbol] = useState("▶︎");
   const [mode, setMode] = useState("");
+  const [mapReady, setMapReady] = useState(false);
   const searchFields = useRef();
   // const [searchingLayer, setSearchingLayer] = useState('');
   const searchingLayer = useRef()
@@ -132,46 +134,55 @@ export function MainMap(props) {
 
   useEffect(() => {
     
+    console.log('map.current', map.current);
+    console.log('isLoggedIn', isLoggedIn);
+    
     if (!map.current) return
-
-
-    if (map.current.isStyleLoaded()) {
+    console.log('map.current.isStyleLoaded()', map.current.isStyleLoaded());
+    console.log('mapReady', mapReady);
+    if (mapReady) {
       
-      console.log('isLoggedIn', isLoggedIn);
-
       Object.entries(constructions).forEach(([name, con]) => {
 
-        if (con.roles && con.roles.rtafregistered && !isLoggedIn) map.current.setLayoutProperty(
+        if (con.roles && con.roles.rtafregistered && !isLoggedIn) {
+          console.log('hiding ', name);
+          map.current.setLayoutProperty(
           name,
           'visibility',
           'none'
-        )
+        )}
 
         if (con.info.extrude && map.current.getLayer(con.extrude.id)) {
 
 
-          if (con.extrude.roles && con.extrude.roles.rtafregistered && !isLoggedIn) map.current.setLayoutProperty(
-            con.extrude.id,
-            'visibility',
-            'none'
-          )
+          if (con.extrude.roles && con.extrude.roles.rtafregistered && !isLoggedIn) {
+            console.log('hiding ', con.extrude.id);
+              map.current.setLayoutProperty(
+                con.extrude.id,
+                'visibility',
+                'none'
+              )
+            }
 
         }
 
         
         if (con.populatePersonnel) {
 
-          if (con.populatePersonnel.roles && con.populatePersonnel.roles.rtafregistered && !isLoggedIn) map.current.setLayoutProperty(
-            con.extrude.id,
-            'visibility',
-            'none'
-          )
+          if (con.populatePersonnel.roles && con.populatePersonnel.roles.rtafregistered && !isLoggedIn) {
+            console.log('hiding ', con.populatePersonnel.layer.id);
+            [con.populatePersonnel.layer.id, con.populatePersonnel.label.id].forEach(l => map.current.setLayoutProperty(
+              l,
+              'visibility',
+              'none'
+            ))
+          }
         }
 
       });
     }
     
-  }, [map.current, isLoggedIn]);
+  }, [mapReady, map.current, isLoggedIn]);
 
   useEffect(() => {
 
@@ -401,6 +412,7 @@ export function MainMap(props) {
 
     var loadSource = () => {
       if (map.current.isStyleLoaded()) {
+        setMapReady(true)
 
 
         // When a click event occurs on a feature in the states layer,
@@ -504,7 +516,6 @@ export function MainMap(props) {
         
         Object.entries(constructions).forEach(([name, con]) => {
 
-          if (!isLoggedIn && con.rtafregistered) return
           if (con.searchable) {
             searchingLayer.current.add(name)
             searchFields.current[name] = con.searchable.fields
@@ -524,7 +535,6 @@ export function MainMap(props) {
 
           if (con.info.extrude && !map.current.getLayer(con.extrude.id)) {
 
-            if (!isLoggedIn && con.extrude && con.extrude.rtafregistered) return
             map.current.addLayer(con.extrude)
             searchingLayer.current.add(con.extrude.id)
             searchFields.current[con.extrude.id] = con.searchable.fields
@@ -534,7 +544,6 @@ export function MainMap(props) {
           
           if (con.populatePersonnel) {
 
-            if (!isLoggedIn && con.populatePersonnel.roles && con.populatePersonnel.roles.rtafregistered) return
             // console.log('e.sourceId', e.sourceId);
           
             let generateGeoJSON = new GenerateGeoJSON()
@@ -833,7 +842,6 @@ export function MainMap(props) {
               
               var f = map.current.querySourceFeatures(c + '-source')
 
-              console.log('e.sourceId', e.sourceId);
               console.log(f.length);
               if (f.length === 0) return p              
               // console.log('====================================');

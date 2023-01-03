@@ -321,7 +321,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
             role="presentation"
             onClick={toggleDrawer()}
             onKeyDown={toggleDrawer()}>
-              OK
+              {profile ? profile.displayName : 'กรุณาลงชื่อเข้าใช้ก่อน'}
 
             </Box>
         </Drawer>
