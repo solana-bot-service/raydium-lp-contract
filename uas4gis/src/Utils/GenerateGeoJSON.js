@@ -49,6 +49,8 @@ class GenerateGeoJSON {
                 "properties": {
                     "NAME": faker.name.fullName(),
                     "BUILDING" : buildingIds[rand],
+                    "BUILDING_NAME" : "อาคาร " + buildingIds[rand],
+                    "IMAGE_URL": faker.image.avatar(),
                     "AREA_SQM": faker.datatype.uuid()
                 }
             })

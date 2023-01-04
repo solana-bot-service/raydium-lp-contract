@@ -1,6 +1,8 @@
 
 import { Link } from "react-router-dom";
 import React, { useRef, useEffect, useState, useMemo } from 'react';
+import ReactDOM from "react-dom"
+
 import './MainMap.css'
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
@@ -23,6 +25,8 @@ import { Box } from '@mui/system';
 import SearchControl from "../../MapControls/SearchControl";
 import { Paper } from "@mui/material";
 import GenerateGeoJSON from "../../Utils/GenerateGeoJSON";
+import PersonCard from "../../mapLayouts/Popups/Person";
+import { isLocalhost } from "../../App";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
@@ -34,8 +38,9 @@ export function MainMap(props) {
   const popup = useRef()
   const searchableBBox = useRef()
 
-  const { error, isLoggedIn, isReady, liff } = useLiff();
-  // const isLoggedIn = true
+  const { error, isReady, liff } = useLiff();
+  let { isLoggedIn } =  useLiff();
+  if (isLocalhost) isLoggedIn = true
 
   const draw = useRef(null);
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
@@ -275,9 +280,15 @@ export function MainMap(props) {
             }
 
             // Highlight corresponding feature on the map
+            const popupNode = document.createElement("div")
+            ReactDOM.render(
+              <PersonCard profile={feature.properties} />,
+              popupNode
+            )
             popup.current
             .setLngLat(centroid.geometry.coordinates)
-            .setText(label)
+            // .setText(label)
+            .setDOMContent(popupNode)
             .addTo(map.current);
           });
           
@@ -1036,6 +1047,7 @@ export function MainMap(props) {
         const value = normalize(`${e.target.value}`);
         if (value === '') {
           renderListings([])
+          popup.current.remove()
           return map.current.fitBounds(searchableBBox.current)
         }
 
