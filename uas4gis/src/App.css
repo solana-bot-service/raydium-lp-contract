@@ -110,6 +110,10 @@ p {
   align-items: center;
 }
 
+.dummy {
+  color: #a17e00;
+}
+
 .sidebar-toggle.left {
   right: -1em;
 }

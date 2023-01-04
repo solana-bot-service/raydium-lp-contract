@@ -11,7 +11,7 @@
             "source": "roads-source",
             "layout": {},
             "paint": {
-                "line-color": "#1E90FF",
+                "line-color": "#0080ff",
                 "line-width": 4
             }
         },
@@ -124,7 +124,7 @@
             "paint": {
                 "text-color": "#FFFF00",
                 "text-halo-color": "#000000",
-                "text-halo-width": 1
+                "text-halo-width": 2
             }
         },
         "populatePersonnel": {
@@ -154,15 +154,15 @@
                     "text-offset": [2, -2]
                 },
                 "paint": {
-                    "text-color": "#FF00FF",
-                    "text-halo-color": "#000000",
-                    "text-halo-width": 1
+                    "text-color": "#5a00aa",
+                    "text-halo-color": "#ffffff",
+                    "text-halo-width": 2
                 }
             },
             "searchable": {
                 "fields": {
                     "NAME": {
-                        "prefix": "ชื่อ "
+                        "prefix": ""
                     }
                 }
             },
