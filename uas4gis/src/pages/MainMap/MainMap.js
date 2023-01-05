@@ -15,15 +15,9 @@ import { unit } from 'mathjs'
 import { useLiff } from 'react-liff';
 
 import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 
 
 import Stack from '@mui/material/Stack';
-import { Box } from '@mui/system';
-import SearchControl from "../../MapControls/SearchControl";
-import { Paper } from "@mui/material";
 import GenerateGeoJSON from "../../Utils/GenerateGeoJSON";
 import PersonCard from "../../mapLayouts/Popups/Person";
 import { isLocalhost } from "../../App";
@@ -31,7 +25,7 @@ import BuildingCard from "../../mapLayouts/Popups/Building";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
-export function MainMap(props) {
+export function MainMap() {
 
   const mapContainer = useRef(null);
   const map = useRef(null);
@@ -62,7 +56,6 @@ export function MainMap(props) {
 
   //map data sources
   const ortho = require('../../MapData/nkrafaortho.json')
-  const admins = require('../../MapData/vectorAdminSrc.json')
   const constructions = require('../../MapData/vectorConstructionSrc.json')
   const essentialLayers = {...ortho, ...constructions} //...admins,
 
@@ -93,9 +86,6 @@ export function MainMap(props) {
       'none'
     );
   }
-
-  const [spinners, setSpinners] = useState(toggleableLayerIds.reduce((p, id) => ({...p, [id]: <></>}), {}));
-
 
   function zoomToFeature(feature) {
 
@@ -301,7 +291,7 @@ export function MainMap(props) {
 
   // INACTIVE (static, already drawn)
   // line stroke
-]
+      ]
       // Set mapbox-gl-draw to draw by default.
       // The user does not have to click the polygon control button first.
       // defaultMode: 'draw_polygon'
@@ -1271,25 +1261,7 @@ export function MainMap(props) {
   // }, [spinners]);
 
 
-  const SidebarContent = useMemo(() => {
-    return (<LayersTOC mode={mode} />)
-  }, [mode])
 
-  const TitleBlock = () => {
-    console.log('in TitleBlock');
-    return (
-    <Card sx={{ display: 'flex', bgcolor:"transparent", maxHeight : "15vh"}}>
-      <CardMedia
-          component="img"
-          image="nkrafalogo.png"
-          alt="nkrafa logo"
-          sx={{  width:80, objectFit:'contain'}}
-        />
-      <CardContent>
-      <Box sx={{ textAlign: 'center', typography:'h5', color:'white' }}>ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี</Box>
-        </CardContent>
-  </Card>)
-  }
 
 
 
