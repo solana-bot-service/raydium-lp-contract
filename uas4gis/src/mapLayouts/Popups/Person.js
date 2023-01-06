@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
+import { Paper } from '@mui/material';
 
 
 export default function PersonCard(props) {
@@ -18,21 +19,23 @@ export default function PersonCard(props) {
       <Card sx={{ display: 'flex' }} elevation={0} >
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           
-        <CardMedia
-          component="img"
-          sx={{ maxWidth: 120, maxHeight : 'auto', borderRadius: 3 }}
-          image={profile.IMAGE_URL || "nkrafalogo.png"}
-          alt={profile.NAME || "nkrafa logo"}
-        />
+        <Paper elevation={12} sx={{ maxWidth: 120, borderRadius: 3 }} >
+            <CardMedia
+            component="img"
+            sx={{ maxHeight : 'auto', borderRadius: 3 }}
+            image={profile.IMAGE_URL || "nkrafalogo.png"}
+            alt={profile.NAME || "ภาพบุคคล"}
+            />
+        </Paper>
         <CardContent sx={{ flex: '1 0 auto' }}>
             <Typography component="div" variant="h6">
-              {profile.NAME}
+              {profile.NAME || "-"}
             </Typography>
             <Typography variant="subtitle2" color="text.secondary" component="div">
-              ตำแหน่ง {profile.POSITION}
+              ตำแหน่ง {profile.POSITION || "-"}
             </Typography>
             <Typography variant="subtitle2" color="text.secondary" component="div">
-              สถานที่ทำงาน {profile.BUILDING_NAME}
+              สถานที่ทำงาน {profile.BUILDING_NAME || "-"}
             </Typography>
           </CardContent>
         </Box>
