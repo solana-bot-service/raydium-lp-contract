@@ -224,7 +224,7 @@ export function MainMap() {
         "line-join": "round"
       },
       "paint": {
-        "line-color": "#ffc800",
+        "line-color": "#FF007F",
         "line-dasharray": [0.2, 2],
         "line-width": 4
       }
@@ -235,9 +235,9 @@ export function MainMap() {
     "type": "fill",
     "filter": ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
     "paint": {
-      "fill-color": "#ffc800",
-      "fill-outline-color": "#ffc800",
-      "fill-opacity": 0.1
+      "fill-color": "#FF007F",
+      "fill-outline-color": "#FF007F",
+      "fill-opacity": 0.4
     }
   },
   // polygon mid points
@@ -263,7 +263,7 @@ export function MainMap() {
       "line-join": "round"
     },
     "paint": {
-      "line-color": "#ffc800",
+      "line-color": "#FF007F",
       "line-dasharray": [0.2, 2],
       "line-width": 4
     }
