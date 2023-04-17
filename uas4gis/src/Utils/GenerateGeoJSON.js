@@ -32,14 +32,17 @@ class GenerateGeoJSON {
         let features = [...[{
             name: "พล.อ.ต. ผศ.วัชรินทร์ โกมุทผล",
             position: "ผอ.สบฑ.รร.นนก.",
+            email:'watcharin@rtaf.mi.th',
             imageUrl: "personnel/165928.jpg"
         }, {
             name: "น.อ. รศ.ปัญญารักษ์ โกศัลวัฒน์",
             position: "อจ.กกศ.รร.นนก.",
+            email:'panyarak@rtaf.mi.th',
             imageUrl: "personnel/165940.jpg"
         }, {
             name: "น.อ. รศ.สุทธิ์ ศรีบูรพา",
             position: "ผอ.กฟธ.กกศ.รร.นนก.",
+            email:'suth@rtaf.mi.th',
             imageUrl: "personnel/165945.jpg"
         }].map((u, index) => {
 
@@ -62,6 +65,7 @@ class GenerateGeoJSON {
                     "BUILDING" : buildingIds[rand],
                     "BUILDING_NAME" : "อาคาร " + buildingIds[rand],
                     "IMAGE_URL": u.imageUrl,
+                    "EMAIL": u.email,
                     "AREA_SQM": faker.datatype.uuid()
                 }
             })
@@ -93,6 +97,10 @@ class GenerateGeoJSON {
                 }
             })
         })]
+        console.log('features', {
+            "type": "FeatureCollection",
+            "features": features
+        });
         return ({
             "type": "FeatureCollection",
             "features": features

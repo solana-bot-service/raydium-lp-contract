@@ -37,6 +37,9 @@ export default function PersonCard(props) {
             <Typography variant="subtitle2" color="text.secondary" component="div">
               สถานที่ทำงาน {profile.BUILDING_NAME || "-"}
             </Typography>
+            <Typography variant="subtitle2" color="text.secondary" component="div">
+              อีเมล์: {profile.EMAIL || "-"}
+            </Typography> 
           </CardContent>
         </Box>
       </Card>

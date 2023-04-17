@@ -55,7 +55,7 @@ export function CompareMap(props) {
   }
 
   useEffect(() => {
-    console.log('chaning compare orientation');
+    // console.log('chaning compare orientation');
     
     setCompareMapOptions(o => ({
       ...o,
@@ -146,7 +146,7 @@ export function CompareMap(props) {
       // }
 
     comparemap.current.on('slideend', (e) => {
-      console.log(comparemap.current.currentPosition);
+      // console.log(comparemap.current.currentPosition);
     });
 
       map.current = new mapboxgl.Map({
@@ -164,15 +164,15 @@ export function CompareMap(props) {
 
       map.current.on('load', () => {
 
-        const layerList = document.getElementById('basemaps_menu');
-        const inputs = layerList.getElementsByTagName('input');
+        // const layerList = document.getElementById('basemaps_menu');
+        // const inputs = layerList.getElementsByTagName('input');
 
-        for (const input of inputs) {
-          input.onclick = (layer) => {
-            const layerId = layer.target.id;
-            map.current.setStyle('mapbox://styles/mapbox/' + layerId);
-          };
-        }
+        // for (const input of inputs) {
+        //   input.onclick = (layer) => {
+        //     const layerId = layer.target.id;
+        //     map.current.setStyle('mapbox://styles/mapbox/' + layerId);
+        //   };
+        // }
 
 
 

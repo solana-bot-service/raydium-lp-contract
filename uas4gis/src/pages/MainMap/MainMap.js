@@ -178,7 +178,7 @@ export function MainMap() {
       });
     }
 
-  }, [mapReady, map.current, isLoggedIn]);
+  }, [mapReady, isLoggedIn, constructions]);
 
   useEffect(() => {
 
@@ -410,19 +410,21 @@ export function MainMap() {
 
     map.current.on('load', () => {
 
-      const layerList = document.getElementById('basemaps_menu');
-      const inputs = layerList.getElementsByTagName('input');
+      // const layerList = document.getElementById('basemaps_menu');
+      // const inputs = layerList.getElementsByTagName('input');
 
-      for (const input of inputs) {
-        input.onclick = (layer) => {
-          const layerId = layer.target.id;
-          map.current.setStyle('mapbox://styles/mapbox/' + layerId);
-        };
-      }
+      // for (const input of inputs) {
+      //   input.onclick = (layer) => {
+      //     const layerId = layer.target.id;
+      //     map.current.setStyle('mapbox://styles/mapbox/' + layerId);
+      //   };
+      // }
 
 
 
-      toggleSidebar('left');
+      setTimeout(() => {
+        toggleSidebar('left');
+      }, 1000);
 
 
       // toggleableLayerIds.forEach(id => {
@@ -938,7 +940,7 @@ export function MainMap() {
 
               var f = map.current.querySourceFeatures(c + '-source')
 
-              console.log(f.length);
+              // console.log(f.length);
               if (f.length === 0) return p
               // console.log('====================================');
               // console.log(constructions[c].src);
@@ -1187,6 +1189,7 @@ export function MainMap() {
       filterEl.addEventListener('focus' , (e) => {
         const value = normalize(`${e.target.value}`);
         if (value === '') map.current.fitBounds(searchableBBox.current)
+        toggleSidebar('left',true)
       })
     }
   })
@@ -1225,17 +1228,17 @@ export function MainMap() {
  }
 
 
-  function toggleSidebar(id) {
+  function toggleSidebar(id, forceCollapsed) {
 
     const elem = document.getElementById(id);
     // Add or remove the 'collapsed' CSS class from the sidebar element.
     // Returns boolean "true" or "false" whether 'collapsed' is in the class list.
 
-    const collapsed = elem.classList.toggle('collapsed');
+    const collapsed = forceCollapsed ? elem.classList.add('collapsed') : elem.classList.toggle('collapsed');
     const duration = 1000
     const padding = {};
     // 'id' is 'right' or 'left'. When run at start, this object looks like: '{left: 300}';
-    padding[id] = collapsed ? 0 : 200; // 0 if collapsed, 300 px if not. This matches the width of the sidebars in the .sidebar CSS class.
+    padding[id] = forceCollapsed ? 0 : (collapsed ? 0 : 200); // 0 if collapsed, 300 px if not. This matches the width of the sidebars in the .sidebar CSS class.
     // Use `map.easeTo()` with a padding option to adjust the map's center accounting for the position of sidebars.
 
     map.current.easeTo({
@@ -1333,7 +1336,7 @@ return useMemo(() => {
               <LayersTOC />
               {/* <BaseMaps /> */}
             </Stack>
-            <div className="sidebar-toggle left" onClick={() => { toggleSidebar('left', ""); }}>
+            <div className="sidebar-toggle left" onClick={() => { toggleSidebar('left'); }}>
               {toggleSymbol}
             </div>
             {/* <div className="sidebar-search-toggle" onClick={() => { toggleSidebar('left', "search"); }}>
@@ -1385,6 +1388,7 @@ export function getUniqueFeatures(features, comparatorProperty) {
     const uniqueFeatures = [];
     for (const feature of features) {
       const id = feature.properties[comparatorProperty];
+      
       if (!uniqueIds.has(id)) {
         uniqueIds.add(id);
         uniqueFeatures.push(feature);

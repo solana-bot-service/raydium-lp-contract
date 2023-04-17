@@ -109,9 +109,9 @@ const [anchorElNav, setAnchorElNav] = useState(null);
   }, [liff, isLoggedIn]);
 
   const userStateMenus = () => {
-    
+
     if (!isLocalhost) {
-        
+
       if (error) return <MenuItem>
       <Typography textAlign="center">Something is wrong.</Typography></MenuItem>;
       if (!isReady) return <MenuItem>
@@ -126,28 +126,27 @@ const [anchorElNav, setAnchorElNav] = useState(null);
           //   Login
           // </button>
         );
-      } 
+      }
 
     }
-    return (
-      <>
-      <MenuItem key={'profile'} onClick={() => setDrawerOpened(true)}>
-        <Typography textAlign="center">โปรไฟล์</Typography>
-      </MenuItem>
-        <MenuItem key={'logout'} onClick={liff.logout}>
-          <Typography textAlign="center">ออกจากระบบ</Typography>
-        </MenuItem>
-      {/* <p>Welcome to the react-liff demo app, {displayName}!</p>
-        <button className="App-button" onClick={liff.logout}>
-          Logout
-        </button> */}
-      </>
-    );
+    return ([{
+      key: 'profile',
+      action: () => setDrawerOpened(true),
+      label : 'โปรไฟล์'
+    }, {
+      key: 'logout',
+      action: () => liff.logout,
+      label : 'ออกจากระบบ'
+    }].map(m => {
+      return (<MenuItem key={m.key} onClick={m.action} >
+        <Typography textAlign="center">{m.label}</Typography>
+      </MenuItem>)
+    }));
   };
 
   return (
     <div>
-      
+
 
       {/* Routes nest inside one another. Nested route paths build upon
             parent route paths, and nested route elements render inside
@@ -165,7 +164,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       </Routes>
       <ThemeProvider theme={theme}>
       {/* enableColorOnDark */}
-        <AppBar  position="static"> 
+        <AppBar  position="static">
           <Container maxWidth="xl" >
             <Toolbar disableGutters>
               {/* <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} /> */}
@@ -224,7 +223,11 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                     display: { xs: 'block', md: 'none' },
                   }}
                 >
-                  {pages.map((page, index) => (
+                  {pages
+                  .filter(p => {  
+                    return p.to.replace("/", "") !== location.pathname.replace("/", "")
+                  })
+                  .map((page, index) => (
                     <MenuItem key={'label' + index} component={Link} to={page.to}  onClick={handleCloseNavMenu}>
                       <Typography textAlign="center">{page.label}</Typography>
                     </MenuItem>
@@ -264,12 +267,16 @@ const [anchorElNav, setAnchorElNav] = useState(null);
               >
                 LOGO
               </Typography> */}
-             
+
               <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                {pages.map((page, index) => (
+                {pages
+                .filter(p => {
+                  return p.to.replace("/", "") !== location.pathname.replace("/", "")
+                })
+                .map((page, index) => (
                   <Button
                     key={'label' + index}
-                    component={Link} to={page.to}  
+                    component={Link} to={page.to}
                     onClick={handleCloseNavMenu}
                     sx={{ my: 2, color: 'white', display: 'block' }}
                   >
@@ -325,11 +332,11 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
             </Box>
         </Drawer>
-  {/* 
+  {/*
         <Outlet /> */}
-        
+
       </ThemeProvider>
-    
+
     </div>
   );
 }
@@ -342,7 +349,7 @@ function Layout() {
     <div>
       {/* A "layout route" is a good place to put markup you want to
           share across all the pages on your site, like navigation. */}
-      
+
 
 
       {/* An <Outlet> renders whatever child route is currently active,
@@ -365,10 +372,10 @@ function Home() {
 
 function NoMatch() {
   return (
-    <div>
-      <h2>Nothing to see here!</h2>
+    <div style={{   position: 'absolute', top: '64px'}}>
+      <h2>ไม่พบหน้านี้</h2>
       <p>
-        <Link to="/">Go to the home page</Link>
+        <Link to="/">กลับไปหน้าแรก</Link>
       </p>
     </div>
   );
