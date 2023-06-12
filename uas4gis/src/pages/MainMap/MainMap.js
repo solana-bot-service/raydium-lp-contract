@@ -54,6 +54,8 @@ export function MainMap() {
   // const [searchingLayer, setSearchingLayer] = useState('');
   const searchingLayer = useRef()
 
+  const [measuredValue, setMeasuredValue] = useState(0);
+
   //map data sources
   const ortho = require('../../MapData/nkrafaortho.json')
   const constructions = require('../../MapData/vectorConstructionSrc.json')
