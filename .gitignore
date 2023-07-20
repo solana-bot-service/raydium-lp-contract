@@ -66,3 +66,4 @@ node_modules/
 .env
 uas4gis/build
 uas4gis/node_modules
+react-crud/build/favicon.ico
