@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker'
+import { fakerTH as faker } from '@faker-js/faker'
 import { sample } from 'lodash';
 import * as turf from '@turf/turf'
 

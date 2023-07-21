@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import ReactDOM from "react-dom"
 
-import './MainMap.css'
+// import './MainMap.css'
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
@@ -231,6 +231,48 @@ export function MainMap() {
         "line-width": 4
       }
   },
+  // DRAWN, NOT SELECTED
+//   {
+//     id: "gl-draw-line-inactive",
+//     type: "line",
+//     filter: ["all", ["==", "active", "false"], ["==", "$type", "LineString"], ["!=", "mode", "static"]],
+//     layout: {
+//         "line-cap": "round",
+//         "line-join": "round"
+//     },
+//     paint: {
+//         "line-color": "#FF007F",
+//         "line-dasharray": [0.2, 2],
+//         "line-width": 3
+//     }
+// }, 
+{
+    id: "gl-draw-line-active",
+    type: "line",
+    filter: ["all", ["==", "$type", "LineString"], ["==", "active", "true"]],
+    "layout": {
+      "line-cap": "round",
+      "line-join": "round"
+    },
+    "paint": {
+      "line-color": "#00f",
+      "line-dasharray": [0.2, 2],
+      "line-width": 4
+    }
+},
+// {
+//     id: "gl-draw-line-static",
+//     type: "line",
+//     filter: ["all", ["==", "mode", "static"], ["==", "$type", "LineString"]],
+//     layout: {
+//         "line-cap": "round",
+//         "line-join": "round"
+//     },
+//     paint: {
+//         "line-color": "#aaa",
+//         "line-width": 2
+//     }
+// },
   // polygon fill
   {
     "id": "gl-draw-polygon-fill",
@@ -241,55 +283,96 @@ export function MainMap() {
       "fill-outline-color": "#FF007F",
       "fill-opacity": 0.4
     }
-  },
-  // polygon mid points
-  {
-    'id': 'gl-draw-polygon-midpoint',
-    'type': 'circle',
-    'filter': ['all',
-      ['==', '$type', 'Point'],
-      ['==', 'meta', 'midpoint']],
-    'paint': {
-      'circle-radius': 3,
-      'circle-color': '#fbb03b'
+  }, {
+    id: "gl-draw-point-point-stroke-inactive",
+    type: "circle",
+    filter: ["all", ["==", "active", "false"], ["==", "$type", "Point"], ["==", "meta", "feature"], ["!=", "mode", "static"]],
+    paint: {
+        "circle-radius": 5,
+        "circle-opacity": 1,
+        "circle-color": "#fff"
     }
-  },
-  // polygon outline stroke
-  // This doesn't style the first edge of the polygon, which uses the line stroke styling instead
-  {
-    "id": "gl-draw-polygon-stroke-active",
-    "type": "line",
-    "filter": ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
-    "layout": {
-      "line-cap": "round",
-      "line-join": "round"
-    },
-    "paint": {
-      "line-color": "#FF007F",
-      "line-dasharray": [0.2, 2],
-      "line-width": 4
+}, {
+    id: "gl-draw-point-inactive",
+    type: "circle",
+    filter: ["all", ["==", "active", "false"], ["==", "$type", "Point"], ["==", "meta", "feature"], ["!=", "mode", "static"]],
+    paint: {
+        "circle-radius": 3,
+        "circle-color": "#3bb2d0"
     }
-  },
-  // vertex point halos
-  {
-    "id": "gl-draw-polygon-and-line-vertex-halo-active",
-    "type": "circle",
-    "filter": ["all", ["==", "meta", "vertex"], ["==", "$type", "Point"], ["!=", "mode", "static"]],
-    "paint": {
-      "circle-radius": 5,
-      "circle-color": "#FFF"
+}, {
+    id: "gl-draw-point-stroke-active",
+    type: "circle",
+    filter: ["all", ["==", "$type", "Point"], ["==", "active", "true"], ["!=", "meta", "midpoint"]],
+    paint: {
+        "circle-radius": 7,
+        "circle-color": "#fff"
     }
-  },
-  // vertex points
-  {
-    "id": "gl-draw-polygon-and-line-vertex-active",
-    "type": "circle",
-    "filter": ["all", ["==", "meta", "vertex"], ["==", "$type", "Point"], ["!=", "mode", "static"]],
-    "paint": {
-      "circle-radius": 3,
-      "circle-color": "#a17e00",
+}, {
+    id: "gl-draw-point-active",
+    type: "circle",
+    filter: ["all", ["==", "$type", "Point"], ["!=", "meta", "midpoint"], ["==", "active", "true"]],
+    paint: {
+        "circle-radius": 5,
+        "circle-color": "#fbb03b"
     }
-  },
+}, {
+    id: "gl-draw-point-static",
+    type: "circle",
+    filter: ["all", ["==", "mode", "static"], ["==", "$type", "Point"]],
+    paint: {
+        "circle-radius": 5,
+        "circle-color": "#404040"
+    }
+},
+  // // polygon mid points
+  // {
+  //   'id': 'gl-draw-polygon-midpoint',
+  //   'type': 'circle',
+  //   'filter': ['all',
+  //     ['==', '$type', 'Point'],
+  //     ['==', 'meta', 'midpoint']],
+  //   'paint': {
+  //     'circle-radius': 3,
+  //     'circle-color': '#fbb03b'
+  //   }
+  // },
+  // // polygon outline stroke
+  // // This doesn't style the first edge of the polygon, which uses the line stroke styling instead
+  // {
+  //   "id": "gl-draw-polygon-stroke-active",
+  //   "type": "line",
+  //   "filter": ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
+  //   "layout": {
+  //     "line-cap": "round",
+  //     "line-join": "round"
+  //   },
+  //   "paint": {
+  //     "line-color": "#FF007F",
+  //     "line-dasharray": [0.2, 2],
+  //     "line-width": 4
+  //   }
+  // },
+  // // vertex point halos
+  // {
+  //   "id": "gl-draw-polygon-and-line-vertex-halo-active",
+  //   "type": "circle",
+  //   "filter": ["all", ["==", "meta", "vertex"], ["==", "$type", "Point"], ["!=", "mode", "static"]],
+  //   "paint": {
+  //     "circle-radius": 5,
+  //     "circle-color": "#FFF"
+  //   }
+  // },
+  // // vertex points
+  // {
+  //   "id": "gl-draw-polygon-and-line-vertex-active",
+  //   "type": "circle",
+  //   "filter": ["all", ["==", "meta", "vertex"], ["==", "$type", "Point"], ["!=", "mode", "static"]],
+  //   "paint": {
+  //     "circle-radius": 3,
+  //     "circle-color": "#a17e00",
+  //   }
+  // },
 
   // INACTIVE (static, already drawn)
   // line stroke
@@ -826,7 +909,7 @@ export function MainMap() {
         if (!searchables.current) {
 
         // reset features filter as the map starts moving
-          Array.from(searchingLayer.current).forEach(l => {
+          if (searchingLayer.current) Array.from(searchingLayer.current).forEach(l => {
             let fields = searchFields.current[l]
             // console.log(fields);
 
@@ -1021,7 +1104,7 @@ export function MainMap() {
 
             document.getElementById('headerText').textContent = 'ขนาดพื้นที่รวม'
             data.features = data.features.filter(f => f.geometry.type === 'Polygon')
-            console.log(data);
+            // console.log(data);
 
             if (data.features.length > 0) {
               const displayingUnit = 'm2'
@@ -1040,7 +1123,7 @@ export function MainMap() {
 
             document.getElementById('headerText').textContent = 'ระยะทางรวม'
             data.features = data.features.filter(f => f.geometry.type === 'LineString')
-            console.log(data);
+            // console.log(data);
 
             if (data.features.length > 0) {
               const displayingUnit = 'meters'
