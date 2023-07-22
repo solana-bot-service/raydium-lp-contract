@@ -20,7 +20,7 @@ export const useAuth = () => {
     };
 
     const lineLogin = async (data) => {
-        let state = faker.datatype.uuid()
+        let state = faker.string.uuid()
         try {
             let authresult = await axios.post('https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=1657781805&state='+ state +'&redirect_uri=http://localhost:3000&scope=profile%20openid&nonce=09876xyz', data);
             let userObj = { ...authresult.data?.foundUser };

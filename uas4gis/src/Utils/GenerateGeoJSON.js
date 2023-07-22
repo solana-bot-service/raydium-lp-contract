@@ -46,7 +46,7 @@ class GenerateGeoJSON {
             imageUrl: "personnel/165945.jpg"
         }].map((u, index) => {
 
-            let rand = faker.datatype.number({
+            let rand = faker.number.int({
                 'min': 0,
                 'max': buildingIds.length - 1
             })
@@ -66,7 +66,7 @@ class GenerateGeoJSON {
                     "BUILDING_NAME" : "อาคาร " + buildingIds[rand],
                     "IMAGE_URL": u.imageUrl,
                     "EMAIL": u.email,
-                    "AREA_SQM": faker.datatype.uuid()
+                    "AREA_SQM": faker.string.uuid()
                 }
             })
         }),
@@ -75,7 +75,7 @@ class GenerateGeoJSON {
             // let coords = f.geometry.coordinates
             // let polygon = turf.polygon(coords);
             // let centroid = turf.centroid(polygon);
-            let rand = faker.datatype.number({
+            let rand = faker.number.int({
                 'min': 0,
                 'max': buildingIds.length - 1
             })
@@ -88,12 +88,13 @@ class GenerateGeoJSON {
                 },
                 "geometry_name": "the_geom" + index,
                 "properties": {
-                    "NAME": faker.name.fullName(),
-                    "POSITION" : faker.name.jobTitle(),
+                    "NAME": faker.person.fullName(),
+                    "POSITION" : faker.person.jobTitle(),
                     "BUILDING" : buildingIds[rand],
-                    "BUILDING_NAME" : "อาคาร " + buildingIds[rand],
+                    "BUILDING_NAME" : "อาคาร " + buildingIds[rand], 
+                    "ROOM" : "ห้อง " + buildingIds[rand] + "/" +  faker.string.numeric(3), 
                     "IMAGE_URL": faker.image.avatar(),
-                    "AREA_SQM": faker.datatype.uuid()
+                    "AREA_SQM": faker.string.uuid()
                 }
             })
         })]

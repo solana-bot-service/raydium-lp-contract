@@ -13,7 +13,7 @@ import { Paper } from '@mui/material';
 
 
 export default function PersonCard(props) {
-    const { profile } = props
+    const { person } = props
     const theme = useTheme();
     return (
       <Card sx={{ display: 'flex' }} elevation={0} >
@@ -23,22 +23,25 @@ export default function PersonCard(props) {
             <CardMedia
             component="img"
             sx={{ maxHeight : 'auto', borderRadius: 3 }}
-            image={profile.IMAGE_URL || "nkrafalogo.png"}
-            alt={profile.NAME || "ภาพบุคคล"}
+            image={person.IMAGE_URL || "nkrafalogo.png"}
+            alt={person.NAME || "ภาพบุคคล"}
             />
         </Paper>
         <CardContent sx={{ flex: '1 0 auto' }}>
             <Typography component="div" variant="h6">
-              {profile.NAME || "-"}
+              {person.NAME || "-"}
             </Typography>
             <Typography variant="subtitle2" color="text.secondary" component="div">
-              ตำแหน่ง {profile.POSITION || "-"}
+              ตำแหน่ง {person.POSITION || "-"}
             </Typography>
             <Typography variant="subtitle2" color="text.secondary" component="div">
-              สถานที่ทำงาน {profile.BUILDING_NAME || "-"}
+              สถานที่ทำงาน {person.BUILDING_NAME || "-"}
+            </Typography>
+            <Typography variant="subtitle2" color="text.secondary" component="div">
+              ห้องทำงาน {person.ROOM || "-"}
             </Typography>
             <Typography variant="subtitle2" color="text.iesecondary" component="div">
-              อีเมล์: {profile.EMAIL || "-"}
+              อีเมล์: {person.EMAIL || "-"}
             </Typography> 
           </CardContent>
         </Box>

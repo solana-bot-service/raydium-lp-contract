@@ -439,7 +439,7 @@ export function MainMap() {
             let domContent
             switch (feature.layer.id) {
               case 'personnel':
-                domContent = <PersonCard profile={feature.properties} />
+                domContent = <PersonCard person={feature.properties} />
                 break;
               case 'buildings':
                 domContent = <BuildingCard building={feature.properties} />
