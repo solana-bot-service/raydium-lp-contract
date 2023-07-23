@@ -17,11 +17,11 @@ import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import { Card, CardContent, CardMedia, createTheme } from "@mui/material";
+import { Button, Card, CardContent, CardMedia, createTheme, CardActionArea, CardActions } from "@mui/material";
+
 import { ThemeProvider } from "@emotion/react";
 import { useAuthContext } from "./auth/AuthContext";
 import { Login } from "./pages/Login/Login";
@@ -148,8 +148,14 @@ const [anchorElNav, setAnchorElNav] = useState(null);
     }
     return ([{
       key: 'profile',
-      action: () => setDrawerOpened(true),
+      action: () => { 
+        setAnchorElUser(null)
+        setDrawerOpened(true) },
       label : 'โปรไฟล์'
+    }, {
+      key: 'unit',
+      action: () => { setAnchorElUser(null) },
+      label : 'หน่วย'
     }, {
       key: 'logout',
       action: () => liff.logout,
@@ -347,6 +353,30 @@ const [anchorElNav, setAnchorElNav] = useState(null);
             onKeyDown={toggleDrawer()}>
               {profile ? profile.displayName : 'กรุณาลงชื่อเข้าใช้ก่อน'}
 
+
+              <Card sx={{ maxWidth: 345 }}>
+              <CardActionArea>
+                <CardMedia
+                  component="img"
+                  height="80%"
+                  image={profile.pictureUrl}
+                  alt="green iguana"
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="div">
+                    {profile.displayName}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {profile.statusMessage}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+              <CardActions>
+                <Button size="small" color="primary">
+                  Share
+                </Button>
+              </CardActions>
+            </Card>
             </Box>
         </Drawer>
   {/*

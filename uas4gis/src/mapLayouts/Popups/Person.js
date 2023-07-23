@@ -31,11 +31,11 @@ export default function PersonCard(props) {
             <Typography component="div" variant="h6">
               {person.RANK}{person.NAME || "-"}
             </Typography>
-            <Typography variant="subtitle1" color="text.secondary" component="div">
+            <Typography variant="subtitle2" color="text.secondary" component="div">
               ตำแหน่ง: {person.POSITION || "-"}
             </Typography>
             <Typography variant="subtitle2" color="text.secondary" component="div">
-              สถานที่ทำงาน: {person.BUILDING_NAME || "-"}
+              สถานที่ทำงาน: {person.UNIT || "-"}
             </Typography>
             <Typography variant="subtitle2" color="text.secondary" component="div">
               ห้องทำงาน: {person.ROOM || "-"}

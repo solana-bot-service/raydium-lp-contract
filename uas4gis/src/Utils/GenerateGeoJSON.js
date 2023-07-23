@@ -85,6 +85,7 @@ class GenerateGeoJSON {
                 'max': buildingIds.length - 1
             })
             let fullname = fakerEN.person.fullName()
+            const nkrafaunits = require('../data/nkrafaunits.json')
             return ({
                 "type": "Feature",
                 "id": index + 3,
@@ -95,7 +96,8 @@ class GenerateGeoJSON {
                 "geometry_name": "the_geom" + index,
                 "properties": {
                     "NAME": faker.person.fullName(),
-                    "RANK" : faker.helpers.arrayElements(RANKS, 1)[0],
+                    "RANK" : faker.helpers.arrayElements(RANKS, 1)[0].replace('หญิง', ''),
+                    "UNIT": faker.helpers.arrayElements(nkrafaunits, 1)[0].name,
                     "POSITION" : faker.person.jobTitle(),
                     "BUILDING" : buildingIds[rand],
                     "BUILDING_NAME" : "อาคาร " + buildingIds[rand], 

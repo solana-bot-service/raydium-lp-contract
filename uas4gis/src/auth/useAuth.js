@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from 'axios';
-import { faker } from '@faker-js/faker';
+import { fakerTH as faker } from '@faker-js/faker';
 
 export const useAuth = () => {
     
