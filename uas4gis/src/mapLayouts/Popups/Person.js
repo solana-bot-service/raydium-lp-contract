@@ -29,18 +29,21 @@ export default function PersonCard(props) {
         </Paper>
         <CardContent sx={{ flex: '1 0 auto' }}>
             <Typography component="div" variant="h6">
-              {person.NAME || "-"}
+              {person.RANK}{person.NAME || "-"}
+            </Typography>
+            <Typography variant="subtitle1" color="text.secondary" component="div">
+              ตำแหน่ง: {person.POSITION || "-"}
             </Typography>
             <Typography variant="subtitle2" color="text.secondary" component="div">
-              ตำแหน่ง {person.POSITION || "-"}
+              สถานที่ทำงาน: {person.BUILDING_NAME || "-"}
             </Typography>
             <Typography variant="subtitle2" color="text.secondary" component="div">
-              สถานที่ทำงาน {person.BUILDING_NAME || "-"}
+              ห้องทำงาน: {person.ROOM || "-"}
             </Typography>
-            <Typography variant="subtitle2" color="text.secondary" component="div">
-              ห้องทำงาน {person.ROOM || "-"}
-            </Typography>
-            <Typography variant="subtitle2" color="text.iesecondary" component="div">
+            <Typography variant="subtitle2" color="text.secondary" component="div" sx={{ cursor: 'pointer'}} onClick={() => window.open(`tel:03634${person.TEL.split("-")[1]}`, "_self")}>
+              โทร: {person.TEL || "-"}
+            </Typography> 
+            <Typography variant="subtitle2" color="text.secondary" component="div" sx={{ cursor: 'pointer'}} onClick={() => window.open(`mailto:${person.EMAIL}`, "_self")}>
               อีเมล์: {person.EMAIL || "-"}
             </Typography> 
           </CardContent>
