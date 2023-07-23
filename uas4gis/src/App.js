@@ -351,7 +351,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
             role="presentation"
             onClick={toggleDrawer()}
             onKeyDown={toggleDrawer()}>
-              {profile ? profile.displayName : 'กรุณาลงชื่อเข้าใช้ก่อน'}
+              {/* {profile ? profile.displayName : 'กรุณาลงชื่อเข้าใช้ก่อน'} */}
 
 
               <Card sx={{ maxWidth: 345 }}>
@@ -360,7 +360,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                   component="img"
                   height="80%"
                   image={profile.pictureUrl}
-                  alt="green iguana"
+                  alt={profile.displayName}
                 />
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="div">
@@ -373,7 +373,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
               </CardActionArea>
               <CardActions>
                 <Button size="small" color="primary">
-                  Share
+                  แก้ไขโปรไฟล์
                 </Button>
               </CardActions>
             </Card>

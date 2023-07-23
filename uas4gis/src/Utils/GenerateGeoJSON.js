@@ -1,7 +1,8 @@
 import { fakerTH as faker, fakerEN } from '@faker-js/faker'
-import { sample } from 'lodash';
 import * as turf from '@turf/turf'
 import { RANKS } from '../App';
+
+const nkrafaunits = require('../data/nkrafaunits.json')
 
 class GenerateGeoJSON {
 
@@ -85,7 +86,6 @@ class GenerateGeoJSON {
                 'max': buildingIds.length - 1
             })
             let fullname = fakerEN.person.fullName()
-            const nkrafaunits = require('../data/nkrafaunits.json')
             return ({
                 "type": "Feature",
                 "id": index + 3,
