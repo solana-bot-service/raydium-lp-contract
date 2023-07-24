@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Routes, Route, Outlet, Link, useLocation, Navigate } from "react-router-dom";
 import { CompareMap } from "./pages/CompareMap/CompareMap";
 import { MainMap } from "./pages/MainMap/MainMap";
@@ -20,7 +20,7 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import { Button, Card, CardContent, CardMedia, createTheme, CardActionArea, CardActions } from "@mui/material";
+import { Button, Card, CardContent, CardMedia, createTheme, CardActionArea, CardActions, TextField } from "@mui/material";
 
 import { ThemeProvider } from "@emotion/react";
 import { useAuthContext } from "./auth/AuthContext";
@@ -53,6 +53,7 @@ export default function App() {
   const pathName = location.state?.from || '/'
 
   const [profile, setProfile] = useState({});
+  const [editingProfile, setEditingProfile] = useState(false);
   const { error, isLoggedIn, isReady, liff } = useLiff();
 
 const pages = [{
@@ -166,6 +167,93 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       </MenuItem>)
     }));
   };
+
+  const profiledrawer = useMemo(() => {
+
+    if (!editingProfile) return (
+      <Drawer
+          anchor={'right'}
+          open={drawerOpened}
+          onClose={toggleDrawer()}
+        >
+        <Box
+          sx={{ width: 'auto' }}
+          role="presentation"
+          // onClick={toggleDrawer()}
+          onKeyDown={toggleDrawer()}>
+            {/* {profile ? profile.displayName : 'กรุณาลงชื่อเข้าใช้ก่อน'} */}
+
+
+            <Card sx={{ maxWidth: 345 }}>
+            <CardActionArea>
+              <CardMedia
+                component="img"
+                height="80%"
+                image={profile.pictureUrl}
+                alt={profile.displayName}
+              />
+              <CardContent>
+                <Typography gutterBottom variant="h5" component="div">
+                  {profile.displayName}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {profile.statusMessage}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+            <CardActions>
+              <Button size="small" color="primary" onClick={() => setEditingProfile(true)}>
+                แก้ไขโปรไฟล์
+              </Button>
+            </CardActions>
+          </Card>
+          </Box>
+      </Drawer>)
+
+      return (
+        <Drawer
+            anchor={'right'}
+            open={drawerOpened}
+            onClose={toggleDrawer()}
+          >
+          <Box
+            sx={{ width: 'auto' }}
+            role="presentation"
+            // onClick={toggleDrawer()}
+            onKeyDown={toggleDrawer()}>
+              {/* {profile ? profile.displayName : 'กรุณาลงชื่อเข้าใช้ก่อน'} */}
+
+
+              <Card sx={{ maxWidth: 345 }}>
+              <CardActionArea>
+                <CardMedia
+                  component="img"
+                  height="80%"
+                  image={profile.pictureUrl}
+                  alt={profile.displayName}
+                />
+                <CardContent>
+                <TextField id="displayname" label="ชื่อ DisplayName" variant="outlined" defaultValue={profile.displayName} />               
+                <Typography gutterBottom variant="h5" component="div">
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {profile.statusMessage}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+              <CardActions>
+                <Button size="small" color="primary" onClick={() => setEditingProfile(false)}>
+                  บันทึก
+                </Button>
+                <Button size="small" color="error" onClick={() => setEditingProfile(false)}>
+                  ยกเลิก
+                </Button>
+              </CardActions>
+            </Card>
+            </Box>
+        </Drawer>)
+
+  }, [drawerOpened, editingProfile, profile])
 
   return (
     <div>
@@ -341,44 +429,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
             </Toolbar>
           </Container>
         </AppBar>
-        <Drawer
-            anchor={'bottom'}
-            open={drawerOpened}
-            onClose={toggleDrawer()}
-          >
-          <Box
-            sx={{ width: 'auto' }}
-            role="presentation"
-            onClick={toggleDrawer()}
-            onKeyDown={toggleDrawer()}>
-              {/* {profile ? profile.displayName : 'กรุณาลงชื่อเข้าใช้ก่อน'} */}
-
-
-              <Card sx={{ maxWidth: 345 }}>
-              <CardActionArea>
-                <CardMedia
-                  component="img"
-                  height="80%"
-                  image={profile.pictureUrl}
-                  alt={profile.displayName}
-                />
-                <CardContent>
-                  <Typography gutterBottom variant="h5" component="div">
-                    {profile.displayName}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {profile.statusMessage}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-              <CardActions>
-                <Button size="small" color="primary">
-                  แก้ไขโปรไฟล์
-                </Button>
-              </CardActions>
-            </Card>
-            </Box>
-        </Drawer>
+        {profiledrawer}
   {/*
         <Outlet /> */}
 
