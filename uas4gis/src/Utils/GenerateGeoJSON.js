@@ -1,6 +1,6 @@
 import { fakerTH as faker, fakerEN } from '@faker-js/faker'
 import * as turf from '@turf/turf'
-import { RANKS } from '../App';
+import { RANKS } from '../config';
 
 const nkrafaunits = require('../data/nkrafaunits.json')
 
