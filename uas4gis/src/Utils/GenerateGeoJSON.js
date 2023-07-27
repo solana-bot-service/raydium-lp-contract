@@ -68,11 +68,14 @@ class GenerateGeoJSON {
                     "NAME": u.name,
                     "RANK" : u.rank,
                     "POSITION" : u.position,
+                    "UNIT": faker.helpers.arrayElements(nkrafaunits, 1)[0].name,
                     "BUILDING" : buildingIds[rand],
                     "BUILDING_NAME" : "อาคาร " + buildingIds[rand],
+                    "ROOM" : "ห้อง " + buildingIds[rand] + "/" +  faker.string.numeric(3), 
                     "IMAGE_URL": u.imageUrl,
-                    "EMAIL": u.email,
-                    "AREA_SQM": faker.string.uuid()
+                    "AREA_SQM": faker.string.uuid(),
+                    "TEL" : "4-" + faker.string.numeric(4),
+                    "EMAIL": u.email
                 }
             })
         }),

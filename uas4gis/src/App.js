@@ -20,7 +20,7 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import { Button, Card, CardContent, CardMedia, createTheme, CardActionArea, CardActions, TextField } from "@mui/material";
+import { Button, Card, CardContent, CardMedia, createTheme, CardActionArea, CardActions, TextField, Grid } from "@mui/material";
 
 
 import InputLabel from '@mui/material/InputLabel';
@@ -173,6 +173,8 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
   const profiledrawer = useMemo(() => {
 
+    const { rank, name, surname }  = personprops
+
     if (!editingProfile) return (
       <Drawer
           anchor={'right'}
@@ -202,6 +204,17 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                 <Typography variant="body2" color="text.secondary">
                   {profile.statusMessage}
                 </Typography>
+                <Box sx={{ flexGrow: 1 }}>
+                <Grid container spacing={1}>
+                {[rank, name, surname].map(prop => {
+                  return (<Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      {profile[prop.name] || "-"}
+                    </Typography>
+                  </Grid>)
+                  })}
+                  </Grid>
+                </Box>
               </CardContent>
             </CardActionArea>
             <CardActions>
@@ -213,8 +226,6 @@ const [anchorElNav, setAnchorElNav] = useState(null);
           </Box>
       </Drawer>)
 
-      const { rank, name, surname }  = personprops
-
       return (
         <Drawer
             anchor={'right'}
@@ -225,7 +236,8 @@ const [anchorElNav, setAnchorElNav] = useState(null);
             sx={{ width: 'auto' }}
             role="presentation"
             // onClick={toggleDrawer()}
-            onKeyDown={toggleDrawer()}>
+            // onKeyDown={toggleDrawer()}
+            >
               {/* {profile ? profile.displayName : 'กรุณาลงชื่อเข้าใช้ก่อน'} */}
 
 
@@ -238,42 +250,54 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                   alt={profile.displayName}
                 />
                 <CardContent>
-                <TextField id="displayname" label="ชื่อ DisplayName" variant="outlined" defaultValue={profile.displayName} />
-                {[rank, name, surname].map(prop => {
+                <Typography gutterBottom variant="h5" component="div">
+                {profile.displayName}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {profile.statusMessage}
+                  </Typography>
+                <Box sx={{ flexGrow: 1 }}>
+                <Grid container spacing={1}>
+                  {[rank, name, surname].map(prop => {
                   switch (prop.type) {
                     case 'select':
-                      return (<FormControl key={prop.name}  sx={{ minWidth: 80}}>
+                      return (<Grid item xs={12}>                      
+                      <FormControl key={prop.name} >
                         <InputLabel id="rank-select-label">ยศ</InputLabel>
                         <Select
                           labelId="rank-select-label"
                           id="rank-select"
-                          value={profile && profile[prop.name] || ''}
+                          value={(profile && profile[prop.name]) || ''}
                           label="Age"
                           onChange={event => handleProfileEditing(event, prop.name)}
                         >
                           {RANKS.map(r => (<MenuItem key={r} value={r}>{r}</MenuItem>))}
                         </Select>
-                      </FormControl>)
+                      </FormControl>
+                      </Grid>)                      
+                      
                   
                     default:
-                      return (<TextField key={prop.name} id={prop.name} label={prop.label} variant="outlined" defaultValue={profile[prop.name]} />)
+                      return (<Grid item xs={12}>
+                        <TextField key={prop.name} id={prop.name} label={prop.label} variant="outlined" value={(profile && profile[prop.name]) || ''}
+                      onChange={event => handleProfileEditing(event, prop.name)}
+                        />
+                      </Grid>)
                     
                   }
                 })}
-                <Typography gutterBottom variant="h5" component="div">
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {profile.statusMessage}
-                  </Typography>
+
+                </Grid>
+                </Box>
                 </CardContent>
               </CardActionArea>
               <CardActions>
                 <Button size="small" color="primary" onClick={() => setEditingProfile(false)}>
                   บันทึก
                 </Button>
-                <Button size="small" color="error" onClick={() => setEditingProfile(false)}>
+                {/* <Button size="small" color="error" onClick={() => setEditingProfile(false)}>
                   ยกเลิก
-                </Button>
+                </Button> */}
               </CardActions>
             </Card>
             </Box>
