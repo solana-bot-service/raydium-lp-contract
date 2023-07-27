@@ -22,9 +22,17 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Button, Card, CardContent, CardMedia, createTheme, CardActionArea, CardActions, TextField } from "@mui/material";
 
+
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+
+
+
 import { ThemeProvider } from "@emotion/react";
 import { useAuthContext } from "./auth/AuthContext";
 import { Login } from "./pages/Login/Login";
+import { RANKS, personprops } from "./config";
 
 export const isLocalhost = window.location.hostname.includes('localhost')
 
@@ -69,6 +77,11 @@ const [anchorElNav, setAnchorElNav] = useState(null);
     setAnchorElUser(null);
   };
 
+  const handleProfileEditing = (event, prop) => {
+    setProfile( p => ({...p, [prop] : event.target.value}))
+  }
+  
+
   const [drawerOpened, setDrawerOpened] = useState(false);
   const toggleDrawer = () => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -110,6 +123,12 @@ const [anchorElNav, setAnchorElNav] = useState(null);
     })();
   }, [liff, isLoggedIn]);
 
+  useEffect(() => {
+
+    console.log('profile', profile);
+
+  }, [profile])
+
   const userStateMenus = () => {
 
     if (!isLocalhost) {
@@ -133,7 +152,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
     }
     return ([{
       key: 'profile',
-      action: () => { 
+      action: () => {
         setAnchorElUser(null)
         setDrawerOpened(true) },
       label : 'โปรไฟล์'
@@ -194,6 +213,8 @@ const [anchorElNav, setAnchorElNav] = useState(null);
           </Box>
       </Drawer>)
 
+      const { rank, name, surname }  = personprops
+
       return (
         <Drawer
             anchor={'right'}
@@ -217,7 +238,28 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                   alt={profile.displayName}
                 />
                 <CardContent>
-                <TextField id="displayname" label="ชื่อ DisplayName" variant="outlined" defaultValue={profile.displayName} />               
+                <TextField id="displayname" label="ชื่อ DisplayName" variant="outlined" defaultValue={profile.displayName} />
+                {[rank, name, surname].map(prop => {
+                  switch (prop.type) {
+                    case 'select':
+                      return (<FormControl key={prop.name}  sx={{ minWidth: 80}}>
+                        <InputLabel id="rank-select-label">ยศ</InputLabel>
+                        <Select
+                          labelId="rank-select-label"
+                          id="rank-select"
+                          value={profile && profile[prop.name] || ''}
+                          label="Age"
+                          onChange={event => handleProfileEditing(event, prop.name)}
+                        >
+                          {RANKS.map(r => (<MenuItem key={r} value={r}>{r}</MenuItem>))}
+                        </Select>
+                      </FormControl>)
+                  
+                    default:
+                      return (<TextField key={prop.name} id={prop.name} label={prop.label} variant="outlined" defaultValue={profile[prop.name]} />)
+                    
+                  }
+                })}
                 <Typography gutterBottom variant="h5" component="div">
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -319,7 +361,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                   }}
                 >
                   {pages
-                  .filter(p => {  
+                  .filter(p => {
                     return p.to.replace("/", "") !== location.pathname.replace("/", "")
                   })
                   .map((page, index) => (
