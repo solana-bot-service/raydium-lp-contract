@@ -206,10 +206,12 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                 </Typography>
                 <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={1}>
-                {[rank, name, surname].map(prop => {
+                {Object.entries(personprops)
+                .filter(([p, _]) => personprops[p].required)
+                .map(([key, prop]) => {
                   return (<Grid item xs={12}>
                     <Typography variant="body2" color="text.secondary">
-                      {profile[prop.name] || "-"}
+                      {profile[key] || "-"}
                     </Typography>
                   </Grid>)
                   })}
@@ -258,20 +260,22 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                   </Typography>
                 <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={1}>
-                  {[rank, name, surname].map(prop => {
+                  {Object.entries(personprops)
+                .filter(([p, _ ]) => personprops[p].required)
+                .map(([key, prop]) => {
                   switch (prop.type) {
                     case 'select':
                       return (<Grid item xs={12}>                      
-                      <FormControl key={prop.name} >
-                        <InputLabel id="rank-select-label">ยศ</InputLabel>
+                      <FormControl key={key} sx={{ minWidth: 120 }} >
+                        <InputLabel id={`${key}-select-label`}>{prop.label}</InputLabel>
                         <Select
-                          labelId="rank-select-label"
-                          id="rank-select"
-                          value={(profile && profile[prop.name]) || ''}
-                          label="Age"
-                          onChange={event => handleProfileEditing(event, prop.name)}
+                          labelId={`${key}-select-label`}
+                          id={`${key}-select`}
+                          value={(profile && profile[key]) || ''}
+                          label={prop.label}
+                          onChange={event => handleProfileEditing(event, key)}
                         >
-                          {RANKS.map(r => (<MenuItem key={r} value={r}>{r}</MenuItem>))}
+                          {prop.options.map(r => (<MenuItem key={r.order || r} value={r.name || r}>{r.name || r}</MenuItem>))}
                         </Select>
                       </FormControl>
                       </Grid>)                      
@@ -279,8 +283,8 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                   
                     default:
                       return (<Grid item xs={12}>
-                        <TextField key={prop.name} id={prop.name} label={prop.label} variant="outlined" value={(profile && profile[prop.name]) || ''}
-                      onChange={event => handleProfileEditing(event, prop.name)}
+                        <TextField key={key} id={key} label={prop.label} variant="outlined" value={(profile && profile[key]) || ''}
+                      onChange={event => handleProfileEditing(event, key)}
                         />
                       </Grid>)
                     

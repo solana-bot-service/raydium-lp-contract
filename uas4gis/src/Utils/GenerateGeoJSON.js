@@ -1,8 +1,6 @@
 import { fakerTH as faker, fakerEN } from '@faker-js/faker'
 import * as turf from '@turf/turf'
-import { RANKS } from '../config';
-
-const nkrafaunits = require('../data/nkrafaunits.json')
+import { RANKS, nkrafaunits } from '../config';
 
 class GenerateGeoJSON {
 
