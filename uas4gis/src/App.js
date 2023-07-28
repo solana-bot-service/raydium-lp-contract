@@ -4,6 +4,8 @@ import { CompareMap } from "./pages/CompareMap/CompareMap";
 import { MainMap } from "./pages/MainMap/MainMap";
 import { useLiff } from 'react-liff';
 
+import axios from "axios";
+
 import './App.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 
@@ -79,7 +81,40 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
   const handleProfileEditing = (event, prop) => {
     setProfile( p => ({...p, [prop] : event.target.value}))
+
   }
+
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (profile) {
+
+      if (profile.id) {
+
+        // PUT
+
+        axios.put(`http://localhost:8888/api/user/${profile.id}/edit`, profile).then(function(response){
+            console.log(response.data);
+            setEditingProfile(false)
+          });
+
+      } else {
+
+        //  INSERT
+
+        axios.post('http://localhost:8888/api/user/save', profile).then(function (response) {
+          console.log(response.data);
+          if (response.data && response.data.id) {
+            setProfile(p => ({ ...p, id: response.data.id }))
+          }
+          setEditingProfile(false)
+        });
+      }
+
+}
+    
+}
   
 
   const [drawerOpened, setDrawerOpened] = useState(false);
@@ -123,11 +158,11 @@ const [anchorElNav, setAnchorElNav] = useState(null);
     })();
   }, [liff, isLoggedIn]);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    console.log('profile', profile);
+  //   console.log('profile', profile);
 
-  }, [profile])
+  // }, [profile])
 
   const userStateMenus = () => {
 
@@ -296,7 +331,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                 </CardContent>
               </CardActionArea>
               <CardActions>
-                <Button size="small" color="primary" onClick={() => setEditingProfile(false)}>
+                <Button size="small" color="primary" onClick={handleSubmit}>
                   บันทึก
                 </Button>
                 {/* <Button size="small" color="error" onClick={() => setEditingProfile(false)}>

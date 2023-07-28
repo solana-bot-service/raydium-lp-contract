@@ -11,7 +11,7 @@ export default function ListUser() {
 
     useEffect(() => {
         getUser();
-    }, []);
+    }, [getUser]);
 
     function getUser() {
         axios.get(`http://localhost:8888/api/user/${id}`).then(function(response) {

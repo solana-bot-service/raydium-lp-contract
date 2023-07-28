@@ -30,16 +30,23 @@ switch($method) {
         break;
     case "POST":
         $user = json_decode( file_get_contents('php://input') );
-        $sql = "INSERT INTO users(id, name, email, mobile, created_at) VALUES(null, :name, :email, :mobile, :created_at)";
+        $sql = "INSERT INTO users(id, userId, rank, name, surname, email, unit, building, room, tel, created_at) VALUES(null, :userId, :rank, :name, :surname, :email, :unit,  :building, :room, :tel, :created_at)";
         $stmt = $conn->prepare($sql);
         $created_at = date('Y-m-d');
+        $stmt->bindParam(':rank', $user->rank);
+        $stmt->bindParam(':userId', $user->userId);
         $stmt->bindParam(':name', $user->name);
+        $stmt->bindParam(':surname', $user->surname);
         $stmt->bindParam(':email', $user->email);
-        $stmt->bindParam(':mobile', $user->mobile);
+        $stmt->bindParam(':unit', $user->unit);
+        $stmt->bindParam(':building', $user->building);
+        $stmt->bindParam(':room', $user->room);
+        $stmt->bindParam(':tel', $user->tel);
         $stmt->bindParam(':created_at', $created_at);
 
         if($stmt->execute()) {
-            $response = ['status' => 1, 'message' => 'Record created successfully.'];
+            $id = $conn->lastInsertId();
+            $response = ['status' => 1, 'message' => 'Record created successfully.', 'id' => $id];
         } else {
             $response = ['status' => 0, 'message' => 'Failed to create record.'];
         }
@@ -48,13 +55,19 @@ switch($method) {
 
     case "PUT":
         $user = json_decode( file_get_contents('php://input') );
-        $sql = "UPDATE users SET name= :name, email =:email, mobile =:mobile, updated_at =:updated_at WHERE id = :id";
+        $sql = "UPDATE users SET userId= :userId, rank= :rank, name= :name, surname =:surname, email =:email, unit =:unit, building =:building, room =:room, tel =:tel, updated_at =:updated_at WHERE id = :id AND userId = :userId";
         $stmt = $conn->prepare($sql);
         $updated_at = date('Y-m-d');
         $stmt->bindParam(':id', $user->id);
+        $stmt->bindParam(':rank', $user->rank);
+        $stmt->bindParam(':userId', $user->userId);
         $stmt->bindParam(':name', $user->name);
+        $stmt->bindParam(':surname', $user->surname);
         $stmt->bindParam(':email', $user->email);
-        $stmt->bindParam(':mobile', $user->mobile);
+        $stmt->bindParam(':unit', $user->unit);
+        $stmt->bindParam(':building', $user->building);
+        $stmt->bindParam(':room', $user->room);
+        $stmt->bindParam(':tel', $user->tel);
         $stmt->bindParam(':updated_at', $updated_at);
 
         if($stmt->execute()) {

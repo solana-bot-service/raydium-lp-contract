@@ -3,10 +3,10 @@
 	* Database Connection
 	*/
 	class DbConnect {
-		private $server = 'localhost';
-		private $dbname = 'react_crud';
-		private $user = 'root';
-		private $pass = '';
+		private $server = '127.0.0.1';
+		private $dbname = 'upthehil_uas4gis';
+		private $user = 'upthehil_upthehil';
+		private $pass = '9nRleoZ2zH';
 
 		public function connect() {
 			try {
