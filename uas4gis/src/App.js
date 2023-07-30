@@ -94,7 +94,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
         // PUT
 
-        axios.put(`http://localhost:8888/api/user/${profile.id}/edit`, profile).then(function(response){
+        axios.put(`/api/user/${profile.id}/edit`, profile).then(function(response){
             console.log(response.data);
             setEditingProfile(false)
           });
@@ -103,7 +103,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
         //  INSERT
 
-        axios.post('http://localhost:8888/api/user/save', profile).then(function (response) {
+        axios.post('/api/user/save', profile).then(function (response) {
           console.log(response.data);
           if (response.data && response.data.id) {
             setProfile(p => ({ ...p, id: response.data.id }))
