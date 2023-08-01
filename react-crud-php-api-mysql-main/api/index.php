@@ -42,7 +42,7 @@ switch($method) {
         $stmt->bindParam(':unit', $user->unit);
         $stmt->bindParam(':building', $user->building);
         $stmt->bindParam(':room', $user->room);
-        $stmt->bindParam(':tel', $user->tel);
+        $stmt->bindParam(':tel', json_encode($user->tel, JSON_INVALID_UTF8_IGNORE | JSON_INVALID_UTF8_SUBSTITUTE));
         $stmt->bindParam(':created_at', $created_at);
 
         if($stmt->execute()) {
@@ -68,7 +68,7 @@ switch($method) {
         $stmt->bindParam(':unit', $user->unit);
         $stmt->bindParam(':building', $user->building);
         $stmt->bindParam(':room', $user->room);
-        $stmt->bindParam(':tel', $user->tel);
+        $stmt->bindParam(':tel', json_encode($user->tel, JSON_INVALID_UTF8_IGNORE | JSON_INVALID_UTF8_SUBSTITUTE));
         $stmt->bindParam(':updated_at', $updated_at);
 
         if($stmt->execute()) {

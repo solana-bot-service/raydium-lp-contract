@@ -172,11 +172,32 @@ export const RANKS = [
         name: "SURNAME",
         label: "นามสกุล",
         required: true
+    }, email: {
+        name: "EMAIL",
+        label: "อีเมล์",
+        type: 'email',
+        required: true
     }, unit: {
         name: "UNIT",
         label: "หน่วย",
         required: true,
         type: 'select',
         options: nkrafaunits
+    }, position: {
+        name: "POSITION",
+        label: "ตำแหน่ง",
+        required: true
+    // }, 
+    // building: {
+    //     name: "BUILDING",
+    //     label: "อาคาร",
+    //     required: true,
+    //     type: 'select',
+    //     options: nkrafaunits
+    }, tel: {
+        name: "TEL",
+        label: "โทร.",
+        type: 'multiple',
+        required: true
     }
 }

@@ -14,6 +14,7 @@ CREATE TABLE `users`
     `building` varchar(255),
     `room` varchar(255),
     `tel` bigint(14),
+    `json` longtext DEFAULT NULL CHECK (json_valid(`json`)),
     `created_at` timestamp,
     `updated_at` timestamp, 
     PRIMARY KEY (id, user_id)

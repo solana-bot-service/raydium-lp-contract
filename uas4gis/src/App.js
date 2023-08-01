@@ -23,7 +23,7 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import { Button, Card, CardContent, CardMedia, createTheme, CardActionArea, CardActions, TextField, Grid } from "@mui/material";
+import { Button, Card, CardContent, CardMedia, createTheme, CardActionArea, CardActions, TextField, Grid, styled, Paper, Chip } from "@mui/material";
 
 
 import InputLabel from '@mui/material/InputLabel';
@@ -37,8 +37,13 @@ import { useAuthContext } from "./auth/AuthContext";
 import { Login } from "./pages/Login/Login";
 import { RANKS, personprops } from "./config";
 import md5 from "md5";
+import { filter } from "mathjs";
 
 export const isLocalhost = window.location.hostname.includes('localhost')
+
+const ListItem = styled('li')(({ theme }) => ({
+  margin: theme.spacing(0.5),
+}));
 
 export default function App() {
 
@@ -52,7 +57,7 @@ export default function App() {
   const savedProfile = useRef()
   const [user, setUser] = useState({});
 
-  
+
   const userId = useRef()
   const editingTimer = useRef()
   const [editingProfile, setEditingProfile] = useState(false);
@@ -106,6 +111,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
         axios.put(`/api/user`, profile).then(function(response){
             console.log(response.data);
             // setProfile(p => ({ ...p, ...response.data }))
+            savedProfile.current = profile
             setEditingProfile(false)
           });
 
@@ -159,15 +165,15 @@ const [anchorElNav, setAnchorElNav] = useState(null);
   useEffect(() => {
 
     async function getUser(id) {
-      
+
       // console.log('id sending to php server:' , id);
       const userData = await axios.get(`/api/user/?user_id=${id}`)
 
-      if (userData.statusText === 'OK') {         
+      if (userData.statusText === 'OK') {
         return userData.data
       } else {
         return false
-      }      
+      }
    }
 
 
@@ -178,6 +184,9 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       .then( user => {
         savedProfile.current = {
           ...user,
+          ...user ? Object.entries(user)
+              .filter(([key, _]) => personprops[key] && personprops[key].type === 'multiple')
+              .reduce((p, [key, c]) => ({...p, [key] : JSON.parse(c)}), {}) : {},
           user_id: md5(userId.current),
           "displayName": "Chaloemphol_local",
           "statusMessage": "ev’ry moment new",
@@ -200,12 +209,16 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
           console.log('response', response);
 
-          if (response.status === 200) { 
-            setProfile(u => { 
-              savedProfile.current = { ...u, ...response.data, ...lineProfile }
-              return { ...u, ...response.data, ...lineProfile } 
-            }) 
-            
+          if (response.status === 200) {
+            setProfile(u => {
+              const data = { ...u, ...response.data, ...Object.entries(response.data)
+                .filter(([key, _]) => personprops[key].type === 'multiple')
+                .reduce((p, [key, c]) => ({...p, [key] : JSON.parse(c)}), {}), 
+                ...lineProfile }
+              savedProfile.current = data
+              return data
+            })
+
           }
         })
 
@@ -226,10 +239,10 @@ const [anchorElNav, setAnchorElNav] = useState(null);
   // useEffect(() => {
 
   //   if (editingTimer.current) clearTimeout(editingTimer.current)
-  //   editingTimer.current = setTimeout(() => {          
+  //   editingTimer.current = setTimeout(() => {
   //     console.log('profile', profile);
   //   }, 100);
-    
+
   // }, [profile])
 
   const userStateMenus = () => {
@@ -311,16 +324,23 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                   {profile.statusMessage}
                 </Typography>
                 <Box sx={{ flexGrow: 1 }}>
+
                 <Grid container spacing={1}>
-                {Object.entries(personprops)
-                .filter(([p, _]) => personprops[p].required)
-                .map(([key, prop]) => {
-                  return (<Grid key={key} item xs={12}>
-                    <Typography variant="body2" color="text.secondary">
-                      {profile[key] || "-"}
-                    </Typography>
-                  </Grid>)
-                  })}
+                  {Object.entries(personprops)
+                  .filter(([p, _]) => personprops[p].required)
+                  .map(([key, prop]) => {
+                    // console.log('profile[key]', profile[key]);
+                    return (<Grid key={key} item xs={12}>
+                      
+                      <TextField
+                        label={prop.label}
+                        fullWidth
+                        variant="standard"
+                        disabled
+                        value={prop.type === 'multiple' &&  profile[key] ?  (Array.isArray(profile[key]) ? profile[key] : [profile[key]]).join(", ") : (profile[key] || "-")}
+                      />                      
+                    </Grid>)
+                    })}
                   </Grid>
                 </Box>
               </CardContent>
@@ -362,14 +382,16 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                 {profile.displayName}
                   </Typography>
                 <Box sx={{ flexGrow: 1 }}>
+
+                  {/* MARK:- PROFILE EDITING */}
                 <Grid container spacing={1}>
                   {Object.entries(personprops)
                 .filter(([p, _ ]) => personprops[p].required)
                 .map(([key, prop]) => {
                   switch (prop.type) {
                     case 'select':
-                      return (<Grid item xs={12}>
-                      <FormControl key={key} sx={{ minWidth: 120 }} >
+                      return (<Grid key={key} item xs={12}>
+                      <FormControl sx={{ minWidth: 120 }} >
                         <InputLabel id={`${key}-select-label`}>{prop.label}</InputLabel>
                         <Select
                           labelId={`${key}-select-label`}
@@ -379,7 +401,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                           onChange={event => {
                             if (editingTimer.current) clearTimeout(editingTimer.current)
                             editingTimer.current = setTimeout(() => {
-                              handleProfileEditing(event, key)  
+                              handleProfileEditing(event, key)
                             }, 100);
 
                             }
@@ -390,10 +412,56 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                       </FormControl>
                       </Grid>)
 
+                    case 'multiple':
+                      return (<Grid key={key} item xs={12}>
+                        
+                        <TextField id={key} label={prop.label} variant="outlined"
+                    // onChange={event => handleProfileEditing(event, key)}
+                    onKeyDown={(ev) => {
+                      // console.log(`Pressed keyCode ${ev.key}`);
+                      if (ev.key === 'Enter') {
+                        // Do code here
+                        ev.preventDefault();
+                        setProfile(p => ({...p, [key]: p[key] ? [...p[key], ev.target.value] : [ev.target.value]}))
+                        ev.target.value = ""
+                      }
+                    }}
+                      />
+                    
+                    <Paper
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        flexWrap: 'wrap',
+                        listStyle: 'none',
+                        p: 0.5,
+                        m: 0,
+                      }}
+                      component="ul"
+                    >
+                      {profile && profile[key] && (Array.isArray(profile[key]) ? profile[key] : [profile[key]]).map((data) => {
+                        return (
+                          <ListItem key={data}>
+                            <Chip
+                              label={data }
+                              onDelete={() => {
+                                setProfile(p => {
+                                  return {...p,
+                                    [key] : (Array.isArray(p[key]) ?  p[key] : [p[key]]).filter(i => i !== data)
+                                  }
+                                })
+                              }}
+                            />
+                          </ListItem>
+                        );
+                      })}
+                    </Paper>
+                    
+                    </Grid>)
 
                     default:
-                      return (<Grid item xs={12}>
-                        <TextField key={key} id={key} label={prop.label} variant="outlined" value={(profile && profile[key]) || ''}
+                      return (<Grid key={key} item xs={12}>
+                        <TextField id={key} type={prop.type} label={prop.label} variant="outlined" value={(profile && profile[key]) || ''}
                       onChange={event => handleProfileEditing(event, key)}
                         />
                       </Grid>)
@@ -409,9 +477,12 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                 <Button size="small" color="primary" onClick={handleSubmit} disabled={noChanges} >
                   บันทึก
                 </Button>
-                {/* <Button size="small" color="error" onClick={() => setEditingProfile(false)}>
+                <Button size="small" color="error" onClick={() => {
+                  setProfile(savedProfile.current)
+                  setEditingProfile(false)
+                }}>
                   ยกเลิก
-                </Button> */}
+                </Button>
               </CardActions>
             </Card>
             </Box>
