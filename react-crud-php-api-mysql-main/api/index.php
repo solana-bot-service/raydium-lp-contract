@@ -14,10 +14,11 @@ switch($method) {
     case "GET":
         $sql = "SELECT * FROM users";
         $path = explode('/', $_SERVER['REQUEST_URI']);
-        if(isset($path[3]) && is_numeric($path[3])) {
-            $sql .= " WHERE id = :id";
+        $parameters['user_id']  = !empty($_GET['user_id'])  ? $_GET['user_id']  : null;
+        if (isset($parameters['user_id'])){ // (isset($path[3])) { // && is_numeric($path[3])
+            $sql .= " WHERE user_id = :user_id LIMIT 1"; // id = :id 
             $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':id', $path[3]);
+            $stmt->bindParam(':user_id', $parameters['user_id']); // $path[3]
             $stmt->execute();
             $users = $stmt->fetch(PDO::FETCH_ASSOC);
         } else {
@@ -30,11 +31,11 @@ switch($method) {
         break;
     case "POST":
         $user = json_decode( file_get_contents('php://input') );
-        $sql = "INSERT INTO users(id, userId, rank, name, surname, email, unit, building, room, tel, created_at) VALUES(null, :userId, :rank, :name, :surname, :email, :unit,  :building, :room, :tel, :created_at)";
+        $sql = "INSERT INTO users(id, user_id, rank, name, surname, email, unit, building, room, tel, created_at) VALUES(null, :user_id, :rank, :name, :surname, :email, :unit,  :building, :room, :tel, :created_at)";
         $stmt = $conn->prepare($sql);
         $created_at = date('Y-m-d');
         $stmt->bindParam(':rank', $user->rank);
-        $stmt->bindParam(':userId', $user->userId);
+        $stmt->bindParam(':user_id', $user->user_id);
         $stmt->bindParam(':name', $user->name);
         $stmt->bindParam(':surname', $user->surname);
         $stmt->bindParam(':email', $user->email);
@@ -55,12 +56,12 @@ switch($method) {
 
     case "PUT":
         $user = json_decode( file_get_contents('php://input') );
-        $sql = "UPDATE users SET userId= :userId, rank= :rank, name= :name, surname =:surname, email =:email, unit =:unit, building =:building, room =:room, tel =:tel, updated_at =:updated_at WHERE id = :id AND userId = :userId";
+        $sql = "UPDATE users SET user_id= :user_id, rank= :rank, name= :name, surname =:surname, email =:email, unit =:unit, building =:building, room =:room, tel =:tel, updated_at =:updated_at WHERE id = :id AND user_id = :user_id";
         $stmt = $conn->prepare($sql);
         $updated_at = date('Y-m-d');
         $stmt->bindParam(':id', $user->id);
         $stmt->bindParam(':rank', $user->rank);
-        $stmt->bindParam(':userId', $user->userId);
+        $stmt->bindParam(':user_id', $user->user_id);
         $stmt->bindParam(':name', $user->name);
         $stmt->bindParam(':surname', $user->surname);
         $stmt->bindParam(':email', $user->email);

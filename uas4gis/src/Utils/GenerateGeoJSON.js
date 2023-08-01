@@ -110,10 +110,10 @@ class GenerateGeoJSON {
                 }
             })
         })]
-        console.log('features', {
-            "type": "FeatureCollection",
-            "features": features
-        });
+        // console.log('features', {
+        //     "type": "FeatureCollection",
+        //     "features": features
+        // });
         return ({
             "type": "FeatureCollection",
             "features": features

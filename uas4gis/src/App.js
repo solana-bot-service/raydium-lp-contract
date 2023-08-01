@@ -1,8 +1,9 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Routes, Route, Outlet, Link, useLocation, Navigate } from "react-router-dom";
 import { CompareMap } from "./pages/CompareMap/CompareMap";
 import { MainMap } from "./pages/MainMap/MainMap";
 import { useLiff } from 'react-liff';
+import isEqual from 'lodash.isequal';
 
 import axios from "axios";
 
@@ -35,18 +36,25 @@ import { ThemeProvider } from "@emotion/react";
 import { useAuthContext } from "./auth/AuthContext";
 import { Login } from "./pages/Login/Login";
 import { RANKS, personprops } from "./config";
+import md5 from "md5";
 
 export const isLocalhost = window.location.hostname.includes('localhost')
 
 export default function App() {
 
-  const { user } = useAuthContext()
+  // const { user } = useAuthContext()
 
   const location = useLocation()
 
   const pathName = location.state?.from || '/'
 
   const [profile, setProfile] = useState({});
+  const savedProfile = useRef()
+  const [user, setUser] = useState({});
+
+  
+  const userId = useRef()
+  const editingTimer = useRef()
   const [editingProfile, setEditingProfile] = useState(false);
   const { error, isLoggedIn, isReady, liff } = useLiff();
 
@@ -65,6 +73,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
 
   const handleOpenNavMenu = (event) => {
+    console.log('opening nav menu');
     setAnchorElNav(event.currentTarget);
   };
   const handleOpenUserMenu = (event) => {
@@ -84,18 +93,19 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
   }
 
-
-  const handleSubmit = (event) => {
+  const handleSubmit = useCallback((event) => {
     event.preventDefault();
 
     if (profile) {
 
+      console.log('profile', profile);
+
       if (profile.id) {
 
         // PUT
-
-        axios.put(`/api/user/${profile.id}/edit`, profile).then(function(response){
+        axios.put(`/api/user`, profile).then(function(response){
             console.log(response.data);
+            // setProfile(p => ({ ...p, ...response.data }))
             setEditingProfile(false)
           });
 
@@ -103,65 +113,123 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
         //  INSERT
 
+        // const md5 = require('md5');
         axios.post('/api/user/save', profile).then(function (response) {
           console.log(response.data);
           if (response.data && response.data.id) {
             setProfile(p => ({ ...p, id: response.data.id }))
+            savedProfile.current = { ...profile, id: response.data.id }
           }
           setEditingProfile(false)
         });
       }
 
 }
-    
-}
-  
+
+}, [profile])
+
 
   const [drawerOpened, setDrawerOpened] = useState(false);
   const toggleDrawer = () => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
+    setEditingProfile(s => { if (s) return !s })
     setDrawerOpened(s => !s)
   };
 
   const isLandscape = () => window.matchMedia('(orientation:landscape)').matches,
-    [orientation, setOrientation] = useState(isLandscape() ? 'landscape' : 'portrait'),
-
-    onWindowResize = () => {
+    [orientation, setOrientation] =   useState(isLandscape() ? 'landscape' : 'portrait'),
+    onWindowResize = useCallback(() => {
       clearTimeout(window.resizeLag)
       window.resizeLag = setTimeout(() => {
         delete window.resizeLag
         setOrientation(isLandscape() ? 'landscape' : 'portrait')
       }, 200)
-    }
-
-  useEffect(() => (
-    onWindowResize(),
-    window.addEventListener('resize', onWindowResize),
-    () => window.removeEventListener('resize', onWindowResize)
-  ), [])
+    }, [])
 
   useEffect(() => {
-    if (isLocalhost) return setProfile({
-      "userId": "U79bd13e9496f7310b2a82e59fa4435da",
-      "displayName": "Chaloemphol",
-      "statusMessage": "ev’ry moment new",
-      "pictureUrl": "https://profile.line-scdn.net/0hUaMaxL0sCk5gGCBiq-10MRBICSRDaVNcGXhNfFUYB34IeB9NHipDL1wfACsIe0lLSHwSeFxPAytsC30ofk72emcoVHlZLksRTHdErA"
-  })
+    return (
+      onWindowResize(),
+      window.addEventListener('resize', onWindowResize),
+      () => window.removeEventListener('resize', onWindowResize)
+    );
+  }, [onWindowResize])
 
-    if (!isLoggedIn) return;
+  useEffect(() => {
 
-    (async () => {
-      const profile = await liff.getProfile();
-      setProfile(profile);
-    })();
-  }, [liff, isLoggedIn]);
+    async function getUser(id) {
+      
+      // console.log('id sending to php server:' , id);
+      const userData = await axios.get(`/api/user/?user_id=${id}`)
+
+      if (userData.statusText === 'OK') {         
+        return userData.data
+      } else {
+        return false
+      }      
+   }
+
+
+    if (isLocalhost) {
+      userId.current = "U79bd13e9496f7310b2a82e59fa4435da"
+
+      getUser(md5(userId.current))
+      .then( user => {
+        savedProfile.current = {
+          ...user,
+          user_id: md5(userId.current),
+          "displayName": "Chaloemphol_local",
+          "statusMessage": "ev’ry moment new",
+          "pictureUrl": "https://profile.line-scdn.net/0hUaMaxL0sCk5gGCBiq-10MRBICSRDaVNcGXhNfFUYB34IeB9NHipDL1wfACsIe0lLSHwSeFxPAytsC30ofk72emcoVHlZLksRTHdErA"
+        }
+        setProfile(savedProfile.current)
+      })
+    } else {
+
+      console.log('this is the latest update 2304');
+      if (!isLoggedIn) return;
+
+      (async () => {
+        const lineProfile = await liff.getProfile();
+        console.log('line profile', lineProfile);
+        userId.current = lineProfile.userId
+
+        await axios.get(`/api/user/?user_id=${md5(userId.current)}`)
+        .then(response => {
+
+          console.log('response', response);
+
+          if (response.status === 200) { 
+            setProfile(u => { 
+              savedProfile.current = { ...u, ...response.data, ...lineProfile }
+              return { ...u, ...response.data, ...lineProfile } 
+            }) 
+            
+          }
+        })
+
+      })();
+    }
+  }, [userId, isLoggedIn, liff]);
+
+  const noChanges = useMemo(() => {
+    // console.log('checking differences');
+    return isEqual(savedProfile.current, profile)
+
+  }, [savedProfile, profile])
+
+  // useEffect(() => {
+  //   console.log('userId.current', userId.current);
+  // }, [userId])
 
   // useEffect(() => {
 
-  //   console.log('profile', profile);
-
+  //   if (editingTimer.current) clearTimeout(editingTimer.current)
+  //   editingTimer.current = setTimeout(() => {          
+  //     console.log('profile', profile);
+  //   }, 100);
+    
   // }, [profile])
 
   const userStateMenus = () => {
@@ -197,7 +265,10 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       label : 'หน่วย'
     }, {
       key: 'logout',
-      action: () => liff.logout,
+      action: async () => {
+        liff.logout()
+        window.location.reload()
+      },
       label : 'ออกจากระบบ'
     }].map(m => {
       return (<MenuItem key={m.key} onClick={m.action} >
@@ -208,7 +279,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
   const profiledrawer = useMemo(() => {
 
-    const { rank, name, surname }  = personprops
+    // const { rank, name, surname }  = personprops
 
     if (!editingProfile) return (
       <Drawer
@@ -244,7 +315,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                 {Object.entries(personprops)
                 .filter(([p, _]) => personprops[p].required)
                 .map(([key, prop]) => {
-                  return (<Grid item xs={12}>
+                  return (<Grid key={key} item xs={12}>
                     <Typography variant="body2" color="text.secondary">
                       {profile[key] || "-"}
                     </Typography>
@@ -290,9 +361,6 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                 <Typography gutterBottom variant="h5" component="div">
                 {profile.displayName}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {profile.statusMessage}
-                  </Typography>
                 <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={1}>
                   {Object.entries(personprops)
@@ -300,7 +368,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                 .map(([key, prop]) => {
                   switch (prop.type) {
                     case 'select':
-                      return (<Grid item xs={12}>                      
+                      return (<Grid item xs={12}>
                       <FormControl key={key} sx={{ minWidth: 120 }} >
                         <InputLabel id={`${key}-select-label`}>{prop.label}</InputLabel>
                         <Select
@@ -308,21 +376,28 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                           id={`${key}-select`}
                           value={(profile && profile[key]) || ''}
                           label={prop.label}
-                          onChange={event => handleProfileEditing(event, key)}
+                          onChange={event => {
+                            if (editingTimer.current) clearTimeout(editingTimer.current)
+                            editingTimer.current = setTimeout(() => {
+                              handleProfileEditing(event, key)  
+                            }, 100);
+
+                            }
+                          }
                         >
                           {prop.options.map(r => (<MenuItem key={r.order || r} value={r.name || r}>{r.name || r}</MenuItem>))}
                         </Select>
                       </FormControl>
-                      </Grid>)                      
-                      
-                  
+                      </Grid>)
+
+
                     default:
                       return (<Grid item xs={12}>
                         <TextField key={key} id={key} label={prop.label} variant="outlined" value={(profile && profile[key]) || ''}
                       onChange={event => handleProfileEditing(event, key)}
                         />
                       </Grid>)
-                    
+
                   }
                 })}
 
@@ -331,7 +406,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                 </CardContent>
               </CardActionArea>
               <CardActions>
-                <Button size="small" color="primary" onClick={handleSubmit}>
+                <Button size="small" color="primary" onClick={handleSubmit} disabled={noChanges} >
                   บันทึก
                 </Button>
                 {/* <Button size="small" color="error" onClick={() => setEditingProfile(false)}>
@@ -342,7 +417,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
             </Box>
         </Drawer>)
 
-  }, [drawerOpened, editingProfile, profile])
+  }, [drawerOpened, editingProfile, handleSubmit, noChanges, profile])
 
   return (
     <div>

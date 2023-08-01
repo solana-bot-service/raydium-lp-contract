@@ -132,12 +132,12 @@ export function MainMap() {
 
   useEffect(() => {
 
-    console.log('map.current', map.current);
-    console.log('isLoggedIn', isLoggedIn);
+    // console.log('map.current', map.current);
+    // console.log('isLoggedIn', isLoggedIn);
 
     if (!map.current) return
-    console.log('map.current.isStyleLoaded()', map.current.isStyleLoaded());
-    console.log('mapReady', mapReady);
+    // console.log('map.current.isStyleLoaded()', map.current.isStyleLoaded());
+    // console.log('mapReady', mapReady);
     if (mapReady) {
 
       Object.entries(constructions).forEach(([name, con]) => {
@@ -924,7 +924,7 @@ export function MainMap() {
 
         if (!searchables.current) {
 
-          const features = map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
+          const features = searchingLayer.current && map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
           if (features) {
             const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
             // Populate features for the listing overlay.
@@ -1337,8 +1337,8 @@ export function MainMap() {
     // console.log('newMode === mode', newMode === mode);
 
     setTimeout(() => {
-      console.log('setting arrow');
-      console.log(collapsed);
+      // console.log('setting arrow');
+      // console.log(collapsed);
       setToggleSymbol(collapsed ? "▶︎" : "◀︎")
     }, duration);
   }

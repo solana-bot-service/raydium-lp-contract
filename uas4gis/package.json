@@ -2,7 +2,6 @@
   "name": "uas4gis",
   "version": "0.1.0",
   "private": true,
-  "proxy" : "http://localhost:8888",
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
@@ -20,6 +19,7 @@
     "mapbox-gl": "^2.8.2",
     "mapbox-gl-compare": "^0.4.1",
     "mathjs": "^11.4.0",
+    "md5": "^2.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-liff": "^2.1.0",
