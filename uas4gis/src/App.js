@@ -108,6 +108,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       if (profile.id) {
 
         // PUT
+        console.log('profile before putting', profile);
         axios.put(`/api/user`, profile).then(function(response){
             console.log(response.data);
             // setProfile(p => ({ ...p, ...response.data }))
@@ -120,6 +121,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
         //  INSERT
 
         // const md5 = require('md5');
+        console.log('profile before posting', profile);
         axios.post('/api/user/save', profile).then(function (response) {
           console.log(response.data);
           if (response.data && response.data.id) {
@@ -166,7 +168,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
     async function getUser(id) {
 
-      // console.log('id sending to php server:' , id);
+      console.log('id sending to php server:' , id);
       const userData = await axios.get(`/api/user/?user_id=${id}`)
 
       if (userData.statusText === 'OK') {
@@ -174,7 +176,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       } else {
         return false
       }
-   }
+    }
 
 
     if (isLocalhost) {
@@ -196,13 +198,15 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       })
     } else {
 
-      console.log('this is the latest update 2304');
+      console.log('this is the latest update 1933');
       if (!isLoggedIn) return;
 
       (async () => {
         const lineProfile = await liff.getProfile();
         console.log('line profile', lineProfile);
         userId.current = lineProfile.userId
+
+        console.log('id sending to php server:' , lineProfile.userId);
 
         await axios.get(`/api/user/?user_id=${md5(userId.current)}`)
         .then(response => {
@@ -213,8 +217,10 @@ const [anchorElNav, setAnchorElNav] = useState(null);
             setProfile(u => {
               const data = { ...u, ...response.data, ...Object.entries(response.data)
                 .filter(([key, _]) => personprops[key].type === 'multiple')
-                .reduce((p, [key, c]) => ({...p, [key] : JSON.parse(c)}), {}), 
-                ...lineProfile }
+                .reduce((p, [key, c]) => ({...p, [key] : JSON.parse(c)}), {}),
+                ...lineProfile,
+                user_id: md5(userId.current)
+              }
               savedProfile.current = data
               return data
             })
@@ -329,16 +335,16 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                   {Object.entries(personprops)
                   .filter(([p, _]) => personprops[p].required)
                   .map(([key, prop]) => {
-                    // console.log('profile[key]', profile[key]);
+                    console.log('profile[key]', profile[key]);
                     return (<Grid key={key} item xs={12}>
-                      
+
                       <TextField
                         label={prop.label}
                         fullWidth
                         variant="standard"
                         disabled
                         value={prop.type === 'multiple' &&  profile[key] ?  (Array.isArray(profile[key]) ? profile[key] : [profile[key]]).join(", ") : (profile[key] || "-")}
-                      />                      
+                      />
                     </Grid>)
                     })}
                   </Grid>
@@ -414,7 +420,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
                     case 'multiple':
                       return (<Grid key={key} item xs={12}>
-                        
+
                         <TextField id={key} label={prop.label} variant="outlined"
                     // onChange={event => handleProfileEditing(event, key)}
                     onKeyDown={(ev) => {
@@ -427,7 +433,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                       }
                     }}
                       />
-                    
+
                     <Paper
                       sx={{
                         display: 'flex',
@@ -456,7 +462,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                         );
                       })}
                     </Paper>
-                    
+
                     </Grid>)
 
                     default:
