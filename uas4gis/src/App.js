@@ -206,6 +206,12 @@ const [anchorElNav, setAnchorElNav] = useState(null);
         console.log('line profile', lineProfile);
         userId.current = lineProfile.userId
 
+        setProfile(u => ({
+          ...u,
+          user_id: md5(userId.current),
+          ...lineProfile
+        }))
+
         console.log('id sending to php server:' , lineProfile.userId);
 
         await axios.get(`/api/user/?user_id=${md5(userId.current)}`)
@@ -224,10 +230,8 @@ const [anchorElNav, setAnchorElNav] = useState(null);
               savedProfile.current = data
               return data
             })
-
           }
         })
-
       })();
     }
   }, [userId, isLoggedIn, liff]);
@@ -375,7 +379,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
               {/* {profile ? profile.displayName : 'กรุณาลงชื่อเข้าใช้ก่อน'} */}
 
 
-              <Card sx={{ maxWidth: 345 }}>
+            <Card sx={{ maxWidth: 345 }}>
               <CardActionArea>
                 <CardMedia
                   component="img"

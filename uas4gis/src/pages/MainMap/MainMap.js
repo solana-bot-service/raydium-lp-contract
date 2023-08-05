@@ -791,8 +791,6 @@ export function MainMap() {
 
         // }
 
-
-
         const layers = document.getElementById('menu');
 
         if (!document.getElementById('toggleTerrain')) {
