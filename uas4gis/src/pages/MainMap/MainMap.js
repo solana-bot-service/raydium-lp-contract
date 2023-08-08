@@ -7,6 +7,9 @@ import ReactDOM from "react-dom"
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
+import FreehandMode from 'mapbox-gl-draw-freehand-mode'
+import PaintMode from "mapbox-gl-draw-paint-mode";
+
 import * as turf from '@turf/turf'
 import { LayersTOC } from '../../mapLayouts/LayersTOC/LayersTOC';
 
@@ -206,13 +209,19 @@ export function MainMap() {
 
     if (!draw.current) draw.current = new MapboxDraw({
       displayControlsDefault: false,
+      modes: Object.assign({
+        draw_polygon: FreehandMode,
+        draw_paint_mode: PaintMode,
+    }, MapboxDraw.modes),
       // Select which mapbox-gl-draw control buttons to add to the map.
       controls: {
+        point: true,
         line_string: true,
         // combine_features: true,
         // uncombine_features: true,
         polygon: true,
-        trash: true
+        multi_feature: true, 
+        trash: true,
       },
       styles: [
   // ACTIVE (being drawn)
