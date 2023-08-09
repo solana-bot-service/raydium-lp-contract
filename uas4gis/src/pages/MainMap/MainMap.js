@@ -6,9 +6,9 @@ import ReactDOM from "react-dom"
 // import './MainMap.css'
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 import FreehandMode from 'mapbox-gl-draw-freehand-mode'
 import PaintMode from "mapbox-gl-draw-paint-mode";
+import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 
 import * as turf from '@turf/turf'
 import { LayersTOC } from '../../mapLayouts/LayersTOC/LayersTOC';
@@ -25,6 +25,9 @@ import GenerateGeoJSON from "../../Utils/GenerateGeoJSON";
 import PersonCard from "../../mapLayouts/Popups/Person";
 import { isLocalhost } from "../../App";
 import BuildingCard from "../../mapLayouts/Popups/Building";
+
+
+import styles from "./drawStyles";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
@@ -209,186 +212,187 @@ export function MainMap() {
 
     if (!draw.current) draw.current = new MapboxDraw({
       displayControlsDefault: false,
+      controls: {
+        // point: true,
+        // line_string: true,
+        // // combine_features: true,
+        // // uncombine_features: true,
+        // polygon: true,
+        // multi_feature: true, 
+        trash: true,
+      },
       modes: Object.assign({
         draw_polygon: FreehandMode,
         draw_paint_mode: PaintMode,
     }, MapboxDraw.modes),
       // Select which mapbox-gl-draw control buttons to add to the map.
-      controls: {
-        point: true,
-        line_string: true,
-        // combine_features: true,
-        // uncombine_features: true,
-        polygon: true,
-        multi_feature: true, 
-        trash: true,
-      },
-      styles: [
-  // ACTIVE (being drawn)
-  // line stroke
-  {
-      "id": "gl-draw-line",
-      "type": "line",
-      "filter": ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"]],
-      "layout": {
-        "line-cap": "round",
-        "line-join": "round"
-      },
-      "paint": {
-        "line-color": "#FF007F",
-        "line-dasharray": [0.2, 2],
-        "line-width": 4
-      }
-  },
-  // DRAWN, NOT SELECTED
+      styles: styles,
+//       [
+//   // ACTIVE (being drawn)
+//   // line stroke
 //   {
-//     id: "gl-draw-line-inactive",
-//     type: "line",
-//     filter: ["all", ["==", "active", "false"], ["==", "$type", "LineString"], ["!=", "mode", "static"]],
-//     layout: {
+//       "id": "gl-draw-line",
+//       "type": "line",
+//       "filter": ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"]],
+//       "layout": {
 //         "line-cap": "round",
 //         "line-join": "round"
-//     },
-//     paint: {
+//       },
+//       "paint": {
 //         "line-color": "#FF007F",
 //         "line-dasharray": [0.2, 2],
-//         "line-width": 3
-//     }
-// }, 
-{
-    id: "gl-draw-line-active",
-    type: "line",
-    filter: ["all", ["==", "$type", "LineString"], ["==", "active", "true"]],
-    "layout": {
-      "line-cap": "round",
-      "line-join": "round"
-    },
-    "paint": {
-      "line-color": "#00f",
-      "line-dasharray": [0.2, 2],
-      "line-width": 4
-    }
-},
+//         "line-width": 4
+//       }
+//   },
+//   // DRAWN, NOT SELECTED
+// //   {
+// //     id: "gl-draw-line-inactive",
+// //     type: "line",
+// //     filter: ["all", ["==", "active", "false"], ["==", "$type", "LineString"], ["!=", "mode", "static"]],
+// //     layout: {
+// //         "line-cap": "round",
+// //         "line-join": "round"
+// //     },
+// //     paint: {
+// //         "line-color": "#FF007F",
+// //         "line-dasharray": [0.2, 2],
+// //         "line-width": 3
+// //     }
+// // }, 
 // {
-//     id: "gl-draw-line-static",
+//     id: "gl-draw-line-active",
 //     type: "line",
-//     filter: ["all", ["==", "mode", "static"], ["==", "$type", "LineString"]],
-//     layout: {
-//         "line-cap": "round",
-//         "line-join": "round"
+//     filter: ["all", ["==", "$type", "LineString"], ["==", "active", "true"]],
+//     "layout": {
+//       "line-cap": "round",
+//       "line-join": "round"
 //     },
-//     paint: {
-//         "line-color": "#aaa",
-//         "line-width": 2
+//     "paint": {
+//       "line-color": "#00f",
+//       "line-dasharray": [0.2, 2],
+//       "line-width": 4
 //     }
 // },
-  // polygon fill
-  {
-    "id": "gl-draw-polygon-fill",
-    "type": "fill",
-    "filter": ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
-    "paint": {
-      "fill-color": "#FF007F",
-      "fill-outline-color": "#FF007F",
-      "fill-opacity": 0.4
-    }
-  }, {
-    id: "gl-draw-point-point-stroke-inactive",
-    type: "circle",
-    filter: ["all", ["==", "active", "false"], ["==", "$type", "Point"], ["==", "meta", "feature"], ["!=", "mode", "static"]],
-    paint: {
-        "circle-radius": 5,
-        "circle-opacity": 1,
-        "circle-color": "#fff"
-    }
-}, {
-    id: "gl-draw-point-inactive",
-    type: "circle",
-    filter: ["all", ["==", "active", "false"], ["==", "$type", "Point"], ["==", "meta", "feature"], ["!=", "mode", "static"]],
-    paint: {
-        "circle-radius": 3,
-        "circle-color": "#3bb2d0"
-    }
-}, {
-    id: "gl-draw-point-stroke-active",
-    type: "circle",
-    filter: ["all", ["==", "$type", "Point"], ["==", "active", "true"], ["!=", "meta", "midpoint"]],
-    paint: {
-        "circle-radius": 7,
-        "circle-color": "#fff"
-    }
-}, {
-    id: "gl-draw-point-active",
-    type: "circle",
-    filter: ["all", ["==", "$type", "Point"], ["!=", "meta", "midpoint"], ["==", "active", "true"]],
-    paint: {
-        "circle-radius": 5,
-        "circle-color": "#fbb03b"
-    }
-}, {
-    id: "gl-draw-point-static",
-    type: "circle",
-    filter: ["all", ["==", "mode", "static"], ["==", "$type", "Point"]],
-    paint: {
-        "circle-radius": 5,
-        "circle-color": "#404040"
-    }
-},
-  // // polygon mid points
-  // {
-  //   'id': 'gl-draw-polygon-midpoint',
-  //   'type': 'circle',
-  //   'filter': ['all',
-  //     ['==', '$type', 'Point'],
-  //     ['==', 'meta', 'midpoint']],
-  //   'paint': {
-  //     'circle-radius': 3,
-  //     'circle-color': '#fbb03b'
-  //   }
-  // },
-  // // polygon outline stroke
-  // // This doesn't style the first edge of the polygon, which uses the line stroke styling instead
-  // {
-  //   "id": "gl-draw-polygon-stroke-active",
-  //   "type": "line",
-  //   "filter": ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
-  //   "layout": {
-  //     "line-cap": "round",
-  //     "line-join": "round"
-  //   },
-  //   "paint": {
-  //     "line-color": "#FF007F",
-  //     "line-dasharray": [0.2, 2],
-  //     "line-width": 4
-  //   }
-  // },
-  // // vertex point halos
-  // {
-  //   "id": "gl-draw-polygon-and-line-vertex-halo-active",
-  //   "type": "circle",
-  //   "filter": ["all", ["==", "meta", "vertex"], ["==", "$type", "Point"], ["!=", "mode", "static"]],
-  //   "paint": {
-  //     "circle-radius": 5,
-  //     "circle-color": "#FFF"
-  //   }
-  // },
-  // // vertex points
-  // {
-  //   "id": "gl-draw-polygon-and-line-vertex-active",
-  //   "type": "circle",
-  //   "filter": ["all", ["==", "meta", "vertex"], ["==", "$type", "Point"], ["!=", "mode", "static"]],
-  //   "paint": {
-  //     "circle-radius": 3,
-  //     "circle-color": "#a17e00",
-  //   }
-  // },
+// // {
+// //     id: "gl-draw-line-static",
+// //     type: "line",
+// //     filter: ["all", ["==", "mode", "static"], ["==", "$type", "LineString"]],
+// //     layout: {
+// //         "line-cap": "round",
+// //         "line-join": "round"
+// //     },
+// //     paint: {
+// //         "line-color": "#aaa",
+// //         "line-width": 2
+// //     }
+// // },
+//   // polygon fill
+//   {
+//     "id": "gl-draw-polygon-fill",
+//     "type": "fill",
+//     "filter": ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
+//     "paint": {
+//       "fill-color": "#FF007F",
+//       "fill-outline-color": "#FF007F",
+//       "fill-opacity": 0.4
+//     }
+//   }, {
+//     id: "gl-draw-point-point-stroke-inactive",
+//     type: "circle",
+//     filter: ["all", ["==", "active", "false"], ["==", "$type", "Point"], ["==", "meta", "feature"], ["!=", "mode", "static"]],
+//     paint: {
+//         "circle-radius": 5,
+//         "circle-opacity": 1,
+//         "circle-color": "#fff"
+//     }
+// }, {
+//     id: "gl-draw-point-inactive",
+//     type: "circle",
+//     filter: ["all", ["==", "active", "false"], ["==", "$type", "Point"], ["==", "meta", "feature"], ["!=", "mode", "static"]],
+//     paint: {
+//         "circle-radius": 3,
+//         "circle-color": "#3bb2d0"
+//     }
+// }, {
+//     id: "gl-draw-point-stroke-active",
+//     type: "circle",
+//     filter: ["all", ["==", "$type", "Point"], ["==", "active", "true"], ["!=", "meta", "midpoint"]],
+//     paint: {
+//         "circle-radius": 7,
+//         "circle-color": "#fff"
+//     }
+// }, {
+//     id: "gl-draw-point-active",
+//     type: "circle",
+//     filter: ["all", ["==", "$type", "Point"], ["!=", "meta", "midpoint"], ["==", "active", "true"]],
+//     paint: {
+//         "circle-radius": 5,
+//         "circle-color": "#fbb03b"
+//     }
+// }, {
+//     id: "gl-draw-point-static",
+//     type: "circle",
+//     filter: ["all", ["==", "mode", "static"], ["==", "$type", "Point"]],
+//     paint: {
+//         "circle-radius": 5,
+//         "circle-color": "#404040"
+//     }
+// },
+//   // // polygon mid points
+//   // {
+//   //   'id': 'gl-draw-polygon-midpoint',
+//   //   'type': 'circle',
+//   //   'filter': ['all',
+//   //     ['==', '$type', 'Point'],
+//   //     ['==', 'meta', 'midpoint']],
+//   //   'paint': {
+//   //     'circle-radius': 3,
+//   //     'circle-color': '#fbb03b'
+//   //   }
+//   // },
+//   // // polygon outline stroke
+//   // // This doesn't style the first edge of the polygon, which uses the line stroke styling instead
+//   // {
+//   //   "id": "gl-draw-polygon-stroke-active",
+//   //   "type": "line",
+//   //   "filter": ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
+//   //   "layout": {
+//   //     "line-cap": "round",
+//   //     "line-join": "round"
+//   //   },
+//   //   "paint": {
+//   //     "line-color": "#FF007F",
+//   //     "line-dasharray": [0.2, 2],
+//   //     "line-width": 4
+//   //   }
+//   // },
+//   // // vertex point halos
+//   // {
+//   //   "id": "gl-draw-polygon-and-line-vertex-halo-active",
+//   //   "type": "circle",
+//   //   "filter": ["all", ["==", "meta", "vertex"], ["==", "$type", "Point"], ["!=", "mode", "static"]],
+//   //   "paint": {
+//   //     "circle-radius": 5,
+//   //     "circle-color": "#FFF"
+//   //   }
+//   // },
+//   // // vertex points
+//   // {
+//   //   "id": "gl-draw-polygon-and-line-vertex-active",
+//   //   "type": "circle",
+//   //   "filter": ["all", ["==", "meta", "vertex"], ["==", "$type", "Point"], ["!=", "mode", "static"]],
+//   //   "paint": {
+//   //     "circle-radius": 3,
+//   //     "circle-color": "#a17e00",
+//   //   }
+//   // },
 
-  // INACTIVE (static, already drawn)
-  // line stroke
-      ]
+//   // INACTIVE (static, already drawn)
+//   // line stroke
+//       ],
       // Set mapbox-gl-draw to draw by default.
       // The user does not have to click the polygon control button first.
-      // defaultMode: 'draw_polygon'
+      defaultMode: 'draw_paint_mode'
     });
     map.current.addControl(draw.current);
 
