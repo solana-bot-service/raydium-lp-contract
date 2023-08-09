@@ -10,6 +10,8 @@ import FreehandMode from 'mapbox-gl-draw-freehand-mode'
 import PaintMode from "mapbox-gl-draw-paint-mode";
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 
+import { extendDrawBar } from "../../Utils/extendDrawBar";
+
 import * as turf from '@turf/turf'
 import { LayersTOC } from '../../mapLayouts/LayersTOC/LayersTOC';
 
@@ -219,7 +221,7 @@ export function MainMap() {
         // // uncombine_features: true,
         // polygon: true,
         // multi_feature: true, 
-        trash: true,
+        // trash: true,
       },
       modes: Object.assign({
         draw_polygon: FreehandMode,
@@ -392,9 +394,46 @@ export function MainMap() {
 //       ],
       // Set mapbox-gl-draw to draw by default.
       // The user does not have to click the polygon control button first.
-      defaultMode: 'draw_paint_mode'
+      // defaultMode: 'draw_paint_mode'
     });
-    map.current.addControl(draw.current);
+
+
+    const drawPaintBtn = {
+      on: "click",
+      action: () => {
+        draw.current.changeMode("draw_paint_mode");
+      },
+      classes: ["paint-brush-icon"],
+      title: "Paint tool",
+    };
+    const drawPointBtn = {
+      on: "click",
+      action: () => {
+        draw.current.changeMode("draw_point");
+      },
+      classes: ["mapbox-gl-draw_point"],
+      title: "Marker tool",
+    };
+    const trashBtn = {
+      on: "click",
+      action: () => {
+        draw.current.trash();
+      },
+      classes: ["mapbox-gl-draw_trash"],
+      title: "Delete",
+    };
+    let drawBar = new extendDrawBar({
+      draw: draw.current,
+      buttons: [
+        // drawLineString,
+        // drawPolygon,
+        drawPaintBtn,
+        drawPointBtn,
+        trashBtn,
+      ],
+    });
+    map.current.addControl(drawBar);
+    // map.current.addControl(draw.current);
 
 
     // Search Control
