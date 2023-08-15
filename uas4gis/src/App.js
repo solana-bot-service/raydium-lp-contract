@@ -449,7 +449,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                       }}
                       component="ul"
                     >
-                      {profile && profile[key] && (Array.isArray(profile[key]) ? profile[key] : [profile[key]]).map((data) => {
+                      {profile && profile[key] && (profile[key].split(prop.separator).length ? profile[key] : [profile[key]]).map((data) => { // Array.isArray(profile[key])
                         return (
                           <ListItem key={data}>
                             <Chip

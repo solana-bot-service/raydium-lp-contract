@@ -198,6 +198,7 @@ export const RANKS = [
         name: "TEL",
         label: "โทร.",
         type: 'multiple',
+        separator: '|',
         required: true
     }
 }
