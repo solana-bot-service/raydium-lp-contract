@@ -58,7 +58,27 @@
             "group" : "ภาพถ่ายทางอากาศ",
             "desc" : "ภาพถ่ายออร์โธ รร.นนก.มวกเหล็ก ธ.ค.65",
             "date": "01/12/22",
+            "visible": false
+        }
+    },
+    "nkrafa-ortho-6607-layer": {
+        "src": {
+            "type": "raster",
+            "tileSize": 512,
+            "tiles": ["https://sppsim.rtaf.mi.th/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis%3AMap1_Orthomosaic_export_SatJul29161740152209&bbox={bbox-epsg-3857}&srs=EPSG:3857&transparent=true&width=512&height=512&styles=&format=image/png"]
+        },
+        "layer" : {
+            "id": "nkrafa-ortho-6607-layer",
+            "type": "raster",
+            "source": "nkrafa-ortho-6607",
+            "paint": {}
+          },
+        "info" : {
+            "group" : "ภาพถ่ายทางอากาศ",
+            "desc" : "ภาพถ่ายออร์โธ รร.นนก.มวกเหล็ก ก.ค.66",
+            "date": "01/07/23",
             "visible": true
         }
+
     }
 }
