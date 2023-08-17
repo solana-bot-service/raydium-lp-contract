@@ -186,9 +186,9 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       .then( user => {
         savedProfile.current = {
           ...user,
-          ...user ? Object.entries(user)
-              .filter(([key, _]) => personprops[key] && personprops[key].type === 'multiple')
-              .reduce((p, [key, c]) => ({...p, [key] : JSON.parse(c)}), {}) : {},
+          // ...user ? Object.entries(user)
+          //     .filter(([key, _]) => personprops[key] && personprops[key].type === 'multiple')
+          //     .reduce((p, [key, c]) => ({...p, [key] : JSON.parse(c)}), {}) : {},
           user_id: md5(userId.current),
           "displayName": "Chaloemphol_local",
           "statusMessage": "ev’ry moment new",
@@ -198,7 +198,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       })
     } else {
 
-      console.log('this is the latest update 1933');
+      console.log('this is the latest update 1515');
       if (!isLoggedIn) return;
 
       (async () => {
@@ -221,9 +221,14 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
           if (response.status === 200) {
             setProfile(u => {
-              const data = { ...u, ...response.data, ...Object.entries(response.data)
-                .filter(([key, _]) => personprops[key].type === 'multiple')
-                .reduce((p, [key, c]) => ({...p, [key] : JSON.parse(c)}), {}),
+              const data = { ...u, 
+                ...Object.entries(response.data).reduce((p, [key, value]) => {
+                  return ({...p, ...value !=='null' ? { [key] : value} : {}})
+                }, {})              
+              , 
+                // ...Object.entries(response.data)
+                // .filter(([key, _]) => personprops[key].type === 'multiple')
+                // .reduce((p, [key, c]) => ({...p, [key] : JSON.parse(c)}), {}),
                 ...lineProfile,
                 user_id: md5(userId.current)
               }
@@ -347,7 +352,9 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                         fullWidth
                         variant="standard"
                         disabled
-                        value={prop.type === 'multiple' &&  profile[key] ?  (Array.isArray(profile[key]) ? profile[key] : [profile[key]]).join(", ") : (profile[key] || "-")}
+                        value={prop.type === 'multiple' &&  profile && profile[key] && profile[key] !== "null" && profile[key] !== "\"null\"" && prop.separator 
+                        ? profile[key].replace(prop.separator, " ") 
+                        : prop[key]}
                       />
                     </Grid>)
                     })}
@@ -428,17 +435,15 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                         <TextField id={key} label={prop.label} variant="outlined"
                     // onChange={event => handleProfileEditing(event, key)}
                     onKeyDown={(ev) => {
-                      // console.log(`Pressed keyCode ${ev.key}`);
                       if (ev.key === 'Enter') {
-                        // Do code here
                         ev.preventDefault();
-                        setProfile(p => ({...p, [key]: p[key] ? [...p[key], ev.target.value] : [ev.target.value]}))
+                        setProfile(p => ({...p, [key]: p[key] ? [p[key], ev.target.value].join(prop.separator) : p[key]}))
                         ev.target.value = ""
                       }
                     }}
                       />
-
-                    <Paper
+    
+                    {profile && profile[key] && profile[key] !== "null" && profile[key] !== "\"null\"" && prop.separator && (profile[key].split(prop.separator).length) ? <Paper
                       sx={{
                         display: 'flex',
                         justifyContent: 'center',
@@ -449,7 +454,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                       }}
                       component="ul"
                     >
-                      {profile && profile[key] && (profile[key].split(prop.separator).length ? profile[key] : [profile[key]]).map((data) => { // Array.isArray(profile[key])
+                       {(profile[key].split(prop.separator).length).map((data) => { // Array.isArray(profile[key])  ? profile[key] : [profile[key]]
                         return (
                           <ListItem key={data}>
                             <Chip
@@ -457,16 +462,24 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                               onDelete={() => {
                                 setProfile(p => {
                                   return {...p,
-                                    [key] : (Array.isArray(p[key]) ?  p[key] : [p[key]]).filter(i => i !== data)
+                                    [key] :  (() => {
+                                      // (Array.isArray(p[key]) ?  p[key] : [p[key]]).filter(i => i !== data)
+                                      if (!p[key]) return ''
+                                      const splittedArray = p[key].split(prop.separator)
+                                      if (splittedArray && splittedArray.length) {
+                                        return splittedArray.filter(i => i !== data).join(prop.separator)
+                                      }
+                                      return p[key]
+
+                                    })() 
                                   }
                                 })
                               }}
                             />
                           </ListItem>
                         );
-                      })}
-                    </Paper>
-
+                      })} 
+                    </Paper> : <></>}
                     </Grid>)
 
                     default:
