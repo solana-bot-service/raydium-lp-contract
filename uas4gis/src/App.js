@@ -198,7 +198,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       })
     } else {
 
-      console.log('this is the latest update 1515');
+      console.log('this is the latest update 12222');
       if (!isLoggedIn) return;
 
       (async () => {
@@ -223,7 +223,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
             setProfile(u => {
               const data = { ...u, 
                 ...Object.entries(response.data).reduce((p, [key, value]) => {
-                  return ({...p, ...value !=='null' ? { [key] : value} : {}})
+                  return ({...p, ...(value && value !=='null') ? { [key] : value} : {}})
                 }, {})              
               , 
                 // ...Object.entries(response.data)
@@ -354,7 +354,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                         disabled
                         value={prop.type === 'multiple' &&  profile && profile[key] && profile[key] !== "null" && profile[key] !== "\"null\"" && prop.separator 
                         ? profile[key].replace(prop.separator, " ") 
-                        : prop[key]}
+                        : profile[key]}
                       />
                     </Grid>)
                     })}
