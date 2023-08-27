@@ -81,7 +81,7 @@
         "id": 1,
         "src": {
             "type": "geojson",
-            "data": "https://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Abuilding651108&outputFormat=application%2Fjson"
+            "data": "https://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Abuilding660827&outputFormat=application%2Fjson"
         },
         "layer": {
             "id": "buildings",
@@ -101,7 +101,7 @@
             "layout": {
                 "text-field": [
                     "format",
-                    ["concat", "อาคาร ", ["get", "AREA_SQM"]]
+                    ["get", "NAME"]
                 ],
                 "text-size": 14,
                 "icon-image": [
@@ -206,6 +206,9 @@
         },
         "searchable": {
             "fields": {
+                "NAME" : {
+                    "prefix": ""
+                },
                 "AREA_SQM": {
                     "prefix": "อาคาร "
                 }
