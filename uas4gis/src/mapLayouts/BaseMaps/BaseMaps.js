@@ -28,17 +28,17 @@ export const BaseMaps = (props) => {
     setMapstyle(layerValue)
     setRefreshRequired(true)
   };
-  
+
     return (<>
   <Box
     className='basemaps-select'
       sx={{ m:1, p:1, maxWidth: 160}}
     >
       <FormControl fullWidth >
-        <InputLabel id="demo-simple-select-label">Basemaps</InputLabel>
+        <InputLabel id="basemap-label">Basemaps</InputLabel>
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
+          labelId="basemap-label"
+          id="basemap-select"
           value={mapstyle}
           label="Basemaps"
           size='small'
@@ -49,7 +49,7 @@ export const BaseMaps = (props) => {
               {
               id: 'satellite-v9',
               name: 'ภาพถ่ายดาวเทียม',
-              icon: <SatelliteIcon /> 
+              icon: <SatelliteIcon />
             },{
               id: 'streets-v11',
               name: 'Street',
@@ -66,38 +66,8 @@ export const BaseMaps = (props) => {
               id: 'outdoors-v11',
               name: 'Outdoors',
               icon: <DeckIcon />
-            }].map(bm => (< MenuItem value={bm.id} >{bm.icon} {bm.name} </MenuItem>))}          
+            }].map(bm => (<MenuItem value={bm.id} >{bm.icon} {bm.name} </MenuItem>))}
         </Select>
       </FormControl>
-
-</Box>
-
-
-  {/* <ToggleButtonGroup
-      value={mapstyle}
-      color="primary"
-      orientation="vertical"
-      exclusive
-      onChange={handleChange}
-      aria-label="text alignment"
-    >
-      <ToggleButton value="satellite-v9" aria-label="ภาพถ่ายดาวเทียม" disabled={mapstyle ==="satellite-v9"} >
-        <SatelliteIcon />
-      </ToggleButton>
-      <ToggleButton value="streets-v11" aria-label="Street" disabled={mapstyle ==="streets-v11"}>
-        <AddRoadIcon />
-      </ToggleButton>
-      <ToggleButton value="light-v10" aria-label="Light" disabled={mapstyle ==="light-v10"}>
-        <WbSunnyIcon />
-      </ToggleButton>
-      <ToggleButton value="dark-v10" aria-label="Dark" disabled={mapstyle ==="dark-v10"}>
-        <ContrastIcon />
-      </ToggleButton>
-      <ToggleButton value="outdoors-v11" aria-label="Outdoors" disabled={mapstyle ==="outdoors-v11"}>
-        <DeckIcon />
-      </ToggleButton>
-    </ToggleButtonGroup> */}
-    
-    </>
-  )
-}
+  </Box>
+</>)}
