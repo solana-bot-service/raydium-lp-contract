@@ -3,3 +3,18 @@
     padding: 10px;
     font-family: 'Open Sans', sans-serif;
     }
+
+
+.basemaps-select {
+    position: absolute;
+    bottom: 24px;
+    left: 10px;
+    z-index: 4;
+    text-align: right;
+    border-radius: 10px;
+    background: #ffffff81;
+  }
+  
+  .basemaps-select:hover {
+    background: #aef3ff;
+  }
