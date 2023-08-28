@@ -59,7 +59,8 @@ export function MainMap() {
   const [toggleSymbol, setToggleSymbol] = useState("▶︎");
   const [mode, setMode] = useState("");
   const [mapReady, setMapReady] = useState(false);
-  const [mapstyle, setMapstyle] = useState('mapbox://styles/chaloemphol/cjkje3cwt17e72smseq2pmmxu')
+  const [mapstyle, setMapstyle] = useState('')
+  const [refreshRequired, setRefreshRequired] = useState(false);
   const searchFields = useRef();
   // const [searchingLayer, setSearchingLayer] = useState('');
   const searchingLayer = useRef()
@@ -141,6 +142,13 @@ export function MainMap() {
   }
 
   useEffect(() => {
+    if (map.current && map.current.isStyleLoaded() && refreshRequired) {
+      localStorage.setItem('mapstyle', mapstyle);
+      window.location.reload()
+    }
+  }, [mapstyle, refreshRequired]);
+
+  useEffect(() => {
 
     // console.log('map.current', map.current);
     // console.log('isLoggedIn', isLoggedIn);
@@ -192,20 +200,25 @@ export function MainMap() {
 
   }, [mapReady, isLoggedIn, constructions]);
 
+
   useEffect(() => {
 
-    // if (map.current) return; // initialize map only once
+    if (map.current) return; // initialize map only once
 
-
+    const mapStyle = localStorage.getItem('mapstyle');
+    if (mapStyle !=='undefined') setMapstyle(mapStyle)
+    
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       // style: 'mapbox://styles/mapbox/streets-v11',
-      style: mapstyle,// 'mapbox://styles/chaloemphol/clasf7ipf00dp14mpio2dnq8h',//'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+      style: mapStyle && mapStyle !=='undefined' ? 'mapbox://styles/mapbox/' + mapStyle : 'mapbox://styles/chaloemphol/cjkje3cwt17e72smseq2pmmxu',// 'mapbox://styles/chaloemphol/clasf7ipf00dp14mpio2dnq8h',//'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
       center: [lng, lat],
       pitch,
       bearing,
       zoom,
     });
+
+    
 
     popup.current = new mapboxgl.Popup({
       closeButton: false
@@ -1329,7 +1342,7 @@ export function MainMap() {
         toggleSidebar('left',true)
       })
     }
-  }, [bearing, constructions, essentialLayers, lat, lng, mapIds, mapstyle, ortho, pitch, toggleVisibility, toggleableLayerIds, visibleLayers, zoom])
+  }, [lng, lat, pitch, bearing, zoom, ortho, constructions, toggleableLayerIds, essentialLayers, toggleVisibility, mapIds, visibleLayers])
 
 
   useEffect(() => {
@@ -1485,7 +1498,7 @@ return useMemo(() => {
           <div className="sidebar-content rounded-rect flex-center">
             <Stack spacing={2} direction="column" >
               <LayersTOC />
-              <BaseMaps setMapstyle={setMapstyle} />
+              <BaseMaps mapstyle={mapstyle} setMapstyle={setMapstyle} setRefreshRequired={setRefreshRequired} />
             </Stack>
             <div className="sidebar-toggle left" onClick={() => { toggleSidebar('left'); }}>
               {toggleSymbol}
