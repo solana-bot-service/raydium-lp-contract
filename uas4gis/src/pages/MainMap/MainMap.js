@@ -30,6 +30,7 @@ import BuildingCard from "../../mapLayouts/Popups/Building";
 
 
 import styles from "./drawStyles";
+import { BaseMaps } from "../../mapLayouts/BaseMaps/BaseMaps";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
@@ -58,6 +59,7 @@ export function MainMap() {
   const [toggleSymbol, setToggleSymbol] = useState("▶︎");
   const [mode, setMode] = useState("");
   const [mapReady, setMapReady] = useState(false);
+  const [mapstyle, setMapstyle] = useState('mapbox://styles/chaloemphol/cjkje3cwt17e72smseq2pmmxu')
   const searchFields = useRef();
   // const [searchingLayer, setSearchingLayer] = useState('');
   const searchingLayer = useRef()
@@ -192,13 +194,13 @@ export function MainMap() {
 
   useEffect(() => {
 
-    if (map.current) return; // initialize map only once
+    // if (map.current) return; // initialize map only once
 
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       // style: 'mapbox://styles/mapbox/streets-v11',
-      style: 'mapbox://styles/chaloemphol/cjkje3cwt17e72smseq2pmmxu',// 'mapbox://styles/chaloemphol/clasf7ipf00dp14mpio2dnq8h',//'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+      style: mapstyle,// 'mapbox://styles/chaloemphol/clasf7ipf00dp14mpio2dnq8h',//'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
       center: [lng, lat],
       pitch,
       bearing,
@@ -1327,7 +1329,21 @@ export function MainMap() {
         toggleSidebar('left',true)
       })
     }
-  })
+  }, [bearing, constructions, essentialLayers, lat, lng, mapIds, mapstyle, ortho, pitch, toggleVisibility, toggleableLayerIds, visibleLayers, zoom])
+
+
+  useEffect(() => {
+
+    if (!map.current) return
+
+
+
+
+
+
+
+
+  }, [])
 
   useEffect(() => {
 
@@ -1469,7 +1485,7 @@ return useMemo(() => {
           <div className="sidebar-content rounded-rect flex-center">
             <Stack spacing={2} direction="column" >
               <LayersTOC />
-              {/* <BaseMaps /> */}
+              <BaseMaps setMapstyle={setMapstyle} />
             </Stack>
             <div className="sidebar-toggle left" onClick={() => { toggleSidebar('left'); }}>
               {toggleSymbol}

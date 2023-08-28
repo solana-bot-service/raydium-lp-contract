@@ -1,6 +1,27 @@
+import { useEffect } from 'react'
 import './BaseMaps.css'
 
-export const BaseMaps = () => {
+export const BaseMaps = (props) => {
+
+  const  { setMapstyle } = props
+
+  useEffect(() => {
+    
+
+    const layerList = document.getElementById('basemaps_menu');
+    const inputs = layerList.getElementsByTagName('input');
+      
+      for (const input of inputs) {
+        // console.log('input', input);
+            input.onclick = (layer) => {
+              // console.log('layer', layer);
+            const layerId = layer.target.id;
+            setMapstyle(layerId)
+            };
+      }
+    }, [setMapstyle])
+  
+
     return (<div id="basemaps_menu">
     <input id="satellite-v9" type="radio" name="rtoggle" defaultValue="satellite" defaultChecked="checked" />
     {/* See a list of Mapbox-hosted public styles at */}
