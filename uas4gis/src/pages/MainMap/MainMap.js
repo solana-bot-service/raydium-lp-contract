@@ -1497,8 +1497,8 @@ return useMemo(() => {
       <div id="left" className="sidebar flex-center left collapsed">
           <div className="sidebar-content rounded-rect flex-center">
             <Stack spacing={2} direction="column" >
-              <LayersTOC />
               <BaseMaps mapstyle={mapstyle} setMapstyle={setMapstyle} setRefreshRequired={setRefreshRequired} />
+              <LayersTOC />              
             </Stack>
             <div className="sidebar-toggle left" onClick={() => { toggleSidebar('left'); }}>
               {toggleSymbol}

@@ -6,10 +6,6 @@
 
 
 .basemaps-select {
-    position: absolute;
-    bottom: 24px;
-    left: 10px;
-    z-index: 4;
     text-align: right;
     border-radius: 10px;
     background: #ffffff81;

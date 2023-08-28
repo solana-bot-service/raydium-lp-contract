@@ -45,7 +45,8 @@ export const BaseMaps = (props) => {
           onChange={handleChange}
         >
           {
-            [{
+            [
+              {
               id: 'satellite-v9',
               name: 'ภาพถ่ายดาวเทียม',
               icon: <SatelliteIcon /> 
