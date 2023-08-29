@@ -1,0 +1,82 @@
+﻿{
+    "Sheet1": [
+        {
+            "order": "1",
+            "building": "ประตูทางเข้า รร.นนก.",
+            "buildingGroup": "1",
+            "latlon": "14.647341,101.191030"
+        },
+        {
+            "order": "2",
+            "building": "ศาลาพระพุทธมหากรุณานภาพลพิทักษ์",
+            "buildingGroup": "2",
+            "latlon": "14.648865,101.188608"
+        },
+        {
+            "order": "3",
+            "building": "พุทธสถาน",
+            "buildingGroup": "3",
+            "latlon": "14.648367,101.187903"
+        },
+        {
+            "order": "4",
+            "building": "บก.รร.นนก.",
+            "buildingGroup": "4",
+            "latlon": "14.651867,101.186372"
+        },
+        {
+            "order": "5",
+            "building": "กลุ่มอาคาร กกศ.",
+            "buildingGroup": "5",
+            "latlon": "14.650159,101.185533"
+        },
+        {
+            "order": "6",
+            "building": "กลุ่มอาคาร กอบ.",
+            "buildingGroup": "6",
+            "latlon": "14.64813,101.18610"
+        },
+        {
+            "order": "7",
+            "building": "ลานสถาบัน",
+            "buildingGroup": "7",
+            "latlon": "14.650757,101.183826"
+        },
+        {
+            "order": "8",
+            "building": "กรม นนอ.รอ.",
+            "buildingGroup": "8",
+            "latlon": "14.652583,101.184633"
+        },
+        {
+            "order": "9",
+            "building": "กวท.",
+            "buildingGroup": "9",
+            "latlon": "14.651865,101.183628"
+        },
+        {
+            "order": "10",
+            "building": "กพล.",
+            "buildingGroup": "10",
+            "latlon": "14.653930,101.183422"
+        },
+        {
+            "order": "11",
+            "building": "กรก. (ขส. ขย.)",
+            "buildingGroup": "11",
+            "latlon": "14.657556,101.182797"
+        },
+        {
+            "order": "12",
+            "building": "ร้อย ทย.",
+            "buildingGroup": "12",
+            "latlon": "14.658572,101.182404"
+        },
+        {
+            "order": "13",
+            "building": "พื้นที่บ้านพักอาศัย",
+            "buildingGroup": "15",
+            "latlon": "14.64711,101.19457"
+        }
+    ]
+}
