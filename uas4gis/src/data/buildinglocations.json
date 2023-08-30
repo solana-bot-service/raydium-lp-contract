@@ -25,7 +25,7 @@
     },
     {
         "order": "5",
-        "building": "กลุ่มอาคาร กกศ.",
+        "building": "บก.กกศ.รร.นนก.",
         "buildingGroup": "5",
         "latlon": "14.650159,101.185533"
     },
@@ -43,19 +43,19 @@
     },
     {
         "order": "8",
-        "building": "กรม นนอ.รอ.",
+        "building": "กรม นนอ.รอ.รร.นนก.",
         "buildingGroup": "8",
         "latlon": "14.652583,101.184633"
     },
     {
         "order": "9",
-        "building": "กวท.",
+        "building": "กวท.รร.นนก.",
         "buildingGroup": "9",
         "latlon": "14.651865,101.183628"
     },
     {
         "order": "10",
-        "building": "กพล.",
+        "building": "กพล.รร.นนก.",
         "buildingGroup": "10",
         "latlon": "14.653930,101.183422"
     },
@@ -67,7 +67,7 @@
     },
     {
         "order": "12",
-        "building": "ร้อย ทย.",
+        "building": "บก.ร้อย ทย.รร.นนก.",
         "buildingGroup": "12",
         "latlon": "14.658572,101.182404"
     },

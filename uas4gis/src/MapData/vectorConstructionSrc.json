@@ -146,7 +146,7 @@
                 "layout": {
                     "text-field": [
                         "format",
-                        ["get", "NAME"]
+                        ["concat", ["get", "RANK"], ["get", "NAME"]]
                     ],
                     "text-size": 14,
                     "icon-anchor": "bottom",

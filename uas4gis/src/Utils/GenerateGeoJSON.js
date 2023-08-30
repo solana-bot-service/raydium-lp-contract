@@ -96,10 +96,15 @@ class GenerateGeoJSON {
                         "type": "Point",
                         "coordinates": (() => {
 
-                            const index = buildingsLocation.findIndex(l => u.building && l.building.trim() === u.building.trim())
+                            const b = buildingsLocation.find(l => u.building && l.building.trim() === u.building.trim())
 
-                            if (index > -1) return [...buildingsLocation[index].latlon.split(",").map(n => Number(n))].reverse()
-                            return [101.187487, 14.652417]
+                            // console.log('b', b);
+                            
+                            if (b) {
+                                // console.log('location', [...b.latlon.split(",").map(n => Number(n))].reverse());
+                                return [...b.latlon.split(",").map(n => Number(n))].reverse()
+                            }
+                            return buildingCoords[rand] // [101.187487, 14.652417]
     
                         })()
                     },
