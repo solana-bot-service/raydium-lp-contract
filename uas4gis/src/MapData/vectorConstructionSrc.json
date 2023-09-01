@@ -103,7 +103,7 @@
                     "format",
                     ["get", "NAME"]
                 ],
-                "text-size": 14,
+                "text-size": 22,
                 "icon-image": [
                     "step",
                     ["zoom"],
@@ -124,7 +124,7 @@
             "paint": {
                 "text-color": "#FFFF00",
                 "text-halo-color": "#000000",
-                "text-halo-width": 2
+                "text-halo-width":4
             }
         },
         "populatePersonnel": {
