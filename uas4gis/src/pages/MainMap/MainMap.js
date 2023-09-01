@@ -8,6 +8,12 @@ import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-load
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import FreehandMode from 'mapbox-gl-draw-freehand-mode'
 import PaintMode from "mapbox-gl-draw-paint-mode";
+// import {
+//   CircleMode,
+//   DragCircleMode,
+//   DirectMode,
+//   SimpleSelectMode
+// } from 'mapbox-gl-draw-circle';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 
 import { extendDrawBar } from "../../Utils/extendDrawBar";
@@ -231,16 +237,17 @@ export function MainMap() {
       displayControlsDefault: false,
       controls: {
         // point: true,
-        // line_string: true,
+        line_string: true,
         // // combine_features: true,
         // // uncombine_features: true,
-        // polygon: true,
+        polygon: true,
         // multi_feature: true, 
         // trash: true,
       },
       modes: Object.assign({
         draw_polygon: FreehandMode,
         draw_paint_mode: PaintMode,
+        // draw_circle  : CircleMode,
     }, MapboxDraw.modes),
       // Select which mapbox-gl-draw control buttons to add to the map.
       styles: styles,
@@ -1184,6 +1191,7 @@ export function MainMap() {
             }
             break;
 
+          case 'draw_paint_mode':
           case 'draw_line_string':
 
             document.getElementById('headerText').textContent = 'ระยะทางรวม'
@@ -1203,6 +1211,25 @@ export function MainMap() {
               //   alert('Click the map to draw a polygon.');
             }
             break;
+
+          // case 'draw_paint_mode':
+
+          //   document.getElementById('headerText').textContent = 'ขนาดพื้นที่รวม'
+          //   data.features = data.features.filter(f => f.geometry.type === 'Polygon')
+          //   // console.log(data);
+
+          //   if (data.features.length > 0) {
+          //     const displayingUnit = 'm2'
+          //     const area = turf.area(data);
+          //     // Restrict the area to 2 decimal points.
+          //     // const rounded_area = Math.round(area * 100) / 100;
+          //     answer.innerHTML = `<div>${unit(area, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</div>` //; //<p><strong>${rounded_area} sqm.</strong></p>
+          //   } else {
+          //     answer.innerHTML = '';
+          //     // if (e.type !== 'draw.delete')
+          //     //   alert('Click the map to draw a polygon.');
+          //   }
+          // break;
 
 
           default:
