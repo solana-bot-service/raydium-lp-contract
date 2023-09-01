@@ -81,7 +81,7 @@
         "id": 1,
         "src": {
             "type": "geojson",
-            "data": "https://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=uas4gis%3Abuilding660827&outputFormat=application%2Fjson"
+            "data": "https://sppsim.rtaf.mi.th/geoserver/uas4gis/ows?service=WFS&version=1.0.0&request=GetFeature&format_options=CHARSET:UTF-8&typeName=uas4gis%3Abuilding660827&outputFormat=application%2Fjson"
         },
         "layer": {
             "id": "buildings",
