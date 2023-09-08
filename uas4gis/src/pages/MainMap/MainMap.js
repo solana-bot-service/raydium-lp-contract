@@ -1539,6 +1539,9 @@ return useMemo(() => {
 
 
      {/* <InfoBar {...info}/> */}
+     <div className="floodcontrol">
+      <FloodControl />
+     </div>
       <div id='calculation-box' className="calculation-box">
             <Stack direction={"column"} sx={{ p:1, m:1}} className="calculated-area" >
               <div id="calculated-area" />
@@ -1556,10 +1559,8 @@ return useMemo(() => {
           </fieldset>
           <div id="feature-listing" className="listing" />
         </div>
-        <Button id="comparebutton" component={Link} to="/comparemap" color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>      
-        <FloodControl />
+        <Button id="comparebutton" component={Link} to="/comparemap" color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>              
         </div>
-
 
     </React.Fragment>
   )

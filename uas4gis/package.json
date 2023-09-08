@@ -16,7 +16,7 @@
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
     "@turf/turf": "^6.5.0",
-    "axios": "^1.2.2",
+    "axios": "^1.5.0",
     "mapbox-gl": "^2.8.2",
     "mapbox-gl-compare": "^0.4.1",
     "mapbox-gl-draw-circle": "^1.1.2",
