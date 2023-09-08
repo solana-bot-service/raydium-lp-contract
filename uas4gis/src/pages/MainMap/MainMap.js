@@ -68,6 +68,7 @@ export function MainMap() {
   const [mapReady, setMapReady] = useState(false);
   const [mapstyle, setMapstyle] = useState('')
   const [refreshRequired, setRefreshRequired] = useState(false);
+  const [simulatingFlood, setSimulatingFlood] = useState(true);
   const searchFields = useRef();
   // const [searchingLayer, setSearchingLayer] = useState('');
   const searchingLayer = useRef()
@@ -1539,9 +1540,8 @@ return useMemo(() => {
 
 
      {/* <InfoBar {...info}/> */}
-     <div className="floodcontrol">
-      <FloodControl />
-     </div>
+      <FloodControl simulatingFlood={simulatingFlood} setSimulatingFlood={setSimulatingFlood} />
+
       <div id='calculation-box' className="calculation-box">
             <Stack direction={"column"} sx={{ p:1, m:1}} className="calculated-area" >
               <div id="calculated-area" />
@@ -1564,7 +1564,7 @@ return useMemo(() => {
 
     </React.Fragment>
   )
-}, [toggleSymbol])
+}, [simulatingFlood, toggleSymbol])
 
 }
 
