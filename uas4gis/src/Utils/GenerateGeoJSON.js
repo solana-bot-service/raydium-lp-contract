@@ -19,6 +19,21 @@ class GenerateGeoJSON {
             
     }
 
+    createFloodingAreaPolygonFrom({point, distance, bearing, otherOptions, params, setCenter}) {
+            const options = {units: 'miles', ...otherOptions};
+
+            const offset = turf.destination(point, distance, bearing, options);            
+            const buffered = turf.buffer(offset, 3, {units: 'miles'});
+            const enveloped = turf.envelope(buffered)
+            if (setCenter) setCenter(offset.geometry.coordinates)
+            if (params) {
+                const bar = turf.polygon(enveloped.geometry.coordinates, params)
+                return bar
+            }
+            return enveloped           
+            
+    }
+
     
     createPointsFromPolygons({ polygons }) {
 

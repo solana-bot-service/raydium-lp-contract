@@ -37,6 +37,7 @@ import BuildingCard from "../../mapLayouts/Popups/Building";
 
 import styles from "./drawStyles";
 import { BaseMaps } from "../../mapLayouts/BaseMaps/BaseMaps";
+import FloodControl from "../../mapComponents/FloodControl/FloodControl";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
@@ -1555,8 +1556,9 @@ return useMemo(() => {
           </fieldset>
           <div id="feature-listing" className="listing" />
         </div>
-        <Button id="comparebutton" component={Link} to="/comparemap" color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
-      </div>
+        <Button id="comparebutton" component={Link} to="/comparemap" color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>      
+        <FloodControl />
+        </div>
 
 
     </React.Fragment>
