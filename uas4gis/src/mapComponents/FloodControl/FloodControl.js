@@ -38,15 +38,17 @@ export default function FloodControl(props) {
 
   const ButtonUI = useMemo(() => {
 
-    if (!simulatingFlood) return (<Button variant="contained" color="info" onClick={() => {
+    if (!simulatingFlood) return (<div className='floodButton'>
+      <Button variant="contained" color="info" onClick={() => {
         console.log('====================================');
         console.log('clicked open ui');
         console.log('====================================');
         setSimulatingFlood(true)
         }}>
         จำลองน้ำท่วม
-      </Button>);
-  return (<Box sx={{  bgcolor: 'lightblue' }}>
+      </Button>      
+    </div>);
+  return (<div className='floodcontrol'><Box sx={{  bgcolor: 'lightblue' }}>
   
           <Grid container spacing={2} alignItems="center">
               <Grid item>
@@ -89,9 +91,9 @@ export default function FloodControl(props) {
             />
           </Grid>
         </Grid>
-      </Box>)
+      </Box></div>)
   }, [handleBlur, setSimulatingFlood, simulatingFlood, value])
 
-  return <div className='floodcontrol'>{ButtonUI}</div>
+  return  ButtonUI
 
 }

@@ -55,7 +55,8 @@ export function MainMap() {
 
   const draw = useRef(null);
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
-  const start = [101.1866, 14.6534];
+  // const start = [101.1866, 14.6534];
+  const start = [-87.61694, 41.86625];
   const [_zoom, _bearing, _pitch] = [15, 0, 0]
   const [lng, setLng] = useState(start[0]);
   const [lat, setLat] = useState(start[1]);
@@ -78,7 +79,8 @@ export function MainMap() {
   //map data sources
   const ortho = require('../../MapData/nkrafaortho.json')
   const constructions = require('../../MapData/vectorConstructionSrc.json')
-  const essentialLayers = {...ortho, ...constructions} //...admins,
+  const floodlevels = require('../../MapData/vectorFloodSim.json')
+  const essentialLayers = {...ortho, ...constructions, ...floodlevels} //...admins,
 
 
   const mapIds = Object.entries(essentialLayers).reduce((p, [name, con]) => {
@@ -204,9 +206,36 @@ export function MainMap() {
         }
 
       });
+
+      Object.entries(floodlevels).forEach(([name, con]) => {
+
+        if (con.roles && con.roles.rtafregistered && !isLoggedIn) {
+          console.log('hiding ', name);
+          map.current.setLayoutProperty(
+          name,
+          'visibility',
+          'none'
+        )}
+
+        if (con.info.extrude && map.current.getLayer(con.extrude.id)) {
+
+
+          if (con.extrude.roles && con.extrude.roles.rtafregistered && !isLoggedIn) {
+            console.log('hiding ', con.extrude.id);
+              map.current.setLayoutProperty(
+                con.extrude.id,
+                'visibility',
+                'none'
+              )
+            }
+
+        }
+
+
+      });
     }
 
-  }, [mapReady, isLoggedIn, constructions]);
+  }, [mapReady, isLoggedIn, constructions, floodlevels]);
 
 
   useEffect(() => {
@@ -835,6 +864,28 @@ export function MainMap() {
 
 
 
+
+        });
+
+
+        Object.entries(floodlevels).forEach(([name, con]) => {
+
+          if (con.searchable) {
+            searchingLayer.current.add(name)
+            searchFields.current[name] = con.searchable.fields
+          }
+
+
+          if (!map.current.getSource(con.layer.source)) {
+            map.current.addSource(con.layer.source, con.src);
+
+          }
+          if (!map.current.getLayer(name)) {
+            map.current.addLayer(con.layer);
+            toggleVisibility(name)
+
+            if (con.label && !map.current.getLayer(name + "-label")) map.current.addLayer(con.label);
+          }
 
         });
 
