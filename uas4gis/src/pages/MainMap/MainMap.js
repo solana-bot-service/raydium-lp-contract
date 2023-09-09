@@ -55,8 +55,8 @@ export function MainMap() {
 
   const draw = useRef(null);
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
-  // const start = [101.1866, 14.6534];
-  const start = [-87.61694, 41.86625];
+  const start = [101.1866, 14.6534];
+  // const start = [-87.61694, 41.86625];
   const [_zoom, _bearing, _pitch] = [15, 0, 0]
   const [lng, setLng] = useState(start[0]);
   const [lat, setLat] = useState(start[1]);
@@ -70,6 +70,8 @@ export function MainMap() {
   const [mapstyle, setMapstyle] = useState('')
   const [refreshRequired, setRefreshRequired] = useState(false);
   const [simulatingFlood, setSimulatingFlood] = useState(true);
+  const [floodHeight, setFloodHeight] = useState(0)
+  
   const searchFields = useRef();
   // const [searchingLayer, setSearchingLayer] = useState('');
   const searchingLayer = useRef()
@@ -80,7 +82,7 @@ export function MainMap() {
   const ortho = require('../../MapData/nkrafaortho.json')
   const constructions = require('../../MapData/vectorConstructionSrc.json')
   const floodlevels = require('../../MapData/vectorFloodSim.json')
-  const essentialLayers = {...ortho, ...constructions, ...floodlevels} //...admins,
+  const essentialLayers = {...ortho, ...constructions} //...admins,
 
 
   const mapIds = Object.entries(essentialLayers).reduce((p, [name, con]) => {
@@ -99,7 +101,7 @@ export function MainMap() {
   const visibleLayers = Object.entries(essentialLayers).reduce((p, [name, con]) => {
     if (con.info.visible) Array.isArray(p) ? p.push(name) : p = name
     return p
-  }, ['personnel'])
+  }, ['personnel', 'floodlevel'])
   //['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'roads', 'buildings']//['provinces']
 
   function toggleVisibility(id) {
@@ -207,35 +209,124 @@ export function MainMap() {
 
       });
 
-      Object.entries(floodlevels).forEach(([name, con]) => {
+      const point = turf.point(start);
+      const distance = 0.3
+      const radius = 3
+      const bearing = 0
+      const params = {
+        name: 'Flood Level'
 
-        if (con.roles && con.roles.rtafregistered && !isLoggedIn) {
-          console.log('hiding ', name);
-          map.current.setLayoutProperty(
-          name,
-          'visibility',
-          'none'
-        )}
-
-        if (con.info.extrude && map.current.getLayer(con.extrude.id)) {
+      }
+      const geojsonCreator = new GenerateGeoJSON()
+      // const floodplane = geojsonCreator.createChartPolePolygonFrom({point, distance, bearing, params })
+      // console.log('floodplane', floodplane);
 
 
-          if (con.extrude.roles && con.extrude.roles.rtafregistered && !isLoggedIn) {
-            console.log('hiding ', con.extrude.id);
-              map.current.setLayoutProperty(
-                con.extrude.id,
-                'visibility',
-                'none'
-              )
-            }
+      // if (!map.current.getSource('floodlevel-source')) map.current.addSource('floodlevel-source', {
+      //   'type': 'geojson',
+      //   'data': floodplane
+      // });
 
+
+
+
+      if (!map.current.getSource('floodlevel-source')) {
+
+        let src = {
+          'type': 'geojson',
+          'data': geojsonCreator.createFloodingCircle({point, radius, params })
         }
+        map.current.addSource('floodlevel-source', src);
+      }
+
+      // if (!map.current.getLayer(personnelMap.layer.id)) {
+      //   map.current.addLayer(personnelMap.layer);
+      //   toggleVisibility(personnelMap.layer.id)
+      
+      // }
 
 
-      });
+
+      if (map.current.getSource('floodlevel-source') && !map.current.getLayer('floodlevel')) {
+
+        map.current.addLayer({
+            'id': 'floodlevel',
+            'type': 'fill-extrusion',
+            'source': 'floodlevel-source',
+            'paint': {
+                'fill-extrusion-color': 'lightblue',
+                'fill-extrusion-height': floodHeight,
+                'fill-extrusion-base': 0,
+                'fill-extrusion-opacity': 0.8
+            }
+        })
+
+        toggleVisibility('floodlevel')
+      }
+
+
+
+      // Object.entries(floodlevels).forEach(([name, con]) => {
+
+      //   if (con.roles && con.roles.rtafregistered && !isLoggedIn) {
+      //     console.log('hiding ', name);
+      //     map.current.setLayoutProperty(
+      //     name,
+      //     'visibility',
+      //     'none'
+      //   )}
+
+      //   if (con.info.extrude && map.current.getLayer(con.extrude.id)) {
+
+
+      //     if (con.extrude.roles && con.extrude.roles.rtafregistered && !isLoggedIn) {
+      //       console.log('hiding ', con.extrude.id);
+      //         map.current.setLayoutProperty(
+      //           con.extrude.id,
+      //           'visibility',
+      //           'none'
+      //         )
+      //       }
+
+      //   }
+
+
+      // });
     }
 
-  }, [mapReady, isLoggedIn, constructions, floodlevels]);
+  }, [mapReady, constructions, start, isLoggedIn, floodHeight, toggleVisibility]);
+
+  useEffect(() => {
+    
+  
+    if (map.current && map.current.getLayer('floodlevel')) {
+
+      if (floodHeight > 0) {
+
+
+        map.current.setLayoutProperty(
+          'floodlevel',
+          'visibility',
+          'visible'
+        )
+        map.current.setPaintProperty(
+          'floodlevel',
+          'fill-extrusion-height',
+          floodHeight
+        )
+
+      } else {
+
+        map.current.setLayoutProperty(
+          'floodlevel',
+          'visibility',
+          'none'
+        )
+        
+      }
+    }
+  }, [floodHeight])
+  
 
 
   useEffect(() => {
@@ -868,26 +959,26 @@ export function MainMap() {
         });
 
 
-        Object.entries(floodlevels).forEach(([name, con]) => {
+        // Object.entries(floodlevels).forEach(([name, con]) => {
 
-          if (con.searchable) {
-            searchingLayer.current.add(name)
-            searchFields.current[name] = con.searchable.fields
-          }
+        //   if (con.searchable) {
+        //     searchingLayer.current.add(name)
+        //     searchFields.current[name] = con.searchable.fields
+        //   }
 
 
-          if (!map.current.getSource(con.layer.source)) {
-            map.current.addSource(con.layer.source, con.src);
+        //   if (!map.current.getSource(con.layer.source)) {
+        //     map.current.addSource(con.layer.source, con.src);
 
-          }
-          if (!map.current.getLayer(name)) {
-            map.current.addLayer(con.layer);
-            toggleVisibility(name)
+        //   }
+        //   if (!map.current.getLayer(name)) {
+        //     map.current.addLayer(con.layer);
+        //     toggleVisibility(name)
 
-            if (con.label && !map.current.getLayer(name + "-label")) map.current.addLayer(con.label);
-          }
+        //     if (con.label && !map.current.getLayer(name + "-label")) map.current.addLayer(con.label);
+        //   }
 
-        });
+        // });
 
 
         // console.log('searchingLayer in loadSource', searchingLayer.current);
@@ -1591,7 +1682,11 @@ return useMemo(() => {
 
 
      {/* <InfoBar {...info}/> */}
-      <FloodControl simulatingFlood={simulatingFlood} setSimulatingFlood={setSimulatingFlood} />
+      <FloodControl 
+      simulatingFlood={simulatingFlood} 
+      setSimulatingFlood={setSimulatingFlood} 
+      floodHeight={floodHeight}  
+      setFloodHeight={setFloodHeight} />
 
       <div id='calculation-box' className="calculation-box">
             <Stack direction={"column"} sx={{ p:1, m:1}} className="calculated-area" >

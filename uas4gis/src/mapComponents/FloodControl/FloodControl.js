@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -16,16 +16,27 @@ const Input = styled(MuiInput)`
 
 export default function FloodControl(props) {
 
-    const { simulatingFlood, setSimulatingFlood } = props
+    const { simulatingFlood, setSimulatingFlood, floodHeight, setFloodHeight } = props
 
-  const [value, setValue] = useState(30);
+  const [value, setValue] = useState(floodHeight);
+  const sliderTimer = useRef()
 
   const handleSliderChange = (event, newValue) => {
+    if (sliderTimer.current) clearTimeout(sliderTimer.current)
+    sliderTimer.current = setTimeout(() => {
+      setFloodHeight(newValue)  
+    }, 10);
+    
     setValue(newValue);
   };
 
   const handleInputChange = (event) => {
+    if (sliderTimer.current) clearTimeout(sliderTimer.current)
+    sliderTimer.current = setTimeout(() => {
+      setFloodHeight(event.target.value === '' ? 0 : Number(event.target.value))
+    }, 10);
     setValue(event.target.value === '' ? 0 : Number(event.target.value));
+    
   };
 
   const handleBlur = () => {
@@ -82,7 +93,7 @@ export default function FloodControl(props) {
               onChange={handleInputChange}
               onBlur={handleBlur}
               inputProps={{
-                step: 10,
+                step: 1,
                 min: 0,
                 max: 100,
                 type: 'number',
@@ -92,7 +103,7 @@ export default function FloodControl(props) {
           </Grid>
         </Grid>
       </Box></div>)
-  }, [handleBlur, setSimulatingFlood, simulatingFlood, value])
+  }, [handleBlur, handleInputChange, handleSliderChange, setSimulatingFlood, simulatingFlood, value])
 
   return  ButtonUI
 
