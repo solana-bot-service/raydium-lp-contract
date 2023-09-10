@@ -69,7 +69,7 @@ export function MainMap() {
   const [mapReady, setMapReady] = useState(false);
   const [mapstyle, setMapstyle] = useState('')
   const [refreshRequired, setRefreshRequired] = useState(false);
-  const [simulatingFlood, setSimulatingFlood] = useState(true);
+  const [simulatingFlood, setSimulatingFlood] = useState(false);
   const [floodHeight, setFloodHeight] = useState(0)
   
   const searchFields = useRef();
@@ -253,6 +253,9 @@ export function MainMap() {
             'id': 'floodlevel',
             'type': 'fill-extrusion',
             'source': 'floodlevel-source',
+            'layout' : {
+              'visibility': 'none'
+            },
             'paint': {
                 'fill-extrusion-color': 'lightblue',
                 'fill-extrusion-height': floodHeight,
@@ -301,7 +304,18 @@ export function MainMap() {
   
     if (map.current && map.current.getLayer('floodlevel')) {
 
-      if (floodHeight > 0) {
+      toggleTerrain({ checked: simulatingFlood})
+      if (!simulatingFlood) {
+
+        map.current.setPaintProperty(
+          'floodlevel',
+          'fill-extrusion-height',
+          0
+        )
+        
+      }
+
+      if (simulatingFlood && floodHeight > 0) {
 
 
         map.current.setLayoutProperty(
@@ -325,7 +339,7 @@ export function MainMap() {
         
       }
     }
-  }, [floodHeight])
+  }, [floodHeight, simulatingFlood])
   
 
 
