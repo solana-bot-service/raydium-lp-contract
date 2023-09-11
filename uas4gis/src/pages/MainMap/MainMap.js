@@ -297,7 +297,7 @@ export function MainMap() {
       // });
     }
 
-  }, [mapReady, constructions, start, isLoggedIn, floodHeight, toggleVisibility]);
+  }, [mapReady, constructions, start, isLoggedIn, floodHeight]);
 
   useEffect(() => {
     
