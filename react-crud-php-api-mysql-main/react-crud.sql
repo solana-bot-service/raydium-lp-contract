@@ -13,7 +13,7 @@ CREATE TABLE `users`
     `unit` varchar(255),
     `building` varchar(255),
     `room` varchar(255),
-    `tel` bigint(14),
+    `tel` varchar(255),
     `json` longtext DEFAULT NULL CHECK (json_valid(`json`)),
     `created_at` timestamp,
     `updated_at` timestamp, 
