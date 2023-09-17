@@ -109,7 +109,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
         // PUT
         console.log('profile before putting', profile);
-        axios.put(`/api/user`, profile).then(function(response){
+        axios.put( (isLocalhost ? 'http://localhost:8888' : '') + `/api/user`, profile).then(function(response){
             console.log(response.data);
             // setProfile(p => ({ ...p, ...response.data }))
             savedProfile.current = profile
@@ -122,7 +122,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
         // const md5 = require('md5');
         console.log('profile before posting', profile);
-        axios.post('/api/user/save', profile).then(function (response) {
+        axios.post((isLocalhost ? 'http://localhost:8888' : '') + '/api/user/save', profile).then(function (response) {
           console.log(response.data);
           if (response.data && response.data.id) {
             setProfile(p => ({ ...p, id: response.data.id }))

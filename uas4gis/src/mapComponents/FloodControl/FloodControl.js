@@ -25,7 +25,7 @@ export default function FloodControl(props) {
     if (sliderTimer.current) clearTimeout(sliderTimer.current)
     sliderTimer.current = setTimeout(() => {
       setFloodHeight(newValue)  
-    }, 10);
+    }, 50);
     
     setValue(newValue);
   };
@@ -34,7 +34,7 @@ export default function FloodControl(props) {
     if (sliderTimer.current) clearTimeout(sliderTimer.current)
     sliderTimer.current = setTimeout(() => {
       setFloodHeight(event.target.value === '' ? 0 : Number(event.target.value))
-    }, 10);
+    }, 50);
     setValue(event.target.value === '' ? 0 : Number(event.target.value));
     
   };
@@ -51,9 +51,6 @@ export default function FloodControl(props) {
 
     if (!simulatingFlood) return (<div className='floodButton'>
       <Button sx={{ ml:1 }} variant="contained" color="info" onClick={() => {
-        console.log('====================================');
-        console.log('clicked open ui');
-        console.log('====================================');
         setSimulatingFlood(true)
         }}>
         จำลองน้ำท่วม

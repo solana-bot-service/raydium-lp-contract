@@ -80,9 +80,10 @@ export function MainMap() {
 
   //map data sources
   const ortho = require('../../MapData/nkrafaortho.json')
+  const ndvi = require('../../MapData/nkrafandvi.json')
   const constructions = require('../../MapData/vectorConstructionSrc.json')
   const floodlevels = require('../../MapData/vectorFloodSim.json')
-  const essentialLayers = {...ortho, ...constructions} //...admins,
+  const essentialLayers = {...ortho, ...ndvi , ...constructions} //...admins,
 
 
   const mapIds = Object.entries(essentialLayers).reduce((p, [name, con]) => {
@@ -847,6 +848,7 @@ export function MainMap() {
 
         if (!map.current.getSource('mapbox-dem')) map.current.addSource('mapbox-dem', {
           'type': 'raster-dem',
+          // 'url': 'mapbox://chaloemphol.04rga2s5', 
           'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
           'tileSize': 512,
           'maxzoom': 14

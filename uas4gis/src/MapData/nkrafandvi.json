@@ -1,0 +1,22 @@
+{
+    "nkrafa-ndvi-6607-layer": {
+        "src": {
+            "type": "raster",
+            "tileSize": 512,
+            "tiles": ["https://sppsim.rtaf.mi.th/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis%3AMap1_NDVIToolbox_export_SatJul29154903323494&bbox={bbox-epsg-3857}&srs=EPSG:3857&transparent=true&width=512&height=512&styles=&format=image/png"]            
+        },
+        "layer" : {
+            "id": "nkrafa-ndvi-6607-layer",
+            "type": "raster",
+            "source": "nkrafa-ndvi-6607",
+            "paint": {}
+          },
+        "info" : {
+            "group" : "การเจริญเติบโตและความสมบูรณ์ของพืช",
+            "desc" : "การเจริญเติบโตและความสมบูรณ์ของพืช ก.ค.66",
+            "date": "01/07/23",
+            "visible": false
+        }
+
+    }
+}
