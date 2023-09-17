@@ -44,6 +44,8 @@ export function CompareMap(props) {
  
   //map data sources
   const ortho = require('../../MapData/nkrafaortho.json')
+  const ndvi = require('../../MapData/nkrafandvi.json')
+  const comparableLayers = [ortho, ndvi].reduce((p, g) => ({...p, ...g}), {})
 
   function setBeforeLayerSelected(e) {
     if (e.target.value === afterMapLayer) setAfterMapLayer(beforeMapLayer)
@@ -88,7 +90,9 @@ export function CompareMap(props) {
       });
 
 
-      const comparableMaps = Object.entries(ortho).slice(-2)
+      const comparableMaps = Object.entries(comparableLayers)
+      .filter(([name, _]) => name.includes('ortho'))
+      .slice(-2)
 
       afterMap.current.addControl(new mapboxgl.NavigationControl());
 
@@ -275,10 +279,10 @@ export function CompareMap(props) {
 
   const beforeMapRenderer = useMemo(() => {
     if (beforeMapLayer && beforeMapLayer !== 'basemap') {
-      let selected = ortho[beforeMapLayer]
+      let selected = comparableLayers[beforeMapLayer]
       loadBeforeMap(beforeMapLayer, selected)
     }
-    Object.keys(ortho).forEach((currentName) => {
+    Object.keys(comparableLayers).forEach((currentName) => {
         if (beforeMap.current && beforeMap.current.getLayer(currentName)) {
 
           beforeMap.current.setLayoutProperty(currentName,
@@ -290,15 +294,15 @@ export function CompareMap(props) {
 
       });
       return (<div id="before" className="map" />)
-  }, [beforeMapLayer])
+  }, [beforeMapLayer, comparableLayers])
 
 
   const afterMapRenderer = useMemo(() => {
     if (afterMapLayer && afterMapLayer !== 'basemap') {
-      let selected = ortho[afterMapLayer]
+      let selected = comparableLayers[afterMapLayer]
       loadAfterMap(afterMapLayer, selected)
     }
-    Object.keys(ortho).forEach((currentName) => {
+    Object.keys(comparableLayers).forEach((currentName) => {
         if (afterMap.current && afterMap.current.getLayer( currentName)) {
           
           afterMap.current.setLayoutProperty( currentName,
@@ -308,7 +312,7 @@ export function CompareMap(props) {
         }
       });
       return (<div id="after" className="map" />)
-  }, [afterMapLayer])
+  }, [afterMapLayer, comparableLayers])
 
 return (<div>
 
@@ -326,7 +330,7 @@ return (<div>
     </div>
 
 
-    {ortho && Object.entries(ortho).length > 2 
+    {comparableLayers && Object.entries(comparableLayers).length > 2 
     ? (<Box className="beforemap-select" sx={{ p:1, m:2, minWidth: 60 }}>
     <FormControl fullWidth>
       <InputLabel variant="standard" htmlFor="uncontrolled-native">
@@ -341,7 +345,7 @@ return (<div>
         onChange={setBeforeLayerSelected}>
         { /* Each value matches a layer ID. */ }
         <option key={'basemap'} value={'basemap'}>-</option>
-        {Object.entries(ortho).map(([name, con]) => {
+        {Object.entries(comparableLayers).map(([name, con]) => {
             return (<option key={name} value={name}>{con.info.desc}</option>)  
           })}              
       </NativeSelect>
@@ -350,7 +354,7 @@ return (<div>
     : <></>}
 
 
-{ortho && Object.entries(ortho).length > 2 
+{comparableLayers && Object.entries(comparableLayers).length > 2 
     ? (<Box className="aftermap-select" sx={{ p:1, m:2, minWidth: 60 }}>
     <FormControl fullWidth>
       <InputLabel variant="standard" htmlFor="uncontrolled-native">
@@ -363,7 +367,7 @@ return (<div>
         onChange={setAfterLayerSelected}>
         { /* Each value matches a layer ID. */ }
         <option key={'basemap'} value={'basemap'}>-</option>
-        {Object.entries(ortho)
+        {Object.entries(comparableLayers)
         .filter(([name, _]) => (name !== beforeMapLayer))
         .map(([name, con]) => {
             return (<option key={name} value={name}>{con.info.desc}</option>)  

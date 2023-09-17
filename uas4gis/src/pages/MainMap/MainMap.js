@@ -83,7 +83,7 @@ export function MainMap() {
   const ndvi = require('../../MapData/nkrafandvi.json')
   const constructions = require('../../MapData/vectorConstructionSrc.json')
   const floodlevels = require('../../MapData/vectorFloodSim.json')
-  const essentialLayers = {...ortho, ...ndvi , ...constructions} //...admins,
+  const essentialLayers = {...ortho , ...ndvi, ...constructions} //...admins,
 
 
   const mapIds = Object.entries(essentialLayers).reduce((p, [name, con]) => {
@@ -306,6 +306,7 @@ export function MainMap() {
     if (map.current && map.current.getLayer('floodlevel')) {
 
       toggleTerrain({ checked: simulatingFlood})
+      toggleSidebar('left', simulatingFlood)
       if (!simulatingFlood) {
 
         map.current.setPaintProperty(
@@ -887,6 +888,16 @@ export function MainMap() {
 
 
       Object.entries(ortho).sort((a, b) => a[1].info.date - b[1].info.date).forEach(([name, con]) => {
+        if (!map.current.getSource(con.layer.source)) {
+          map.current.addSource(con.layer.source, con.src);
+        }
+        if (!map.current.getLayer(name)) {
+          map.current.addLayer(con.layer);
+          toggleVisibility(name)
+        }
+      });
+
+      Object.entries(ndvi).sort((a, b) => a[1].info.date - b[1].info.date).forEach(([name, con]) => {
         if (!map.current.getSource(con.layer.source)) {
           map.current.addSource(con.layer.source, con.src);
         }
