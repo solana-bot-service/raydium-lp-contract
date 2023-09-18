@@ -2917,12 +2917,14 @@
         {
             "order": "6",
             "rank": "น.อ. ",
-            "firstname": "รศ.ปัญญารักษ์  ",
+            "academic": "รศ.",
+            "firstname": "ปัญญารักษ์  ",
             "surname": "โกศัลวัฒน์",
             "position": "อจ.กกศ.รร.นนก.",
             "email": "panyarak@rtaf.mi.th",
             "building": "กกส.กกศ.รร.นนก.",
-            "room": "241"
+            "room": "241",
+            "imageUrl": "personnel/165940.jpg"
         },
         {
             "order": "7",
@@ -3570,12 +3572,14 @@
         {
             "order": "1",
             "rank": "น.อ. ",
-            "firstname": "รศ.สุทธิ์  ",
+            "academic": "รศ.",
+            "firstname": "สุทธิ์",
             "surname": "ศรีบูรพา",
             "position": "ผอ.กฟธ.ฯ",
             "email": "sooth@rtaf.mi.th",
             "building": "กฟธ.กกศ.รร.นนก.",
-            "room": "2221"
+            "room": "2221",
+            "imageUrl": "personnel/165945.jpg"
         },
         {
             "order": "2",
@@ -4321,13 +4325,15 @@
         {
             "order": "1",
             "rank": "พล.อ.ต.",
+            "academic": "ผศ.",
             "firstname": "วัชรินทร์",
             "surname": "โกมุทผล",
             "position": "ผอ.สบฑ.รร.นนก.",
             "email": "watcharin_ko@rtaf.mi.th",
             "building": "บก.กกศ.รร.นนก.",
             "room": "305",
-            "tel": "48750"
+            "tel": "48750",
+            "imageUrl": "personnel/165928.jpg"
         },
         {
             "order": "2",
@@ -4382,12 +4388,14 @@
         {
             "order": "7",
             "rank": "น.อ.",
+            "academic": "รศ.",
             "firstname": "เกียรติกุลไชย",
             "surname": "จิตต์เอื้อ",
             "position": "อจ.สบฑ.รร.นนก.",
             "email": "kiatkulchai@rtaf.mi.th",
             "building": "บก.กกศ.รร.นนก.",
-            "room": "312"
+            "room": "312",
+            "imageUrl": "personnel/165929.jpg"
         },
         {
             "order": "8",

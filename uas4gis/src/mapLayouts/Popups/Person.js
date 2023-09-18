@@ -29,7 +29,7 @@ export default function PersonCard(props) {
         </Paper>
         <CardContent sx={{ flex: '1 0 auto' }}>
             <Typography component="div" variant="h6">
-              {person.RANK}{person.NAME || "-"}
+              {person.NAME || "-"}
             </Typography>
             <Typography variant="subtitle2" color="text.secondary" component="div">
               ตำแหน่ง: {person.POSITION || "-"}

@@ -61,54 +61,63 @@ class GenerateGeoJSON {
         const buildingsLocation = require('../data/buildinglocations.json')
 
         
-        let features = [...[{
-            name: "ผศ.วัชรินทร์ โกมุทผล",
-            rank: 'พล.อ.ต.',
-            position: "ผอ.สบฑ.รร.นนก.",
-            email:'watcharin@rtaf.mi.th',
-            imageUrl: "personnel/165928.jpg"
-        }, {
-            name: "รศ.ปัญญารักษ์ โกศัลวัฒน์",
-            rank: 'น.อ.',
-            position: "อจ.กกศ.รร.นนก.",
-            email:'panyarak@rtaf.mi.th',
-            imageUrl: "personnel/165940.jpg"
-        }, {
-            name: "รศ.สุทธิ์ ศรีบูรพา",
-            rank: 'น.อ.',
-            position: "ผอ.กฟธ.กกศ.รร.นนก.",
-            email:'suth@rtaf.mi.th',
-            imageUrl: "personnel/165945.jpg"
-        }].map((u, index) => {
+        let features = [
+    //         ...[
+    //         {
+    //         name: "ผศ.วัชรินทร์ โกมุทผล",
+    //         rank: 'พล.อ.ต.',
+    //         position: "ผอ.สบฑ.รร.นนก.",
+    //         email:'watcharin@rtaf.mi.th',
+    //         imageUrl: "personnel/165928.jpg"
+    //     }, {
+    //         name: "รศ.ปัญญารักษ์ โกศัลวัฒน์",
+    //         rank: 'น.อ.',
+    //         position: "อจ.กกศ.รร.นนก.",
+    //         email:'panyarak@rtaf.mi.th',
+    //         imageUrl: "personnel/165940.jpg"
+    //     }, {
+    //         name: "รศ.สุทธิ์ ศรีบูรพา",
+    //         rank: 'น.อ.',
+    //         position: "ผอ.กฟธ.กกศ.รร.นนก.",
+    //         email:'suth@rtaf.mi.th',
+    //         imageUrl: "personnel/165945.jpg"
+    //     }, {
+    //         name: "รศ.เกียรติกุลไชย จิตต์เอื้อ",
+    //         rank: 'น.อ.',
+    //         position: "อจ.สบฑ.รร.นนก.",
+    //         email:'kiatkulchai@rtaf.mi.th',
+    //         imageUrl: "personnel/165929.jpg"
+    //     }
+    // ].map((u, index) => {
 
-            let rand = faker.number.int({
-                'min': 0,
-                'max': buildingIds.length - 1
-            })
+    //         let rand = faker.number.int({
+    //             'min': 0,
+    //             'max': buildingIds.length - 1
+    //         })
 
-            return ({
-                "type": "Feature",
-                "id": index,
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": buildingCoords[rand]
-                },
-                "geometry_name": "nkrafauser" + index,
-                "properties": {
-                    "NAME": u.name,
-                    "RANK" : u.rank,
-                    "POSITION" : u.position,
-                    "UNIT": faker.helpers.arrayElements(nkrafaunits, 1)[0].name,
-                    "BUILDING" : buildingIds[rand],
-                    "BUILDING_NAME" : "อาคาร " + buildingIds[rand],
-                    "ROOM" : "ห้อง " + buildingIds[rand] + "/" +  faker.string.numeric(3), 
-                    "IMAGE_URL": u.imageUrl,
-                    "AREA_SQM": faker.string.uuid(),
-                    "TEL" : "4-" + faker.string.numeric(4),
-                    "EMAIL": u.email
-                }
-            })
-        }),
+    //         return ({
+    //             "type": "Feature",
+    //             "id": index,
+    //             "geometry": {
+    //                 "type": "Point",
+    //                 "coordinates": buildingCoords[rand]
+    //             },
+    //             "geometry_name": "nkrafauser" + index,
+    //             "properties": {
+    //                 "NAME": u.name,
+    //                 "RANK" : u.rank,
+    //                 "POSITION" : u.position,
+    //                 "UNIT": faker.helpers.arrayElements(nkrafaunits, 1)[0].name,
+    //                 "BUILDING" : buildingIds[rand],
+    //                 "BUILDING_NAME" : "อาคาร " + buildingIds[rand],
+    //                 "ROOM" : "ห้อง " + buildingIds[rand] + "/" +  faker.string.numeric(3), 
+    //                 "IMAGE_URL": u.imageUrl,
+    //                 "AREA_SQM": faker.string.uuid(),
+    //                 "TEL" : "4-" + faker.string.numeric(4),
+    //                 "EMAIL": u.email
+    //             }
+    //         })
+    //     }),
         ...Object.entries(nkrafapersonnel).reduce((p, [key, usersArray]) => {
             return [...p, ...usersArray.map((u, index) => {
 
@@ -116,7 +125,7 @@ class GenerateGeoJSON {
                     'min': 0,
                     'max': buildingIds.length - 1
                 })
-                let fullname = [u.firstname, u.surname].join(" ")
+                let fullname = [[u.rank, u.academic, u.firstname].join(""), u.surname].join(" ")
                 return ({
                     "type": "Feature",
                     "id": index + 3,
@@ -145,7 +154,7 @@ class GenerateGeoJSON {
                         "BUILDING" : u.building,
                         "BUILDING_NAME" : u.building, 
                         "ROOM" : u.room, 
-                        "IMAGE_URL": faker.image.avatar(),
+                        "IMAGE_URL": u.imageUrl || faker.image.avatar(),
                         "AREA_SQM": faker.string.uuid(),
                         "TEL": u.tel,
                         "EMAIL": u.email

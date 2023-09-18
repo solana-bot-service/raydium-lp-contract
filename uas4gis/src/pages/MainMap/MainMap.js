@@ -38,6 +38,7 @@ import BuildingCard from "../../mapLayouts/Popups/Building";
 import styles from "./drawStyles";
 import { BaseMaps } from "../../mapLayouts/BaseMaps/BaseMaps";
 import FloodControl from "../../mapComponents/FloodControl/FloodControl";
+import { Typography } from "@mui/material";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
@@ -162,6 +163,15 @@ export function MainMap() {
   }, [mapstyle, refreshRequired]);
 
   useEffect(() => {
+
+    function toggleVisibility(id) {
+      if (!visibleLayers.includes(id)) map.current.setLayoutProperty(
+        id,
+        'visibility',
+        'none'
+      );
+    }
+
 
     // console.log('map.current', map.current);
     // console.log('isLoggedIn', isLoggedIn);
@@ -298,7 +308,7 @@ export function MainMap() {
       // });
     }
 
-  }, [mapReady, constructions, start, isLoggedIn, floodHeight]);
+  }, [mapReady, constructions, start, isLoggedIn, floodHeight, visibleLayers]);
 
   useEffect(() => {
     
@@ -1375,7 +1385,7 @@ export function MainMap() {
               // Restrict the area to 2 decimal points.
               // console.log(length);
               // const rounded_length = length.toFixed(3);
-              answer.innerHTML = `<div>${unit(length, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</div>`
+              answer.innerHTML = `<div style={{ fontSize: 24}}>${unit(length, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</div>`
             } else {
               answer.innerHTML = '';
               // if (e.type !== 'draw.delete')

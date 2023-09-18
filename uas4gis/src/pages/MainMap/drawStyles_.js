@@ -9,9 +9,9 @@ const styles = [
       ["!=", "mode", "static"],
     ],
     paint: {
-      "fill-color": "#FF007F",
-      "fill-outline-color": "#FF007F",
-      "fill-opacity": 0.4
+      "fill-color": "#3bb2d0",
+      "fill-outline-color": "#3bb2d0",
+      "fill-opacity": 0.1,
     },
   },
   {
@@ -19,8 +19,8 @@ const styles = [
     type: "fill",
     filter: ["all", ["==", "active", "true"], ["==", "$type", "Polygon"]],
     paint: {
-      "fill-color": "#FF007F",
-      "fill-outline-color": "#FF007F",
+      "fill-color": "#fbb03b",
+      "fill-outline-color": "#fbb03b",
       "fill-opacity": 0.1,
     },
   },
@@ -29,8 +29,8 @@ const styles = [
     type: "circle",
     filter: ["all", ["==", "$type", "Point"], ["==", "meta", "midpoint"]],
     paint: {
-      "circle-radius": 5,
-      "circle-color": "#FF007F",
+      "circle-radius": 3,
+      "circle-color": "#fbb03b",
     },
   },
   {
@@ -60,9 +60,9 @@ const styles = [
       "line-join": "round",
     },
     paint: {
-      "line-color": "#FF007F",
+      "line-color": "#fbb03b",
       "line-dasharray": [0.2, 2],
-      "line-width": 4,
+      "line-width": 2,
     },
   },
   {
@@ -79,9 +79,8 @@ const styles = [
       "line-join": "round",
     },
     paint: {
-      "line-color": "#FF007F",
-      "line-dasharray": [0.2, 2],
-      "line-width": 3
+      "line-color": "#ffa07a",
+      "line-width": 10,
     },
   },
   {
@@ -93,7 +92,7 @@ const styles = [
       "line-join": "round",
     },
     paint: {
-      "line-color": "#FF007F",
+      "line-color": "#fbb03b",
       "line-dasharray": [0.2, 2],
       "line-width": 2,
     },
@@ -123,7 +122,7 @@ const styles = [
     ],
     paint: {
       "circle-radius": 3,
-      "circle-color": "#FF007F",
+      "circle-color": "#fbb03b",
     },
   },
   {
@@ -182,7 +181,7 @@ const styles = [
     ],
     paint: {
       "circle-radius": 5,
-      "circle-color": "#FF007F",
+      "circle-color": "#fbb03b",
     },
   },
   {
@@ -190,8 +189,8 @@ const styles = [
     type: "fill",
     filter: ["all", ["==", "mode", "static"], ["==", "$type", "Polygon"]],
     paint: {
-      "fill-color": "#FF007F",
-      "fill-outline-color": "#FF007F",
+      "fill-color": "#404040",
+      "fill-outline-color": "#404040",
       "fill-opacity": 0.1,
     },
   },
@@ -204,7 +203,7 @@ const styles = [
       "line-join": "round",
     },
     paint: {
-      "line-color": "#FF007F",
+      "line-color": "#404040",
       "line-width": 2,
     },
   },
@@ -217,7 +216,7 @@ const styles = [
       "line-join": "round",
     },
     paint: {
-      "line-color": "#FF007F",
+      "line-color": "#404040",
       "line-width": 10,
     },
   },
@@ -227,7 +226,7 @@ const styles = [
     filter: ["all", ["==", "mode", "static"], ["==", "$type", "Point"]],
     paint: {
       "circle-radius": 5,
-      "circle-color": "#FF007F",
+      "circle-color": "#404040",
     },
   },
 ];
