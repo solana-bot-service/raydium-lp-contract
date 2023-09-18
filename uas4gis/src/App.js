@@ -342,21 +342,41 @@ const [anchorElNav, setAnchorElNav] = useState(null);
 
                 <Grid container spacing={1}>
                   {Object.entries(personprops)
-                  .filter(([p, _]) => personprops[p].required)
+                  .filter(([p, _]) => personprops[p].required && profile[p])
                   .map(([key, prop]) => {
                     console.log('profile[key]', profile[key]);
-                    return (<Grid key={key} item xs={12}>
+                    switch (key) {
+                      case 'email':
+                          return (<>
+                      <Grid key={key} item xs={8}>
+                        <TextField
+                          label={prop.label}
+                          helperText="กดยืนยันอีเมล์เพื่อตรวจสอบอีเมล์"
+                          variant="standard"
+                          disabled
+                          value={profile[key]}
+                        />
+                        </Grid>
+                        <Grid key={key} item xs={4}>
+                          <Button>ยืนยันอีเมล์</Button>
+                        </Grid>
+                        </>)
+                    
+                      default:
+                        return (<Grid key={key} item xs={12}>
 
-                      <TextField
-                        label={prop.label}
-                        fullWidth
-                        variant="standard"
-                        disabled
-                        value={prop.type === 'multiple' &&  profile && profile[key] && profile[key] !== "null" && profile[key] !== "\"null\"" && prop.separator 
-                        ? profile[key].replace(prop.separator, " ") 
-                        : profile[key]}
-                      />
-                    </Grid>)
+                          <TextField
+                            label={prop.label}
+                            fullWidth
+                            variant="standard"
+                            disabled
+                            value={prop.type === 'multiple' &&  profile && profile[key] && profile[key] !== "null" && profile[key] !== "\"null\"" && prop.separator 
+                            ? profile[key].replace(prop.separator, " ") 
+                            : profile[key]}
+                          />
+                        </Grid>)
+                    }  
+                  
                     })}
                   </Grid>
                 </Box>

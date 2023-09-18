@@ -31,7 +31,7 @@
             break;
         case "POST":
             $user = json_decode( file_get_contents('php://input') );
-            $sql = "INSERT INTO users(id, user_id, rank, name, surname, email, unit, building, room, tel, created_at) VALUES(null, :user_id, :rank, :name, :surname, :email, :unit,  :building, :room, :tel, :created_at)";
+            $sql = "INSERT INTO users(id, user_id, rank, name, surname, email, unit, position, building, room, tel, created_at) VALUES(null, :user_id, :rank, :name, :surname, :email, :unit, :position, :building, :room, :tel, :created_at)";
             $stmt = $conn->prepare($sql);
             $created_at = date('Y-m-d');
             $stmt->bindParam(':rank', $user->rank);
@@ -40,6 +40,7 @@
             $stmt->bindParam(':surname', $user->surname);
             $stmt->bindParam(':email', $user->email);
             $stmt->bindParam(':unit', $user->unit);
+            $stmt->bindParam(':position', $user->position);
             $stmt->bindParam(':building', $user->building);
             $stmt->bindParam(':room', $user->room);
             $stmt->bindParam(':tel', $user->tel);
@@ -57,7 +58,7 @@
 
         case "PUT":
             $user = json_decode( file_get_contents('php://input') );
-            $sql = "UPDATE users SET user_id= :user_id, rank= :rank, name= :name, surname =:surname, email =:email, unit =:unit, building =:building, room =:room, tel =:tel, updated_at =:updated_at WHERE id = :id AND user_id = :user_id";
+            $sql = "UPDATE users SET user_id= :user_id, rank= :rank, name= :name, surname =:surname, email =:email, unit =:unit, position =:position, building =:building, room =:room, tel =:tel, updated_at =:updated_at WHERE id = :id AND user_id = :user_id";
             $stmt = $conn->prepare($sql);
             $updated_at = date('Y-m-d');
             $stmt->bindParam(':id', $user->id);
@@ -67,6 +68,7 @@
             $stmt->bindParam(':surname', $user->surname);
             $stmt->bindParam(':email', $user->email);
             $stmt->bindParam(':unit', $user->unit);
+            $stmt->bindParam(':position', $user->position);
             $stmt->bindParam(':building', $user->building);
             $stmt->bindParam(':room', $user->room);
             $stmt->bindParam(':tel', $user->tel);

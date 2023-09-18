@@ -1,0 +1,1 @@
+<!-- http://www.phpgurukul.com/demos/emailverify/email_verification.php?code=27ecacb117b60cc525c9efe964429046 -->
