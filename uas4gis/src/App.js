@@ -99,8 +99,39 @@ const [anchorElNav, setAnchorElNav] = useState(null);
   }
 
   const verifyEmail = () => {
-    if (!profile.email) return
+    if (!profile.email || !profile.id) return
+
+    const { email, id } = profile
+    const bodyFormData = new FormData();
+    bodyFormData.append('verifyemail', true)
+    bodyFormData.append('id', id)
+    bodyFormData.append('email', email)
+
     
+    console.log('profile before post', profile);
+    console.log('params before post', bodyFormData);
+    axios({
+      method: "post",
+      url: (isLocalhost ? 'http://localhost:8888' : '') + `/api/user`,
+      data: bodyFormData,
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then(function (response) {
+      //handle success
+      console.log(JSON.stringify(response.data));
+    })
+    .catch(function (response) {
+      //handle error
+      console.log(JSON.stringify(response));
+    });
+  
+    // axios.post( (isLocalhost ? 'http://localhost:8888' : '') + `/api/email`, bodyFormData).then(function(response){
+    //     console.log(response.data);
+    //     // setProfile(p => ({ ...p, ...response.data }))
+    //     // savedProfile.current = profile
+    //     // setEditingProfile(false)
+    //   });
+
   }
 
   const handleSubmit = useCallback((event) => {

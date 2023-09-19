@@ -30,30 +30,66 @@
             echo json_encode($users);
             break;
         case "POST":
-            $user = json_decode( file_get_contents('php://input') );
-            $sql = "INSERT INTO users(id, user_id, rank, name, surname, email, unit, position, building, room, tel, created_at) VALUES(null, :user_id, :rank, :name, :surname, :email, :unit, :position, :building, :room, :tel, :created_at)";
-            $stmt = $conn->prepare($sql);
-            $created_at = date('Y-m-d');
-            $stmt->bindParam(':rank', $user->rank);
-            $stmt->bindParam(':user_id', $user->user_id);
-            $stmt->bindParam(':name', $user->name);
-            $stmt->bindParam(':surname', $user->surname);
-            $stmt->bindParam(':email', $user->email);
-            $stmt->bindParam(':unit', $user->unit);
-            $stmt->bindParam(':position', $user->position);
-            $stmt->bindParam(':building', $user->building);
-            $stmt->bindParam(':room', $user->room);
-            $stmt->bindParam(':tel', $user->tel);
-            // $stmt->bindParam(':tel', json_encode($user->tel, JSON_INVALID_UTF8_IGNORE | JSON_INVALID_UTF8_SUBSTITUTE));
-            $stmt->bindParam(':created_at', $created_at);
 
-            if($stmt->execute()) {
-                $id = $conn->lastInsertId();
-                $response = ['status' => 1, 'message' => 'Record created successfully.', 'id' => $id];
-            } else {
-                $response = ['status' => 0, 'message' => 'Failed to create record.'];
-            }
-            echo json_encode($response);
+                            
+                if(isset($_POST['verifyemail']))
+                    {
+                    //Post Values
+                    $id=$_POST['id'];
+                    $email=$_POST['email'];
+                    $activationcode=md5("testtest"); // Creating activation code
+
+                    $sql="UPDATE users SET activationcode=:activationcode WHERE id=:id";
+                    $query = $conn->prepare($sql);
+                    $query -> bindParam(':activationcode',$activationcode, PDO::PARAM_STR);
+                    $query -> execute();
+
+                    $to=$email;
+                    $msg= "Thanks for new Registration.";   
+                    $subject="Email verification";
+                    $headers .= "MIME-Version: 1.0"."\r\n";
+                    $headers .= 'Content-type: text/html; charset=iso-8859-1'."\r\n";
+                    $headers .= 'From: PHPGurukul | Programing Blog (Demo) <noreply@uas4gisupthehill-tothe.top>'."\r\n"; //Change this to  your email
+
+                    $ms.="<html></body><div><div>Dear $name,</div></br></br>";
+                    $ms.="<div style='padding-top:8px;'>Please click The following link For verifying and activation of your account</div>
+                    <div style='padding-top:10px;'><a href='https://uas4gis.upthehill-tothe.top/api/email/email_verification.php?code=$activationcode'>Click Here</a></div> 
+                    </body></html>";
+                    mail($to,$subject,$ms,$headers);
+                    echo "<script>alert('Registration successful, please verify in the registered Email-Id');</script>";
+
+
+                } else {
+
+                    $user = json_decode( file_get_contents('php://input') );
+                    $sql = "INSERT INTO users(id, user_id, rank, name, surname, email, unit, position, building, room, tel, created_at) VALUES(null, :user_id, :rank, :name, :surname, :email, :unit, :position, :building, :room, :tel, :created_at)";
+                    $stmt = $conn->prepare($sql);
+                    $created_at = date('Y-m-d');
+                    $stmt->bindParam(':rank', $user->rank);
+                    $stmt->bindParam(':user_id', $user->user_id);
+                    $stmt->bindParam(':name', $user->name);
+                    $stmt->bindParam(':surname', $user->surname);
+                    $stmt->bindParam(':email', $user->email);
+                    $stmt->bindParam(':unit', $user->unit);
+                    $stmt->bindParam(':position', $user->position);
+                    $stmt->bindParam(':building', $user->building);
+                    $stmt->bindParam(':room', $user->room);
+                    $stmt->bindParam(':tel', $user->tel);
+                    // $stmt->bindParam(':tel', json_encode($user->tel, JSON_INVALID_UTF8_IGNORE | JSON_INVALID_UTF8_SUBSTITUTE));
+                    $stmt->bindParam(':created_at', $created_at);
+
+                    if($stmt->execute()) {
+                        $id = $conn->lastInsertId();
+                        $response = ['status' => 1, 'message' => 'Record created successfully.', 'id' => $id];
+                    } else {
+                        $response = ['status' => 0, 'message' => 'Failed to create record.'];
+                    }
+                    echo json_encode($response);
+                    
+
+                }
+
+            
             break;
 
         case "PUT":
