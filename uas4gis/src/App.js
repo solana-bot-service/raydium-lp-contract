@@ -53,7 +53,7 @@ export default function App() {
 
   const pathName = location.state?.from || '/'
 
-  const [profile, setProfile] = useState({});
+  const [profile, setProfile] = useState({email: 'chaloemphol@rtaf.mi.th'});
   const savedProfile = useRef()
   const [user, setUser] = useState({});
 
@@ -96,6 +96,11 @@ const [anchorElNav, setAnchorElNav] = useState(null);
   const handleProfileEditing = (event, prop) => {
     setProfile( p => ({...p, [prop] : event.target.value}))
 
+  }
+
+  const verifyEmail = () => {
+    if (!profile.email) return
+    
   }
 
   const handleSubmit = useCallback((event) => {
@@ -358,7 +363,7 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                         />
                         </Grid>
                         <Grid key={key} item xs={4}>
-                          <Button>ยืนยันอีเมล์</Button>
+                          <Button onClick={verifyEmail}>ยืนยันอีเมล์</Button>
                         </Grid>
                         </>)
                     
