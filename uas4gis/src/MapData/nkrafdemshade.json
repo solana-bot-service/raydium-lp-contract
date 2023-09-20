@@ -1,0 +1,21 @@
+{
+    "nkrafa-demshade-6607-layer": {
+        "src": {
+            "type": "raster",
+            "tileSize": 512,
+            "tiles": ["https://sppsim.rtaf.mi.th/geoserver/uas4gis/wms?service=WMS&version=1.1.0&request=GetMap&layers=uas4gis%3AMap1_ElevationToolbox_export_SatJul29154943170167_masked&bbox={bbox-epsg-3857}&srs=EPSG:3857&transparent=true&width=512&height=512&styles=&format=image/png"]
+        },
+        "layer" : {
+            "id": "nkrafa-demshade-6607-layer",
+            "type": "raster",
+            "source": "nkrafa-demshade-6607",
+            "paint": {}
+          },
+        "info" : {
+            "group" : "DEM",
+            "desc" : "เฉดสีแสดงชั้นความสูง ก.ค.66",
+            "date": "01/07/23",
+            "visible": false
+        }
+    }
+}

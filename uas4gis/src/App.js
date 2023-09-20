@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Routes, Route, Outlet, Link, useLocation, Navigate } from "react-router-dom";
 import { CompareMap } from "./pages/CompareMap/CompareMap";
 import { MainMap } from "./pages/MainMap/MainMap";
@@ -22,22 +22,18 @@ import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
 import { Button, Card, CardContent, CardMedia, createTheme, CardActionArea, CardActions, TextField, Grid, styled, Paper, Chip } from "@mui/material";
 
 
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-
-
+import Select from '@mui/material/Select';
 
 import { ThemeProvider } from "@emotion/react";
-import { useAuthContext } from "./auth/AuthContext";
 import { Login } from "./pages/Login/Login";
-import { RANKS, personprops } from "./config";
+import { personprops } from "./config";
 import md5 from "md5";
-import { filter } from "mathjs";
+import LoginDialog from "./pages/Login/LoginDialog";
 
 export const isLocalhost = window.location.hostname.includes('localhost')
 
@@ -56,12 +52,13 @@ export default function App() {
   const [profile, setProfile] = useState({email: 'chaloemphol@rtaf.mi.th'});
   const savedProfile = useRef()
   const [user, setUser] = useState({});
+  const [showLoginDialog, setShowLoginDialog] = useState(false)
 
 
   const userId = useRef()
   const editingTimer = useRef()
   const [editingProfile, setEditingProfile] = useState(false);
-  const { error, isLoggedIn, isReady, liff } = useLiff();
+  const { error, isLoggedIn=false, isReady, liff } = useLiff();
 
 const pages = [{
   label: 'โหมดเปรียบเทียบ',
@@ -306,14 +303,20 @@ const [anchorElNav, setAnchorElNav] = useState(null);
       <Typography textAlign="center">Loading...</Typography></MenuItem>;
 
       if (!isLoggedIn) {
-        return (<MenuItem key={'login'} onClick={liff.login}>
-          <Typography textAlign="center">เข้าสู่ระบบ</Typography>
-        </MenuItem>
-
-          // <button className="App-button" onClick={liff.login}>
-          //   Login
-          // </button>
-        );
+        return ([{
+          key: 'emaillogin',
+          action: () => {
+            setShowLoginDialog(true) },
+          label : 'เข้าสู่ระบบด้วยอีเมล'
+        }, {
+          key: 'linelogin',
+          action: () => { liff.login() },
+          label : 'เข้าสู่ระบบด้วย Line'
+        }].map(m => {
+          return (<MenuItem key={m.key} onClick={m.action} >
+            <Typography textAlign="center">{m.label}</Typography>
+          </MenuItem>)
+        }));        
       }
 
     }
@@ -741,8 +744,10 @@ const [anchorElNav, setAnchorElNav] = useState(null);
                 </Menu>
               </Box>
             </Toolbar>
+
           </Container>
         </AppBar>
+        <LoginDialog showLoginDialog={showLoginDialog} setShowLoginDialog={setShowLoginDialog} />
         {profiledrawer}
   {/*
         <Outlet /> */}
