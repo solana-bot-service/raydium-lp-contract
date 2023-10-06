@@ -56,7 +56,8 @@ export function MainMap() {
 
   const draw = useRef(null);
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
-  const start = [101.19925046173393, 14.651304270467852] //[101.1866, 14.6534]; // 14.651304270467852, 101.19925046173393
+  const [start, setStart] = useState([101.1960171134838, 14.658726020990215]); //[101.1866, 14.6534]; // 14.651304270467852, 101.19925046173393 // 
+  const [adjustingStart, setAdjustingStart] = useState(false);
   // const start = [-87.61694, 41.86625];
   const [_zoom, _bearing, _pitch] = [15, 0, 0]
   const [lng, setLng] = useState(start[0]);
@@ -156,6 +157,18 @@ export function MainMap() {
 
   }
 
+  
+  useEffect(() => {
+    document.onkeydown = (e) => {      
+      if (["ArrowDown", "ArrowUp" , "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        // map.current.getCenter();
+        setStart(Object.values(map.current.getCenter()))
+        console.log(Object.values(map.current.getCenter()));
+        // console.log("arrow pressed");
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (map.current && map.current.isStyleLoaded() && refreshRequired) {
       localStorage.setItem('mapstyle', mapstyle);
@@ -223,7 +236,7 @@ export function MainMap() {
 
       const point = turf.point(start);
       const distance = 0.3
-      const radius = 1.6
+      const radius = 1.4
       const bearing = 0
       const params = {
         name: 'Flood Level'
@@ -1753,6 +1766,7 @@ return useMemo(() => {
           </fieldset>
           <div id="feature-listing" className="listing" />
         </div>
+        {/* <Button id="adjuststartbutton" color="info" variant="contained" onClick={() => setAdjustingStart(o => !o)}  size="small">ปศ</Button>       */}
         <Button id="comparebutton" component={Link} to="/comparemap" color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>              
         </div>
 

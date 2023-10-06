@@ -415,6 +415,17 @@ input:after {
 
   }
 
+  .button-group-right #adjuststartbutton {
+
+    position: absolute;
+    bottom: 10px;
+    left: 50px;
+    right: 50px;
+    width: 100%;
+    border-radius: 0px;
+
+  }
+
 
 
   .search_container {
