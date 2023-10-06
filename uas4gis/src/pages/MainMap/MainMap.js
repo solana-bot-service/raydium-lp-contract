@@ -56,7 +56,7 @@ export function MainMap() {
 
   const draw = useRef(null);
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
-  const start = [101.1866, 14.6534];
+  const start = [101.19925046173393, 14.651304270467852] //[101.1866, 14.6534]; // 14.651304270467852, 101.19925046173393
   // const start = [-87.61694, 41.86625];
   const [_zoom, _bearing, _pitch] = [15, 0, 0]
   const [lng, setLng] = useState(start[0]);
@@ -223,7 +223,7 @@ export function MainMap() {
 
       const point = turf.point(start);
       const distance = 0.3
-      const radius = 3
+      const radius = 1.6
       const bearing = 0
       const params = {
         name: 'Flood Level'

@@ -90,7 +90,7 @@ export default function FloodControl(props) {
               onChange={handleInputChange}
               onBlur={handleBlur}
               inputProps={{
-                step: 1,
+                step: 0.1,
                 min: 0,
                 max: 100,
                 type: 'number',
