@@ -285,7 +285,8 @@ export function MainMap() {
                 'fill-extrusion-color': 'lightblue',
                 'fill-extrusion-height': floodHeight,
                 'fill-extrusion-base': 0,
-                'fill-extrusion-opacity': 0.8
+                'fill-extrusion-opacity': 0.8,
+                'fill-extrusion-opacity-transition': { duration: 4000 }
             }
         })
 
