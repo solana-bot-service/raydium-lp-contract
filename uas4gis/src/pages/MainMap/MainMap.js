@@ -1,48 +1,30 @@
 
 import { Link } from "react-router-dom";
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import ReactDOM from "react-dom"
-
-// import './MainMap.css'
+import './MainMap.css'
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import FreehandMode from 'mapbox-gl-draw-freehand-mode'
-import PaintMode from "mapbox-gl-draw-paint-mode";
-// import {
-//   CircleMode,
-//   DragCircleMode,
-//   DirectMode,
-//   SimpleSelectMode
-// } from 'mapbox-gl-draw-circle';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
-
-import { extendDrawBar } from "../../Utils/extendDrawBar";
-
 import * as turf from '@turf/turf'
 import { LayersTOC } from '../../mapLayouts/LayersTOC/LayersTOC';
 
 import { unit } from 'mathjs'
 
-import { useLiff } from 'react-liff';
 
 import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
 
 
 import Stack from '@mui/material/Stack';
-import GenerateGeoJSON from "../../Utils/GenerateGeoJSON";
-import PersonCard from "../../mapLayouts/Popups/Person";
-import { isLocalhost } from "../../App";
-import BuildingCard from "../../mapLayouts/Popups/Building";
-
-
-import styles from "./drawStyles";
-import { BaseMaps } from "../../mapLayouts/BaseMaps/BaseMaps";
-import FloodControl from "../../mapComponents/FloodControl/FloodControl";
-import { Typography } from "@mui/material";
+import { Box } from '@mui/system';
+import SearchControl from "../../MapControls/SearchControl";
+import { Paper } from "@mui/material";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhbG9lbXBob2wiLCJhIjoiY2w0a3JidXJtMG0yYTNpbnhtdnd6cGh0dCJ9.CpVWidx8WhlkRkdK1zTIbw';
 
-export function MainMap() {
+export function MainMap(props) {
 
   const mapContainer = useRef(null);
   const map = useRef(null);
@@ -50,15 +32,9 @@ export function MainMap() {
   const popup = useRef()
   const searchableBBox = useRef()
 
-  const { error, isReady, liff } = useLiff();
-  let { isLoggedIn } =  useLiff();
-  if (isLocalhost) isLoggedIn = true
-
   const draw = useRef(null);
 //Longitude: 101.1866 | Latitude: 14.6534 | Zoom: 15.12 | Bearing: 0.00 | Pitch: 0.00
-  const [start, setStart] = useState([101.1960171134838, 14.658726020990215]); //[101.1866, 14.6534]; // 14.651304270467852, 101.19925046173393 // 
-  const [adjustingStart, setAdjustingStart] = useState(false);
-  // const start = [-87.61694, 41.86625];
+  const start = [101.1866, 14.6534];
   const [_zoom, _bearing, _pitch] = [15, 0, 0]
   const [lng, setLng] = useState(start[0]);
   const [lat, setLat] = useState(start[1]);
@@ -68,30 +44,19 @@ export function MainMap() {
 //   const [compareMode, setCompareMode] = useState(false);
   const [toggleSymbol, setToggleSymbol] = useState("▶︎");
   const [mode, setMode] = useState("");
-  const [mapReady, setMapReady] = useState(false);
-  const [mapstyle, setMapstyle] = useState('')
-  const [refreshRequired, setRefreshRequired] = useState(false);
-  const [simulatingFlood, setSimulatingFlood] = useState(false);
-  const [floodHeight, setFloodHeight] = useState(0)
-  
-  const searchFields = useRef();
   // const [searchingLayer, setSearchingLayer] = useState('');
   const searchingLayer = useRef()
 
-  const [measuredValue, setMeasuredValue] = useState(0);
-
   //map data sources
   const ortho = require('../../MapData/nkrafaortho.json')
-  const ndvi = require('../../MapData/nkrafandvi.json')
-  const demshade = require('../../MapData/nkrafdemshade.json')
+  const admins = require('../../MapData/vectorAdminSrc.json')
   const constructions = require('../../MapData/vectorConstructionSrc.json')
-  const floodlevels = require('../../MapData/vectorFloodSim.json')
-  const essentialLayers = {...ortho , ...ndvi, ...demshade, ...constructions} //...admins,
-
+  const essentialLayers = {...ortho, ...constructions} //...admins, 
+  
 
   const mapIds = Object.entries(essentialLayers).reduce((p, [name, con]) => {
     return {...p, [name] : con.info.desc}
-  }, {'nkrafa-dem-layer': 'ชั้นความสูง DEM', personnel: 'บุคคล'});
+  }, {'nkrafa-dem-layer': 'ชั้นความสูง DEM'});
   // Enumerate ids of the layers.
   const toggleableLayerIds = Object.keys(essentialLayers).reduce((p, name) => {
     Array.isArray(p) ? p.push(name) : p = name
@@ -105,32 +70,17 @@ export function MainMap() {
   const visibleLayers = Object.entries(essentialLayers).reduce((p, [name, con]) => {
     if (con.info.visible) Array.isArray(p) ? p.push(name) : p = name
     return p
-  }, ['personnel', 'floodlevel'])
+  }, [])
   //['nkrafa-ortho-6508-layer', 'nkrafa-ortho-6509-layer', 'roads', 'buildings']//['provinces']
 
-  function toggleVisibility(id) {
-    if (!visibleLayers.includes(id)) map.current.setLayoutProperty(
-      id,
-      'visibility',
-      'none'
-    );
-  }
+  const [spinners, setSpinners] = useState(toggleableLayerIds.reduce((p, id) => ({...p, [id]: <></>}), {}));
+  
 
   function zoomToFeature(feature) {
 
-    let centroid
-    switch (feature.geometry.type) {
-      case 'Point':
-        centroid = feature
-        break;
-
-      default:
-        let coords = feature.geometry.coordinates
-        let polygon = turf.polygon(coords);
-        centroid = turf.centroid(polygon);
-        break
-    }
-
+    let center = feature.geometry.coordinates
+    let polygon = turf.polygon(center);
+    let centroid = turf.centroid(polygon);
     let flyParams = {
       // These options control the ending camera position: centered at
       // the target, at zoom level 9, and north up.
@@ -154,240 +104,23 @@ export function MainMap() {
     // map.flyTo({center: centroid.geometry.coordinates, zoom: 12});
 
     map.current.flyTo(flyParams);
-
-  }
-
-  
-  useEffect(() => {
-    document.onkeydown = (e) => {      
-      if (["ArrowDown", "ArrowUp" , "ArrowLeft", "ArrowRight"].includes(e.key)) {
-        // map.current.getCenter();
-        setStart(Object.values(map.current.getCenter()))
-        console.log(Object.values(map.current.getCenter()));
-        // console.log("arrow pressed");
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (map.current && map.current.isStyleLoaded() && refreshRequired) {
-      localStorage.setItem('mapstyle', mapstyle);
-      window.location.reload()
-    }
-  }, [mapstyle, refreshRequired]);
-
-  useEffect(() => {
-
-    function toggleVisibility(id) {
-      if (!visibleLayers.includes(id)) map.current.setLayoutProperty(
-        id,
-        'visibility',
-        'none'
-      );
-    }
-
-
-    // console.log('map.current', map.current);
-    // console.log('isLoggedIn', isLoggedIn);
-
-    if (!map.current) return
-    // console.log('map.current.isStyleLoaded()', map.current.isStyleLoaded());
-    // console.log('mapReady', mapReady);
-    if (mapReady) {
-
-      Object.entries(constructions).forEach(([name, con]) => {
-
-        if (con.roles && con.roles.rtafregistered && !isLoggedIn) {
-          console.log('hiding ', name);
-          map.current.setLayoutProperty(
-          name,
-          'visibility',
-          'none'
-        )}
-
-        if (con.info.extrude && map.current.getLayer(con.extrude.id)) {
-
-
-          if (con.extrude.roles && con.extrude.roles.rtafregistered && !isLoggedIn) {
-            console.log('hiding ', con.extrude.id);
-              map.current.setLayoutProperty(
-                con.extrude.id,
-                'visibility',
-                'none'
-              )
-            }
-
-        }
-
-
-        if (con.populatePersonnel) {
-
-          if (con.populatePersonnel.roles && con.populatePersonnel.roles.rtafregistered && !isLoggedIn) {
-            console.log('hiding ', con.populatePersonnel.layer.id);
-            [con.populatePersonnel.layer.id, con.populatePersonnel.label.id].forEach(l => map.current.setLayoutProperty(
-              l,
-              'visibility',
-              'none'
-            ))
-          }
-        }
-
-      });
-
-      const point = turf.point(start);
-      const distance = 0.3
-      const radius = 1.4
-      const bearing = 0
-      const params = {
-        name: 'Flood Level'
-
-      }
-      const geojsonCreator = new GenerateGeoJSON()
-      // const floodplane = geojsonCreator.createChartPolePolygonFrom({point, distance, bearing, params })
-      // console.log('floodplane', floodplane);
-
-
-      // if (!map.current.getSource('floodlevel-source')) map.current.addSource('floodlevel-source', {
-      //   'type': 'geojson',
-      //   'data': floodplane
-      // });
-
-
-
-
-      if (!map.current.getSource('floodlevel-source')) {
-
-        let src = {
-          'type': 'geojson',
-          'data': geojsonCreator.createFloodingCircle({point, radius, params })
-        }
-        map.current.addSource('floodlevel-source', src);
-      }
-
-      // if (!map.current.getLayer(personnelMap.layer.id)) {
-      //   map.current.addLayer(personnelMap.layer);
-      //   toggleVisibility(personnelMap.layer.id)
-      
-      // }
-
-
-
-      if (map.current.getSource('floodlevel-source') && !map.current.getLayer('floodlevel')) {
-
-        map.current.addLayer({
-            'id': 'floodlevel',
-            'type': 'fill-extrusion',
-            'source': 'floodlevel-source',
-            'layout' : {
-              'visibility': 'none'
-            },
-            'paint': {
-                'fill-extrusion-color': 'lightblue',
-                'fill-extrusion-height': floodHeight,
-                'fill-extrusion-base': 0,
-                'fill-extrusion-opacity': 0.8,
-                'fill-extrusion-opacity-transition': { duration: 4000 }
-            }
-        })
-
-        toggleVisibility('floodlevel')
-      }
-
-
-
-      // Object.entries(floodlevels).forEach(([name, con]) => {
-
-      //   if (con.roles && con.roles.rtafregistered && !isLoggedIn) {
-      //     console.log('hiding ', name);
-      //     map.current.setLayoutProperty(
-      //     name,
-      //     'visibility',
-      //     'none'
-      //   )}
-
-      //   if (con.info.extrude && map.current.getLayer(con.extrude.id)) {
-
-
-      //     if (con.extrude.roles && con.extrude.roles.rtafregistered && !isLoggedIn) {
-      //       console.log('hiding ', con.extrude.id);
-      //         map.current.setLayoutProperty(
-      //           con.extrude.id,
-      //           'visibility',
-      //           'none'
-      //         )
-      //       }
-
-      //   }
-
-
-      // });
-    }
-
-  }, [mapReady, constructions, start, isLoggedIn, floodHeight, visibleLayers]);
-
-  useEffect(() => {
     
-  
-    if (map.current && map.current.getLayer('floodlevel')) {
-
-      toggleTerrain({ checked: simulatingFlood})
-      toggleSidebar('left', simulatingFlood)
-      if (!simulatingFlood) {
-
-        map.current.setPaintProperty(
-          'floodlevel',
-          'fill-extrusion-height',
-          0
-        )
-        
-      }
-
-      if (simulatingFlood && floodHeight > 0) {
-
-
-        map.current.setLayoutProperty(
-          'floodlevel',
-          'visibility',
-          'visible'
-        )
-        map.current.setPaintProperty(
-          'floodlevel',
-          'fill-extrusion-height',
-          floodHeight
-        )
-
-      } else {
-
-        map.current.setLayoutProperty(
-          'floodlevel',
-          'visibility',
-          'none'
-        )
-        
-      }
-    }
-  }, [floodHeight, simulatingFlood])
-  
-
+  }
 
   useEffect(() => {
 
     if (map.current) return; // initialize map only once
 
-    const mapStyle = localStorage.getItem('mapstyle');
-    if (mapStyle !=='undefined') setMapstyle(mapStyle)
-    
+
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       // style: 'mapbox://styles/mapbox/streets-v11',
-      style: mapStyle && mapStyle !=='undefined' ? 'mapbox://styles/mapbox/' + mapStyle : 'mapbox://styles/chaloemphol/cjkje3cwt17e72smseq2pmmxu',// 'mapbox://styles/chaloemphol/clasf7ipf00dp14mpio2dnq8h',//'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+      style: 'mapbox://styles/chaloemphol/cjkje3cwt17e72smseq2pmmxu',// 'mapbox://styles/chaloemphol/clasf7ipf00dp14mpio2dnq8h',//'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
       center: [lng, lat],
       pitch,
       bearing,
       zoom,
     });
-
-    
 
     popup.current = new mapboxgl.Popup({
       closeButton: false
@@ -398,228 +131,20 @@ export function MainMap() {
 
     if (!draw.current) draw.current = new MapboxDraw({
       displayControlsDefault: false,
-      controls: {
-        // point: true,
-        line_string: true,
-        // // combine_features: true,
-        // // uncombine_features: true,
-        polygon: true,
-        // multi_feature: true, 
-        // trash: true,
-      },
-      modes: Object.assign({
-        draw_polygon: FreehandMode,
-        draw_paint_mode: PaintMode,
-        // draw_circle  : CircleMode,
-    }, MapboxDraw.modes),
       // Select which mapbox-gl-draw control buttons to add to the map.
-      styles: styles,
-//       [
-//   // ACTIVE (being drawn)
-//   // line stroke
-//   {
-//       "id": "gl-draw-line",
-//       "type": "line",
-//       "filter": ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"]],
-//       "layout": {
-//         "line-cap": "round",
-//         "line-join": "round"
-//       },
-//       "paint": {
-//         "line-color": "#FF007F",
-//         "line-dasharray": [0.2, 2],
-//         "line-width": 4
-//       }
-//   },
-//   // DRAWN, NOT SELECTED
-// //   {
-// //     id: "gl-draw-line-inactive",
-// //     type: "line",
-// //     filter: ["all", ["==", "active", "false"], ["==", "$type", "LineString"], ["!=", "mode", "static"]],
-// //     layout: {
-// //         "line-cap": "round",
-// //         "line-join": "round"
-// //     },
-// //     paint: {
-// //         "line-color": "#FF007F",
-// //         "line-dasharray": [0.2, 2],
-// //         "line-width": 3
-// //     }
-// // }, 
-// {
-//     id: "gl-draw-line-active",
-//     type: "line",
-//     filter: ["all", ["==", "$type", "LineString"], ["==", "active", "true"]],
-//     "layout": {
-//       "line-cap": "round",
-//       "line-join": "round"
-//     },
-//     "paint": {
-//       "line-color": "#00f",
-//       "line-dasharray": [0.2, 2],
-//       "line-width": 4
-//     }
-// },
-// // {
-// //     id: "gl-draw-line-static",
-// //     type: "line",
-// //     filter: ["all", ["==", "mode", "static"], ["==", "$type", "LineString"]],
-// //     layout: {
-// //         "line-cap": "round",
-// //         "line-join": "round"
-// //     },
-// //     paint: {
-// //         "line-color": "#aaa",
-// //         "line-width": 2
-// //     }
-// // },
-//   // polygon fill
-//   {
-//     "id": "gl-draw-polygon-fill",
-//     "type": "fill",
-//     "filter": ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
-//     "paint": {
-//       "fill-color": "#FF007F",
-//       "fill-outline-color": "#FF007F",
-//       "fill-opacity": 0.4
-//     }
-//   }, {
-//     id: "gl-draw-point-point-stroke-inactive",
-//     type: "circle",
-//     filter: ["all", ["==", "active", "false"], ["==", "$type", "Point"], ["==", "meta", "feature"], ["!=", "mode", "static"]],
-//     paint: {
-//         "circle-radius": 5,
-//         "circle-opacity": 1,
-//         "circle-color": "#fff"
-//     }
-// }, {
-//     id: "gl-draw-point-inactive",
-//     type: "circle",
-//     filter: ["all", ["==", "active", "false"], ["==", "$type", "Point"], ["==", "meta", "feature"], ["!=", "mode", "static"]],
-//     paint: {
-//         "circle-radius": 3,
-//         "circle-color": "#3bb2d0"
-//     }
-// }, {
-//     id: "gl-draw-point-stroke-active",
-//     type: "circle",
-//     filter: ["all", ["==", "$type", "Point"], ["==", "active", "true"], ["!=", "meta", "midpoint"]],
-//     paint: {
-//         "circle-radius": 7,
-//         "circle-color": "#fff"
-//     }
-// }, {
-//     id: "gl-draw-point-active",
-//     type: "circle",
-//     filter: ["all", ["==", "$type", "Point"], ["!=", "meta", "midpoint"], ["==", "active", "true"]],
-//     paint: {
-//         "circle-radius": 5,
-//         "circle-color": "#fbb03b"
-//     }
-// }, {
-//     id: "gl-draw-point-static",
-//     type: "circle",
-//     filter: ["all", ["==", "mode", "static"], ["==", "$type", "Point"]],
-//     paint: {
-//         "circle-radius": 5,
-//         "circle-color": "#404040"
-//     }
-// },
-//   // // polygon mid points
-//   // {
-//   //   'id': 'gl-draw-polygon-midpoint',
-//   //   'type': 'circle',
-//   //   'filter': ['all',
-//   //     ['==', '$type', 'Point'],
-//   //     ['==', 'meta', 'midpoint']],
-//   //   'paint': {
-//   //     'circle-radius': 3,
-//   //     'circle-color': '#fbb03b'
-//   //   }
-//   // },
-//   // // polygon outline stroke
-//   // // This doesn't style the first edge of the polygon, which uses the line stroke styling instead
-//   // {
-//   //   "id": "gl-draw-polygon-stroke-active",
-//   //   "type": "line",
-//   //   "filter": ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
-//   //   "layout": {
-//   //     "line-cap": "round",
-//   //     "line-join": "round"
-//   //   },
-//   //   "paint": {
-//   //     "line-color": "#FF007F",
-//   //     "line-dasharray": [0.2, 2],
-//   //     "line-width": 4
-//   //   }
-//   // },
-//   // // vertex point halos
-//   // {
-//   //   "id": "gl-draw-polygon-and-line-vertex-halo-active",
-//   //   "type": "circle",
-//   //   "filter": ["all", ["==", "meta", "vertex"], ["==", "$type", "Point"], ["!=", "mode", "static"]],
-//   //   "paint": {
-//   //     "circle-radius": 5,
-//   //     "circle-color": "#FFF"
-//   //   }
-//   // },
-//   // // vertex points
-//   // {
-//   //   "id": "gl-draw-polygon-and-line-vertex-active",
-//   //   "type": "circle",
-//   //   "filter": ["all", ["==", "meta", "vertex"], ["==", "$type", "Point"], ["!=", "mode", "static"]],
-//   //   "paint": {
-//   //     "circle-radius": 3,
-//   //     "circle-color": "#a17e00",
-//   //   }
-//   // },
-
-//   // INACTIVE (static, already drawn)
-//   // line stroke
-//       ],
+      controls: {
+        line_string: true,
+        // combine_features: true,
+        // uncombine_features: true,
+        polygon: true,
+        trash: true
+      },
       // Set mapbox-gl-draw to draw by default.
       // The user does not have to click the polygon control button first.
-      // defaultMode: 'draw_paint_mode'
+      // defaultMode: 'draw_polygon'
     });
-
-
-    const drawPaintBtn = {
-      on: "click",
-      action: () => {
-        draw.current.changeMode("draw_paint_mode");
-      },
-      classes: ["paint-brush-icon"],
-      title: "Paint tool",
-    };
-    const drawPointBtn = {
-      on: "click",
-      action: () => {
-        draw.current.changeMode("draw_point");
-      },
-      classes: ["mapbox-gl-draw_point"],
-      title: "Marker tool",
-    };
-    const trashBtn = {
-      on: "click",
-      action: () => {
-        draw.current.trash();
-      },
-      classes: ["mapbox-gl-draw_trash"],
-      title: "Delete",
-    };
-    let drawBar = new extendDrawBar({
-      draw: draw.current,
-      buttons: [
-        // drawLineString,
-        // drawPolygon,
-        drawPaintBtn,
-        drawPointBtn,
-        trashBtn,
-      ],
-    });
-    map.current.addControl(drawBar);
-    // map.current.addControl(draw.current);
-
+    map.current.addControl(draw.current);
+    
 
     // Search Control
 
@@ -635,73 +160,38 @@ export function MainMap() {
 
     function renderListings(features) {
 
+      console.log('searchingLayer in renderListings', searchingLayer.current);
+
       const empty = document.createElement('p');
       // Clear any existing listings
       listingEl.innerHTML = '';
       if (features.length) {
         for (const feature of features) {
-
-          const mainLayerId = feature.layer.id.split('-')[0]
-
-          let fields = searchFields.current[mainLayerId]
+          
           // const labels = Object.entries()
           const itemLink = document.createElement('a');
-          let [field, value] = Object.entries(fields).shift()
-          const label = [value.prefix, feature.properties[field]].join(" ")
-
-          //`${mapIds[mainLayerId]} ${feature.properties['AREA_SQM']}`;
-
-          // itemLink.href = '#' //feature.properties.wikipedia;
+          const label = `อาคาร ${feature.properties['AREA_SQM']}`;
+          itemLink.href = '#' //feature.properties.wikipedia;
           itemLink.target = '_self';
           itemLink.textContent = label;
           itemLink.addEventListener('mousedown', () => zoomToFeature(feature))
 
           // itemLink.onmousedown = () => zoomToFeature(feature)
           itemLink.addEventListener('mouseover', () => {
-
-            let centroid
-            switch (feature.geometry.type) {
-              case 'Point':
-                centroid = feature
-                break;
-
-              default:
-                let coords = feature.geometry.coordinates
-                let polygon = turf.polygon(coords);
-                centroid = turf.centroid(polygon);
-                break
-            }
-
-            console.log('feature.layer.id', feature.layer.id);
-            let domContent
-            switch (feature.layer.id) {
-              case 'personnel':
-                domContent = <PersonCard person={feature.properties} />
-                break;
-              case 'buildings':
-                domContent = <BuildingCard building={feature.properties} />
-                break;
-              default:
-                domContent = <></>
-                break;
-            }
-
+                      
+            let center = feature.geometry.coordinates
+            let polygon = turf.polygon(center);
+            let centroid = turf.centroid(polygon);
             // Highlight corresponding feature on the map
-            const popupNode = document.createElement("div")
-            ReactDOM.render(
-              domContent,
-              popupNode
-            )
             popup.current
             .setLngLat(centroid.geometry.coordinates)
-            // .setText(label)
-            .setDOMContent(popupNode)
+            .setText(label)
             .addTo(map.current);
           });
-
+          
           listingEl.appendChild(itemLink);
         }
-
+        
         // Show the filter input
         filterEl.parentNode.style.display = 'block';
       } else if (features.length === 0 && filterEl.value !== '') {
@@ -710,43 +200,35 @@ export function MainMap() {
       } else {
           empty.textContent = 'เลื่อนแผนที่เพื่อค้นหาและดูผลลัพธ์';
           listingEl.appendChild(empty);
-
+          
           // Hide the filter input
           // filterEl.parentNode.style.display = 'none';
-
+          
           // remove features filter
 
           Array.from(searchingLayer.current).forEach(l => {
-            let fields = searchFields.current[l]
-            // console.log(fields);
-
-            let [field, _] = Object.entries(fields).shift()
-            // const label = [value.prefix, feature.properties[field]].join(" ")
-            // const name = normalize(`${feature.properties[field]}`);//'AREA_SQM']}`);
-            map.current.setFilter(l, ['has', field]);
+            map.current.setFilter(l, ['has', 'AREA_SQM']);            
           })
-
+          
       }
     }
 
 
     map.current.on('load', () => {
 
-      // const layerList = document.getElementById('basemaps_menu');
-      // const inputs = layerList.getElementsByTagName('input');
+      const layerList = document.getElementById('basemaps_menu');
+      const inputs = layerList.getElementsByTagName('input');
 
-      // for (const input of inputs) {
-      //   input.onclick = (layer) => {
-      //     const layerId = layer.target.id;
-      //     map.current.setStyle('mapbox://styles/mapbox/' + layerId);
-      //   };
-      // }
+      for (const input of inputs) {
+        input.onclick = (layer) => {
+          const layerId = layer.target.id;
+          map.current.setStyle('mapbox://styles/mapbox/' + layerId);
+        };
+      }
 
 
 
-      setTimeout(() => {
-        toggleSidebar('left');
-      }, 1000);
+      toggleSidebar('left');
 
 
       // toggleableLayerIds.forEach(id => {
@@ -826,13 +308,20 @@ export function MainMap() {
       // }
       // });
     });
+    
 
 
+    function toggleVisibility(id) {
+      if (!visibleLayers.includes(id)) map.current.setLayoutProperty(
+        id,
+        'visibility',
+        'none'
+      );
+    }
 
 
     var loadSource = () => {
       if (map.current.isStyleLoaded()) {
-        setMapReady(true)
 
 
         // When a click event occurs on a feature in the states layer,
@@ -874,7 +363,6 @@ export function MainMap() {
 
         if (!map.current.getSource('mapbox-dem')) map.current.addSource('mapbox-dem', {
           'type': 'raster-dem',
-          // 'url': 'mapbox://chaloemphol.04rga2s5', 
           'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
           'tileSize': 512,
           'maxzoom': 14
@@ -914,26 +402,7 @@ export function MainMap() {
 
       Object.entries(ortho).sort((a, b) => a[1].info.date - b[1].info.date).forEach(([name, con]) => {
         if (!map.current.getSource(con.layer.source)) {
-          map.current.addSource(con.layer.source, con.src);
-        }
-        if (!map.current.getLayer(name)) {
-          map.current.addLayer(con.layer);
-          toggleVisibility(name)
-        }
-      });
-
-      Object.entries(ndvi).sort((a, b) => a[1].info.date - b[1].info.date).forEach(([name, con]) => {
-        if (!map.current.getSource(con.layer.source)) {
-          map.current.addSource(con.layer.source, con.src);
-        }
-        if (!map.current.getLayer(name)) {
-          map.current.addLayer(con.layer);
-          toggleVisibility(name)
-        }
-      });
-
-      Object.entries(demshade).sort((a, b) => a[1].info.date - b[1].info.date).forEach(([name, con]) => {
-        if (!map.current.getSource(con.layer.source)) {
+        console.log(name);
           map.current.addSource(con.layer.source, con.src);
         }
         if (!map.current.getLayer(name)) {
@@ -952,18 +421,19 @@ export function MainMap() {
         // });
 
         // Buildings and roads
-        if (!searchingLayer.current) searchingLayer.current = new Set()
-        if (!searchFields.current) searchFields.current = {}
-
         Object.entries(constructions).forEach(([name, con]) => {
 
-          if (con.searchable) {
+          if (!searchingLayer.current && con.searchable) {
+            console.log('setting searchable:', name);
+            // setSearchingLayer(`${name}`)
+            searchingLayer.current = new Set()
             searchingLayer.current.add(name)
-            searchFields.current[name] = con.searchable.fields
+
+  
           }
 
-
           if (!map.current.getSource(con.layer.source)) {
+            console.log(name);
             map.current.addSource(con.layer.source, con.src);
 
           }
@@ -975,73 +445,12 @@ export function MainMap() {
           }
 
           if (con.info.extrude && !map.current.getLayer(con.extrude.id)) {
-
             map.current.addLayer(con.extrude)
             searchingLayer.current.add(con.extrude.id)
-            searchFields.current[con.extrude.id] = con.searchable.fields
-
           }
-
-
-          if (con.populatePersonnel) {
-
-            // console.log('e.sourceId', e.sourceId);
-
-            let generateGeoJSON = new GenerateGeoJSON()
-            let personnelMap = con.populatePersonnel
-
-
-            if (!map.current.getSource(personnelMap.layer.source)) {
-
-              let src = {
-                'type': 'geojson',
-                'data': generateGeoJSON.createPointsFromPolygons({
-                  polygons: []
-                })
-              }
-              map.current.addSource(personnelMap.layer.source, src);
-            }
-
-            if (!map.current.getLayer(personnelMap.layer.id)) {
-              map.current.addLayer(personnelMap.layer);
-              toggleVisibility(personnelMap.layer.id)
-
-              if (personnelMap.label && !map.current.getLayer(personnelMap.label.id)) map.current.addLayer(personnelMap.label);
-              searchingLayer.current.add(personnelMap.layer.id)
-              if (personnelMap.searchable) searchFields.current[personnelMap.layer.id] = personnelMap.searchable.fields
-            }
-
-
-
-          }
-
-
-
 
         });
-
-
-        // Object.entries(floodlevels).forEach(([name, con]) => {
-
-        //   if (con.searchable) {
-        //     searchingLayer.current.add(name)
-        //     searchFields.current[name] = con.searchable.fields
-        //   }
-
-
-        //   if (!map.current.getSource(con.layer.source)) {
-        //     map.current.addSource(con.layer.source, con.src);
-
-        //   }
-        //   if (!map.current.getLayer(name)) {
-        //     map.current.addLayer(con.layer);
-        //     toggleVisibility(name)
-
-        //     if (con.label && !map.current.getLayer(name + "-label")) map.current.addLayer(con.label);
-        //   }
-
-        // });
-
+  
 
         // console.log('searchingLayer in loadSource', searchingLayer.current);
 
@@ -1053,12 +462,12 @@ export function MainMap() {
         //   console.log('====================================');
         //   features = [...features, ...map.current.querySourceFeatures({  sourceId : sourceId })];
         // })
-
+        
         // if (features) {
         //   const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
         //   // Populate features for the listing overlay.
         //     renderListings(uniqueFeatures);
-
+          
         //   // Clear the input container
         //   //TODO:- uncomment here
         //   filterEl.value = '';
@@ -1070,6 +479,8 @@ export function MainMap() {
         // console.log('searchables in loadSource', searchables.current);
 
         // }
+
+
 
         const layers = document.getElementById('menu');
 
@@ -1170,10 +581,10 @@ export function MainMap() {
 
         });
 
-
+      
 
         map.current.off('data', loadSource);
-
+      
 
         // Call this function on initialization
         // passing an empty array to render an empty state
@@ -1185,57 +596,36 @@ export function MainMap() {
 
       map.current.on('movestart', () => {
         if (!searchables.current) {
-
+            
         // reset features filter as the map starts moving
-          if (searchingLayer.current) Array.from(searchingLayer.current).forEach(l => {
-            let fields = searchFields.current[l]
-            // console.log(fields);
-
-            let [field, _] = Object.entries(fields).shift()
-            map.current.setFilter(l, ['has', field]);
-            if (map.current.getLayer(l + "-label")) map.current.setFilter(l + "-label", ['has', field])
+          console.log('searchingLayer in movestart', searchingLayer.current);
+          Array.from(searchingLayer.current).forEach(l => {
+            map.current.setFilter(l, ['has', 'AREA_SQM']);
+            if (map.current.getLayer(l + "-label")) map.current.setFilter(l + "-label", ['has', 'AREA_SQM'])
           })
         }
       });
-
+       
       map.current.on('moveend', () => {
 
         if (!searchables.current) {
 
-          const features = searchingLayer.current && map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
+          console.log('searchingLayer in moveend', searchingLayer.current);
+
+          const features = map.current.queryRenderedFeatures({ layers: Array.from(searchingLayer.current) });
+          
           if (features) {
             const uniqueFeatures = getUniqueFeatures(features, 'AREA_SQM');
             // Populate features for the listing overlay.
               renderListings([]);
-
+            
             // Clear the input container
             //TODO:- uncomment here
             filterEl.value = '';
-
+  
             // Store the current features in sn `airports` variable to
             // later use for filtering on `keyup`.
-            searchables.current = uniqueFeatures//features//uniqueFeatures;
-
-            //log
-            // console.log(uniqueFeatures.filter(f => f.layer.id !== 'personnel').map(feature => feature.properties['AREA_SQM']).join(", "));
-
-            // console.log(uniqueFeatures.filter(f => f.layer.id !== 'personnel').map(feature => {
-
-            //   let centroid
-            //   switch (feature.geometry.type) {
-            //     case 'Point':
-            //       centroid = feature
-            //       break;
-
-            //     default:
-            //       let coords = feature.geometry.coordinates
-            //       let polygon = turf.polygon(coords);
-            //       centroid = turf.centroid(polygon);
-            //       break
-            //   }
-            //   return `[${centroid.geometry.coordinates[0]}, ${centroid.geometry.coordinates[1]}]`
-            // }).join(", "));
-
+            searchables.current = uniqueFeatures;
           }
         }
 
@@ -1253,58 +643,15 @@ export function MainMap() {
 
     map.current.on('sourcedata', (e) => {
 
-      // const mainLayerId = e.sourceId.split('-')[0]
-
-
-          // if (e.isSourceLoaded && constructions[mainLayerId] && constructions[mainLayerId].populatePersonnel) {
-
-          //   console.log('e.sourceId', e.sourceId);
-
-          //   let generateGeoJSON = new GenerateGeoJSON()
-          //   let personnelMap = constructions[mainLayerId].populatePersonnel
-
-
-          //   if (!map.current.getSource(personnelMap.layer.source)) {
-
-          //     console.log('e', e);
-
-          //     var polygons = map.current.querySourceFeatures(e.source)
-          //     console.log('polygons', polygons);
-
-          //     let src = {
-          //       'type': 'geojson',
-          //       'data': generateGeoJSON.createPointsFromPolygons({
-          //         polygons: polygons
-          //       })
-          //     }
-          //     console.log('src', src);
-          //     map.current.addSource(personnelMap.layer.source, src);
-          //   }
-
-          //   if (!map.current.getLayer(personnelMap.layer.id)) {
-          //     map.current.addLayer(personnelMap.layer);
-          //     toggleVisibility(personnelMap.layer.id)
-
-          //     if (personnelMap.label && !map.current.getLayer(personnelMap.label.id)) map.current.addLayer(personnelMap.label);
-          //     // searchingLayer.current.add(personnelMap.layer.id)
-          //   }
-
-
-
-          // }
-
-
-
           if (searchingLayer.current) {
 
              var fs = Array.from(searchingLayer.current).reduce((p, c) => {
-
+              
               if (`${e.sourceId}` !== (c + '-source') || !e.isSourceLoaded || !map.current.getSource(c + '-source')) return p
-
+              
               var f = map.current.querySourceFeatures(c + '-source')
 
-              // console.log(f.length);
-              if (f.length === 0) return p
+              if (f.length === 0) return p              
               // console.log('====================================');
               // console.log(constructions[c].src);
               // console.log('====================================');
@@ -1317,11 +664,10 @@ export function MainMap() {
           }
 
           if (fs && fs.length) {
-            let newBbox = turf.bbox({
+            searchableBBox.current = turf.bbox({
               type: 'FeatureCollection',
               features: fs
             });
-            searchableBBox.current = newBbox
           }
 
 
@@ -1348,6 +694,7 @@ export function MainMap() {
 
     function updateCalculation(e) {
 
+        console.log(e.type, draw.current.getMode());
         let mode = draw.current.getMode()
 
         let data = draw.current.getAll();
@@ -1358,31 +705,31 @@ export function MainMap() {
 
         const calculationBox = document.getElementById('calculation-box');
         if (!document.getElementById('headerText') && calculationBox) calculationBox.prepend(headerText)
-
+        
         calculationBox.style.display = data.features.length > 0 ? 'block' : 'none'
-
-        const searchContainer = document.getElementById('search_container');
+        
+        const searchContainer = document.getElementById('search_container'); 
         if (searchContainer) searchContainer.style.maxHeight =  data.features.length > 0 ?'50%' : '80%'
 
-        const ButtonGroupRight = document.getElementById('button-group-right');
+        const ButtonGroupRight = document.getElementById('button-group-right'); 
         if (ButtonGroupRight) ButtonGroupRight.style.maxHeight =  data.features.length > 0 ?'50%' : '80%'
 
         if (e.type === 'draw.update') {
           // switch (data.features.) {
           //   case value:
-
+              
           //     break;
-
+          
           //   default:
           //     break;
           // }
         }
         switch (mode) {
           case 'draw_polygon':
-
+                
             document.getElementById('headerText').textContent = 'ขนาดพื้นที่รวม'
             data.features = data.features.filter(f => f.geometry.type === 'Polygon')
-            // console.log(data);
+            console.log(data);
 
             if (data.features.length > 0) {
               const displayingUnit = 'm2'
@@ -1396,48 +743,28 @@ export function MainMap() {
               //   alert('Click the map to draw a polygon.');
             }
             break;
-
-          case 'draw_paint_mode':
+          
           case 'draw_line_string':
-
+                
             document.getElementById('headerText').textContent = 'ระยะทางรวม'
             data.features = data.features.filter(f => f.geometry.type === 'LineString')
-            // console.log(data);
-
+            console.log(data);
+            
             if (data.features.length > 0) {
               const displayingUnit = 'meters'
               const length = turf.length(data, { units : 'meters'});
               // Restrict the area to 2 decimal points.
               // console.log(length);
               // const rounded_length = length.toFixed(3);
-              answer.innerHTML = `<div style={{ fontSize: 24}}>${unit(length, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</div>`
+              answer.innerHTML = `<div>${unit(length, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</div>`
             } else {
               answer.innerHTML = '';
               // if (e.type !== 'draw.delete')
               //   alert('Click the map to draw a polygon.');
             }
             break;
-
-          // case 'draw_paint_mode':
-
-          //   document.getElementById('headerText').textContent = 'ขนาดพื้นที่รวม'
-          //   data.features = data.features.filter(f => f.geometry.type === 'Polygon')
-          //   // console.log(data);
-
-          //   if (data.features.length > 0) {
-          //     const displayingUnit = 'm2'
-          //     const area = turf.area(data);
-          //     // Restrict the area to 2 decimal points.
-          //     // const rounded_area = Math.round(area * 100) / 100;
-          //     answer.innerHTML = `<div>${unit(area, displayingUnit).format({notation: 'fixed', precision: 2}).toString()}</div>` //; //<p><strong>${rounded_area} sqm.</strong></p>
-          //   } else {
-          //     answer.innerHTML = '';
-          //     // if (e.type !== 'draw.delete')
-          //     //   alert('Click the map to draw a polygon.');
-          //   }
-          // break;
-
-
+          
+        
           default:
             break;
         }
@@ -1450,7 +777,7 @@ export function MainMap() {
     //       // depending on whether we're currently at point a or b, aim for
     //       // point a or b
     //       // const target = isAtStart ? end : start;
-
+    
     //       // and now we're at the opposite point
     //       // isAtStart = !isAtStart;
     //       let flyParams = {
@@ -1460,21 +787,21 @@ export function MainMap() {
     //         zoom: _zoom,
     //         bearing: _bearing,
     //         pitch: _pitch,
-
+    
     //         // These options control the flight curve, making it move
     //         // slowly and zoom out almost completely before starting
     //         // to pan.
     //         speed: 1.5, // make the flying slow
     //         curve: 1, // change the speed at which it zooms out
-
+    
     //         // This can be any easing function: it takes a number between
     //         // 0 and 1 and returns another number between 0 and 1.
     //         easing: (t) => t,
-
+    
     //         // this animation is considered essential with respect to prefers-reduced-motion
     //         essential: true
     //       }
-
+    
     //       map.current.flyTo(flyParams);
     //     })
 
@@ -1517,7 +844,6 @@ export function MainMap() {
         const value = normalize(`${e.target.value}`);
         if (value === '') {
           renderListings([])
-          popup.current.remove()
           return map.current.fitBounds(searchableBBox.current)
         }
 
@@ -1527,16 +853,7 @@ export function MainMap() {
 
         for (const feature of searchables.current) {
 
-          // console.log(feature.layer.id);
-          let mainLayerId = feature.layer.id.split('-')[0]
-
-          let fields = searchFields.current[mainLayerId]
-          // console.log(fields);
-
-          let [field, _] = Object.entries(fields).shift()
-          // const label = [value.prefix, feature.properties[field]].join(" ")
-
-          const name = normalize(`${feature.properties[field]}`);//'AREA_SQM']}`);
+          const name = normalize(`${feature.properties['AREA_SQM']}`);
           if (name.includes(value)) { //|| code.includes(value)) {
             filtered.push(feature);
           }
@@ -1546,55 +863,40 @@ export function MainMap() {
         renderListings(filtered);
 
         // Set the filter to populate features into the layer.
-        // if (false) { //(filtered.length) { //
+        if (false) { //(filtered.length) { //
 
-        //   Array.from(searchingLayer.current).forEach(layerComponents => {
-        //     let visibleLayers = []
-        //     let targets = [layerComponents, layerComponents + "-label"]
-        //     targets.forEach(layer => {
-        //       if (map.current.getLayer(layer)) visibleLayers.push(layer)
-        //     })
-        //     visibleLayers.forEach(l => {
-        //       map.current.setFilter(l, [
-        //         'match',
-        //         ['get', 'AREA_SQM'],
-        //         filtered.map((feature) => {
-        //           return feature.properties['AREA_SQM'];
-        //         }),
-        //         true,
-        //         false
-        //       ]);
-        //     })
-        //   });
-        // }
+          Array.from(searchingLayer.current).forEach(layerComponents => {
+            let visibleLayers = []
+            let targets = [layerComponents, layerComponents + "-label"]
+            targets.forEach(layer => {
+              if (map.current.getLayer(layer)) visibleLayers.push(layer)
+            })
+            visibleLayers.forEach(l => {
+              map.current.setFilter(l, [
+                'match',
+                ['get', 'AREA_SQM'],
+                filtered.map((feature) => {
+                  return feature.properties['AREA_SQM'];
+                }),
+                true,
+                false
+              ]);
+            })
+          });
+        }
       });
 
       filterEl.addEventListener('focus' , (e) => {
         const value = normalize(`${e.target.value}`);
         if (value === '') map.current.fitBounds(searchableBBox.current)
-        toggleSidebar('left',true)
       })
     }
-  }, [lng, lat, pitch, bearing, zoom, ortho, constructions, toggleableLayerIds, essentialLayers, toggleVisibility, mapIds, visibleLayers])
-
-
-  useEffect(() => {
-
-    if (!map.current) return
-
-
-
-
-
-
-
-
-  }, [])
+  });
 
   useEffect(() => {
 
     if (!map.current) return
-
+    
     map.current.on('move', () => {
       setLng(map.current.getCenter().lng.toFixed(4));
       setLat(map.current.getCenter().lat.toFixed(4));
@@ -1602,7 +904,7 @@ export function MainMap() {
       setBearing(map.current.getBearing().toFixed(2));
       setPitch(map.current.getPitch().toFixed(2));
 
-
+      
     });
   });
 
@@ -1610,7 +912,7 @@ export function MainMap() {
 
   //   async function checkGeoserver() {
 
-  //     let geoserverUrl = 'https://sppsim.rtaf.mi.th'
+  //     let geoserverUrl = 'http://sppsim.rtaf.mi.th'
   //     console.log(await webexists(geoserverUrl));
 
   //   }
@@ -1625,32 +927,32 @@ export function MainMap() {
  }
 
 
-  function toggleSidebar(id, forceCollapsed) {
+  function toggleSidebar(id) {
 
     const elem = document.getElementById(id);
     // Add or remove the 'collapsed' CSS class from the sidebar element.
     // Returns boolean "true" or "false" whether 'collapsed' is in the class list.
 
-    const collapsed = forceCollapsed ? elem.classList.add('collapsed') : elem.classList.toggle('collapsed');
+    const collapsed = elem.classList.toggle('collapsed');
     const duration = 1000
     const padding = {};
     // 'id' is 'right' or 'left'. When run at start, this object looks like: '{left: 300}';
-    padding[id] = forceCollapsed ? 0 : (collapsed ? 0 : 200); // 0 if collapsed, 300 px if not. This matches the width of the sidebars in the .sidebar CSS class.
+    padding[id] = collapsed ? 0 : 200; // 0 if collapsed, 300 px if not. This matches the width of the sidebars in the .sidebar CSS class.
     // Use `map.easeTo()` with a padding option to adjust the map's center accounting for the position of sidebars.
 
     map.current.easeTo({
       padding: padding,
       duration // In ms. This matches the CSS transition duration property.
     });
-
+    
     // console.log('collapsed', collapsed);
     // console.log('newMode', newMode);
     // console.log('padding', padding);
     // console.log('newMode === mode', newMode === mode);
 
     setTimeout(() => {
-      // console.log('setting arrow');
-      // console.log(collapsed);
+      console.log('setting arrow');
+      console.log(collapsed);
       setToggleSymbol(collapsed ? "▶︎" : "◀︎")
     }, duration);
   }
@@ -1661,7 +963,25 @@ export function MainMap() {
   // }, [spinners]);
 
 
+  const SidebarContent = useMemo(() => {
+    return (<LayersTOC mode={mode} />)
+  }, [mode])
 
+  const TitleBlock = () => {
+    console.log('in TitleBlock');
+    return (
+    <Card sx={{ display: 'flex', bgcolor:"transparent", maxHeight : "15vh"}}>
+      <CardMedia
+          component="img"
+          image="nkrafalogo.png"
+          alt="nkrafa logo"
+          sx={{  width:80, objectFit:'contain'}}
+        />
+      <CardContent>
+      <Box sx={{ textAlign: 'center', typography:'h5', color:'white' }}>ระบบข้อมูลภูมิสารสนเทศของ รร.นนก. ณ ที่ตั้ง อ.มวกเหล็ก จว.สระบุรี</Box>
+        </CardContent>
+  </Card>)
+  }
 
 
 
@@ -1683,12 +1003,12 @@ export function MainMap() {
 //       <div ref={mapContainer} className="map-container" />
 //       {/* <SidebarMenu {...sidebarmenuProps} /> */}
 //       {/* <button id='openbtn' className="openbtn" onClick={openNav}>☰</button> */}
-
+  
 //       <div id="left" className="sidebar flex-center left collapsed">
 //           <div className="sidebar-content rounded-rect flex-center">
-
+  
 //             <Stack spacing={2} direction="column" >
-
+  
 //               <LayersTOC />
 //               {/* <BaseMaps /> */}
 //             </Stack>
@@ -1697,20 +1017,20 @@ export function MainMap() {
 //             </div>
 //           </div>
 //       </div>
-
-
+  
+  
 //      {/* <InfoBar {...info}/> */}
-//       <div id='calculation-box' className="calculation-box">
+//       <div id='calculation-box' className="calculation-box">          
 //         <div id="calculated-area" />
 //       </div>
-
+  
 //       <div id='titleblock'><TitleBlock /></div>
 //       <div className='button-group-right'>
 //       <Button component={Link} to="/comparemap" color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
 //         {/* <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button> */}
 //         {/* <SearchBox /> */}
 //       </div>
-
+  
 //       <div className="search_container">
 //         <fieldset>
 //         <input id="feature-filter" type="text" placeholder="ค้นหา" />
@@ -1726,14 +1046,14 @@ return useMemo(() => {
       <div ref={mapContainer} className="map-container searchmode" />
       {/* <SidebarMenu {...sidebarmenuProps} /> */}
       {/* <button id='openbtn' className="openbtn" onClick={openNav}>☰</button> */}
-
+  
       <div id="left" className="sidebar flex-center left collapsed">
           <div className="sidebar-content rounded-rect flex-center">
             <Stack spacing={2} direction="column" >
-              <BaseMaps mapstyle={mapstyle} setMapstyle={setMapstyle} setRefreshRequired={setRefreshRequired} />
-              <LayersTOC />              
+              <LayersTOC />
+              {/* <BaseMaps /> */}
             </Stack>
-            <div className="sidebar-toggle left" onClick={() => { toggleSidebar('left'); }}>
+            <div className="sidebar-toggle left" onClick={() => { toggleSidebar('left', ""); }}>
               {toggleSymbol}
             </div>
             {/* <div className="sidebar-search-toggle" onClick={() => { toggleSidebar('left', "search"); }}>
@@ -1741,22 +1061,16 @@ return useMemo(() => {
             </div> */}
           </div>
       </div>
-
-
+  
+  
      {/* <InfoBar {...info}/> */}
-      <FloodControl 
-      simulatingFlood={simulatingFlood} 
-      setSimulatingFlood={setSimulatingFlood} 
-      floodHeight={floodHeight}  
-      setFloodHeight={setFloodHeight} />
-
-      <div id='calculation-box' className="calculation-box">
+      <div id='calculation-box' className="calculation-box">   
             <Stack direction={"column"} sx={{ p:1, m:1}} className="calculated-area" >
-              <div id="calculated-area" />
+              <div id="calculated-area" />              
             </Stack>
-
+        
       </div>
-
+  
       {/* <div id='titleblock'><TitleBlock /></div> */}
       <div className='button-group-right'>
         {/* <Button onClick={() => setCompareMode(b => !b)}   color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button> */}
@@ -1767,13 +1081,13 @@ return useMemo(() => {
           </fieldset>
           <div id="feature-listing" className="listing" />
         </div>
-        {/* <Button id="adjuststartbutton" color="info" variant="contained" onClick={() => setAdjustingStart(o => !o)}  size="small">ปศ</Button>       */}
-        <Button id="comparebutton" component={Link} to="/comparemap" color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>              
-        </div>
-
+        <Button id="comparebutton" component={Link} to="/comparemap" color="info" variant="contained"  size="small">โหมดเปรียบเทียบ</Button>
+      </div>
+  
+      
     </React.Fragment>
   )
-}, [simulatingFlood, toggleSymbol])
+}, [toggleSymbol])
 
 }
 
@@ -1791,7 +1105,6 @@ export function getUniqueFeatures(features, comparatorProperty) {
     const uniqueFeatures = [];
     for (const feature of features) {
       const id = feature.properties[comparatorProperty];
-      
       if (!uniqueIds.has(id)) {
         uniqueIds.add(id);
         uniqueFeatures.push(feature);
